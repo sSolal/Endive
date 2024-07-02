@@ -20,7 +20,13 @@ Endive Core and Endive Gui are distributed under the [MIT License](https://choos
 Pull requests are welcome. For major changes, please open an issue first  
 to discuss what you would like to change.
 
-Before commiting anything, please format your code using
+Before commiting anything, please check that your code passes all the tests (and update tests in case of new functionnalities) using
+
+```
+dune runtest
+```
+
+and format your code using
 
 ```
 dune fmt

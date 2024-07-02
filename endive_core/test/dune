@@ -1,0 +1,6 @@
+(library
+ (name test_endive_core)
+ (libraries endive_core)
+ (preprocess
+  (pps ppx_inline_test ppx_assert))
+ (inline_tests))
