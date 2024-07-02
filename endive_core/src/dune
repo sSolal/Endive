@@ -1,0 +1,5 @@
+(include_subdirs unqualified)
+
+(library
+ (name endive_core)
+ (public_name endive_core))

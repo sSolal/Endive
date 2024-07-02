@@ -1,0 +1,23 @@
+(lang dune 3.16)
+
+(name endive_gui)
+
+(generate_opam_files true)
+
+(source
+ (github sSolal/Endive))
+
+(authors "Solal Stern")
+
+(maintainers "Solal Stern")
+
+(license MIT)
+
+(documentation https://url/to/documentation)
+
+(package
+ (name endive_gui)
+ (synopsis "A familiar interface for Endive")
+ (description "A familiar interface not unlike that of Coq, Isabel or Lean to harvest the power of Endive.")
+ (depends ocaml dune endive_core))
+

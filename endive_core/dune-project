@@ -1,0 +1,23 @@
+(lang dune 3.16)
+
+(name endive_core)
+
+(generate_opam_files true)
+
+(source
+ (github sSolal/Endive))
+
+(authors "Solal Stern")
+
+(maintainers "Solal Stern")
+
+(license MIT)
+
+(documentation https://url/to/documentation)
+
+(package
+ (name endive_core)
+ (synopsis "A rewriting based proof assistant for mathematics and computer science")
+ (description "Endive is (yet another) proof assistant claiming to revolutionnize the field. Unlike those based on the Curry-Howard isomorphism or homotopy type theory, Endive utilizes a rewriting theory. The main goal of this approach is to have the inner workings of the engine as clear and tangible as possible, even to non specialists.")
+ (depends ocaml dune))
+

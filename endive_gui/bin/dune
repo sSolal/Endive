@@ -1,0 +1,4 @@
+(executable
+ (public_name endive_gui)
+ (name main)
+ (libraries endive_gui endive_core))
