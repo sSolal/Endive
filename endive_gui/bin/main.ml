@@ -1,5 +1,5 @@
 open Endive_core
 
 let _ =
-  Core.check ();
+  Engine.check ();
   print_endline "Hello, World !"
