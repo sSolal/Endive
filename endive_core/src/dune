@@ -1,5 +1,9 @@
 (include_subdirs unqualified)
 
+(documentation
+ (package endive_core)
+ (mld_files index))
+
 (library
  (name endive_core)
  (public_name endive_core))

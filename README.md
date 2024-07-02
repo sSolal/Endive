@@ -11,6 +11,27 @@ The Core is a library implementing all the proof and terms editing, checking and
 
 The Gui is composed of a parser and graphical interface, not unlike existing proof assistants', to enable the actual use of Endive
 
+## Usage
+
+You can build everything and run the gui with the following commands
+
+```
+dune build
+dune exec endive_gui
+```
+
+You can run the test suite by typing
+
+```
+dune test
+```
+
+You can build the documentation (built in \`\_build/default/\_doc\`) typing
+
+```
+dune build @doc
+```
+
 ## License
 
 Endive Core and Endive Gui are distributed under the [MIT License](https://choosealicense.com/licenses/mit)

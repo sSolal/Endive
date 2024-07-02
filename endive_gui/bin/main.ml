@@ -1,3 +1,5 @@
+open Endive_core
+
 let _ =
-  Endive_core.check ();
+  Core.check ();
   print_endline "Hello, World !"
