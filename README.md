@@ -19,3 +19,9 @@ Endive Core and Endive Gui are distributed under the [MIT License](https://choos
 
 Pull requests are welcome. For major changes, please open an issue first  
 to discuss what you would like to change.
+
+Before commiting anything, please format your code using
+
+```
+dune fmt
+```
