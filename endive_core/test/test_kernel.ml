@@ -1,20 +1,26 @@
+open Scripts
 open Endive_core.Objects
 open Endive_core.Kernel
 
-let obj1 = H ("1", "a")
-let obj2 = T ("2", "f", [ T ("3", "x", []); T ("4", "y", []) ])
-let obj3 = T ("1", "f", [ H ("2", "a"); T ("3", "y", []) ])
-let obj4 = T ("1", "f", [ T ("2", "x", []); H ("3", "b") ])
+let obj1 = h "a"
+let obj2 = t "f" [ a "x"; a "y" ]
+let obj3 = t "f" [ h "a"; a "y" ]
+let obj4 = t "f" [ a "x"; h "b" ]
+let%test "equals1" = equals obj1 (H ("other_id", "a"))
+
+let%test "equals2" =
+  equals obj2
+    (T ("other_id", "f", [ T ("other_id", "x", []); T ("other_id", "y", []) ]))
+
+let equals_assoc_list =
+  List.for_all2 (fun (a, b) (a', b') -> a = a' && equals b b')
+
 let%test "unify1" = unify obj1 obj2 = [ ("a", obj2) ]
 
 let%test "unify2" =
-  unify obj3 obj4 = [ ("b", T ("3", "y", [])); ("a", T ("2", "x", [])) ]
+  equals_assoc_list (unify obj3 obj4) [ ("b", a "y"); ("a", a "x") ]
 
 let%test "apply_map1" =
-  apply_map [ ("b", obj2) ] obj4
-  = T
-      ( "1",
-        "f",
-        [
-          T ("2", "x", []); T ("2", "f", [ T ("3", "x", []); T ("4", "y", []) ]);
-        ] )
+  equals
+    (apply_map [ ("b", obj2) ] obj4)
+    (t "f" [ a "x"; t "f" [ a "x"; a "y" ] ])
