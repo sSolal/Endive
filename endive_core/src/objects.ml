@@ -11,6 +11,7 @@ let rec get_holes = function
   | R (_, _, pattern, result) -> get_holes pattern @ get_holes result
   | C (_, obj, rule) -> get_holes obj @ get_holes rule
 
+(** Compare two objects while discarding differences of ids *)
 let rec equals a b =
   match (a, b) with
   | H (_, name), H (_, name') -> name = name'
@@ -19,3 +20,15 @@ let rec equals a b =
   | R (_, v, l, r), R (_, v', l', r') -> v = v' && equals l l' && equals r r'
   | C (_, l, r), C (_, l', r') -> equals l l' && equals r r'
   | _ -> false
+
+(** Annotate holes to avoid collision with holes from another object. *)
+let alpha_convert model obj =
+  let hole_names = get_holes model in
+  let rec aux = function
+    | H (id, name) as h ->
+        if List.mem name hole_names then aux (H (id, name ^ "'")) else h
+    | T (id, f, children) -> T (id, f, List.map aux children)
+    | R (id, v, l, r) -> R (id, v, aux l, aux r)
+    | C (id, l, r) -> C (id, aux l, aux r)
+  in
+  aux obj

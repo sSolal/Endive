@@ -6,6 +6,13 @@ let obj1 = h "a"
 let obj2 = t "f" [ a "x"; a "y" ]
 let obj3 = t "f" [ h "a"; a "y" ]
 let obj4 = t "f" [ a "x"; h "b" ]
+let rule1 = r "->" (h "a") (t "g" [ a "x"; h "a" ])
+
+let def_add =
+  r "="
+    (t "plus" [ h "a"; t "s" [ h "b" ] ])
+    (t "plus" [ t "s" [ h "a" ]; h "b" ])
+
 let%test "equals1" = equals obj1 (H ("other_id", "a"))
 
 let%test "equals2" =
@@ -24,3 +31,12 @@ let%test "apply_map1" =
   equals
     (apply_map [ ("b", obj2) ] obj4)
     (t "f" [ a "x"; t "f" [ a "x"; a "y" ] ])
+
+let%test "compose1" = equals (compose obj2 rule1) (t "g" [ a "x"; obj2 ])
+let%test "compose2" = equals (compose obj3 rule1) (t "g" [ a "x"; obj3 ])
+
+let%test "compose_add" =
+  equals (compose def_add def_add)
+    (r "="
+       (t "plus" [ h "a"; t "s" [ t "s" [ h "b'" ] ] ])
+       (t "plus" [ t "s" [ t "s" [ h "a" ] ]; h "b'" ]))

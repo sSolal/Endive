@@ -7,9 +7,8 @@ let rec apply_map map = function
   | H (_id, name) as h -> (
       match List.assoc_opt name map with Some obj -> obj | None -> h)
   | T (id, f, children) -> T (id, f, List.map (apply_map map) children)
-  | R (id, v, pattern, result) ->
-      R (id, v, apply_map map pattern, apply_map map result)
-  | C (id, obj, rule) -> C (id, apply_map map obj, apply_map map rule)
+  | R (id, v, l, r) -> R (id, v, apply_map map l, apply_map map r)
+  | C (id, l, r) -> C (id, apply_map map l, apply_map map r)
 
 (** Applies a unification algorithm to two patterns. On success, returns a substitution map (association list) with a term for every hole.*)
 let unify a b =
@@ -18,16 +17,16 @@ let unify a b =
     | [] -> map
     | (a, b) :: remaining -> (
         match (a, b) with
-        | t, t' when t = t' -> aux map remaining
-        | H (_, name), t when not (List.mem name (get_holes t)) ->
-            let new_sub = (name, t) in
+        | o, o' when o = o' -> aux map remaining
+        | H (_, name), o when not (List.mem name (get_holes o)) ->
+            let new_sub = (name, o) in
             aux (new_sub :: map)
               (List.map
                  (fun (x, y) ->
                    ((apply_map [ new_sub ]) x, (apply_map [ new_sub ]) y))
                  remaining)
-        | t, H (_, name) when not (List.mem name (get_holes t)) ->
-            let new_sub = (name, t) in
+        | o, H (_, name) when not (List.mem name (get_holes o)) ->
+            let new_sub = (name, o) in
             aux (new_sub :: map)
               (List.map
                  (fun (x, y) ->
@@ -45,3 +44,30 @@ let unify a b =
         )
   in
   aux [] [ (a, b) ]
+
+(** Compute the reduction of composing two terms when it is not ambiguous *)
+let compose left right =
+  match left with
+  | R (_, v, ll, lr) -> (
+      (*If the first is a rewrite*)
+      match alpha_convert left right with
+      (*Avoid collision between left and right objects holes' names*)
+      | R (id, v', rl, rr) when v = v' ->
+          let map = unify lr rl in
+          R (id, v, apply_map map ll, apply_map map rr)
+      | R _ ->
+          failwith
+            ("Ambiguous composition of " ^ Display.display left ^ " and "
+           ^ Display.display right)
+      | o ->
+          let map = unify lr o in
+          apply_map map ll)
+  | o -> (
+      match alpha_convert o right with
+      | R (_, _, rl, rr) ->
+          let map = unify o rl in
+          apply_map map rr
+      | _ ->
+          failwith
+            ("Can not reduce non-rewrites " ^ Display.display left ^ " and "
+           ^ Display.display right))
