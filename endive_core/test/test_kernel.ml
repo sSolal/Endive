@@ -7,6 +7,7 @@ let obj2 = t "f" [ a "x"; a "y" ]
 let obj3 = t "f" [ h "a"; a "y" ]
 let obj4 = t "f" [ a "x"; h "b" ]
 let rule1 = r "->" (h "a") (t "g" [ a "x"; h "a" ])
+let add1 = t "plus" [ a "zero"; t "s" [ t "s" [ a "zero" ] ] ]
 
 let def_add =
   r "="
@@ -40,3 +41,8 @@ let%test "compose_add" =
     (r "="
        (t "plus" [ h "a"; t "s" [ t "s" [ h "b'" ] ] ])
        (t "plus" [ t "s" [ t "s" [ h "a" ] ]; h "b'" ]))
+
+let%test "reduce_add" =
+  equals
+    (reduce (c add1 (c def_add def_add)))
+    (t "plus" [ t "s" [ t "s" [ a "zero" ] ]; a "zero" ])

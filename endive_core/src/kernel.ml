@@ -71,3 +71,13 @@ let compose left right =
           failwith
             ("Can not reduce non-rewrites " ^ Display.display left ^ " and "
            ^ Display.display right))
+
+(** Reduce an expression as much as possible *)
+let rec reduce = function
+  | C (id, left, right) -> (
+      let l = reduce left and r = reduce right in
+      try compose l r with _ -> C (id, l, r)
+      (*reduce whenever it is possible*))
+  | R (id, t, left, right) -> R (id, t, reduce left, reduce right)
+  | T (id, t, children) -> T (id, t, List.map reduce children)
+  | h -> h
