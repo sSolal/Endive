@@ -5,6 +5,7 @@ type obj =
   | R of string * string * obj * obj (*Rewrite*)
   | C of string * obj * obj (*Composition*)
 
+(** Get the list of holes in an object *)
 let rec get_holes = function
   | H (_, name) -> [ name ]
   | T (_, _, children) -> List.concat (List.map get_holes children)

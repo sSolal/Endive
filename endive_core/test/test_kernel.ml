@@ -8,6 +8,8 @@ let obj3 = t "f" [ h "a"; a "y" ]
 let obj4 = t "f" [ a "x"; h "b" ]
 let rule1 = r "->" (h "a") (t "g" [ a "x"; h "a" ])
 let add1 = t "plus" [ a "zero"; t "s" [ t "s" [ a "zero" ] ] ]
+let succ = r "->" (h "a") (t "s" [ h "a" ])
+let theory = [ ("≤", [ succ ]) ]
 
 let def_add =
   r "="
@@ -46,3 +48,9 @@ let%test "reduce_add" =
   equals
     (reduce (c add1 (c def_add def_add)))
     (t "plus" [ t "s" [ t "s" [ a "zero" ] ]; a "zero" ])
+
+let%test "check1" =
+  Option.is_some (check theory "≤" (r "≤" (a "0") (t "s" [ t "s" [ a "0" ] ])))
+
+let%test "check2" =
+  Option.is_none (check theory "≤" (r "≤" (a "0") (c (c (a "0") succ) succ)))
