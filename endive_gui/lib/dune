@@ -1,2 +1,4 @@
 (library
- (name endive_gui))
+ (name endive_gui)
+ (public_name endive_gui)
+ (libraries lablgtk3))

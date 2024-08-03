@@ -1,4 +1,8 @@
 (executable
  (public_name endive_gui)
  (name main)
- (libraries endive_gui endive_core))
+ (libraries endive_gui endive_core lablgtk3))
+
+(documentation
+ (package endive_gui)
+ (mld_files index))

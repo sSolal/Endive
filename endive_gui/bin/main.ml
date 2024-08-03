@@ -1,5 +1,6 @@
-open Endive_core
+open! Endive_core
+open Endive_gui
 
-let _ =
-  Engine.check ();
-  print_endline "Hello, World !"
+(* Library widely inspired, often bluntly copied from https://github.com/garrigue/lablgtk/blob/lablgtk3/examples *)
+
+let _ = App.run ()
