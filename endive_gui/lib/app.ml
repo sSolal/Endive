@@ -15,10 +15,11 @@ let run () =
   add_editor_menu window editor menubar;
 
   let results = GPack.hbox ~packing:vbox#add () in
-  let _label = GMisc.label ~text:"..."
-    ~packing:results#pack () in
+  let label = GMisc.label ~text:"..." ~packing:results#pack () in
 
-  
+  ignore
+    (editor#text#buffer#connect#after#insert_text ~callback:(fun _ s ->
+         if s = "." then label#set_text ("Reading\n" ^ editor#get_text) else ()));
 
   window#set_default_size ~width:640 ~height:480;
   window#show ();

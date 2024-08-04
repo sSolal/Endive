@@ -7,6 +7,7 @@ class editor ?packing ?show () =
     val text = GText.view ?packing ?show ()
     val mutable filename = None
     method text = text
+    method get_text = text#buffer#get_text ()
 
     method load_file name =
       try
@@ -76,11 +77,4 @@ let add_editor_menu window editor menubar =
   ignore
     (factory#add_check_item "Word wrap" ~active:false ~callback:(fun b ->
          editor#text#set_wrap_mode (if b then `WORD else `NONE)));
-  ignore (window#add_accel_group accel_group);
-  ignore
-    (editor#text#event#connect#button_press ~callback:(fun ev ->
-         let button = GdkEvent.Button.button ev in
-         if button = 3 then (
-           file_menu#popup ~button ~time:(GdkEvent.Button.time ev);
-           true)
-         else false))
+  ignore (window#add_accel_group accel_group)
