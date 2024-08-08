@@ -1,4 +1,9 @@
+(ocamllex lexer)
+
+(menhir
+ (modules parser))
+
 (library
  (name endive_gui)
  (public_name endive_gui)
- (libraries lablgtk3))
+ (libraries endive_core lablgtk3))

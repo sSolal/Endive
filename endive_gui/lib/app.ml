@@ -19,7 +19,7 @@ let run () =
 
   ignore
     (editor#text#buffer#connect#after#insert_text ~callback:(fun _ s ->
-         if s = "." then label#set_text ("Reading\n" ^ editor#get_text) else ()));
+         if s = "." then label#set_text (Reader.read editor#get_text) else ()));
 
   window#set_default_size ~width:640 ~height:480;
   window#show ();

@@ -109,7 +109,8 @@ If it fails, returns the fist non constructible object found *)
 let check theory sys obj =
   let rec aux situation sys = function
     | t when exists_in_sys sys t situation -> None
-    | R (_, sys', left, right) when sys' = sys ->
+    | R (_, sys', left, right) ->
+        (* Previously I put the condition "when sys' = sys", not sure why *)
         aux (update_sys sys' left situation) sys' right
     | C (_, obj, rule) -> both (aux situation sys obj) (aux situation sys rule)
     | t -> Some t
