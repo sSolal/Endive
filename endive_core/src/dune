@@ -6,4 +6,6 @@
 
 (library
  (name endive_core)
- (public_name endive_core))
+ (public_name endive_core)
+ (instrumentation
+  (backend bisect_ppx)))
