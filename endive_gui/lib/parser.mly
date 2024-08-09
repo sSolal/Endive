@@ -13,11 +13,11 @@ let fresh_name () =
 %token <string> RULE
 %token COMP
 
-%start <obj list> main
+%start <(string * obj list) list> main
 %%
 
 main : 
-| obj DOT main { $1 :: $3 }
+| SYM obj_list DOT main { ($1, $2) :: $4 }
 | EOF {[]}
 
 obj:
@@ -25,6 +25,7 @@ obj:
 
 obj_list:
 | obj COMMA obj_list { $1 :: $3 }
+| obj                {[$1]}
 |                    { [] }
 
 comp:

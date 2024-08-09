@@ -13,6 +13,7 @@ let rec check_parsed = function
 let read text =
   try
     let lexbuf = Lexing.from_string text in
-    let parsed = main token lexbuf in
-    check_parsed parsed
+    let lines = main token lexbuf in
+    String.concat "\n"
+      (List.map (fun (command, args) -> Engine.call command args) lines)
   with e -> Printexc.to_string e
