@@ -26,6 +26,13 @@ You can run the test suite by typing
 dune test
 ```
 
+Alternatively, you can check the coverage running
+```
+dune runtest --instrument-with bisect_ppx --force
+bisect-ppx-report html
+```
+And visit the *index.html* in the generated *_coverage* directory.
+
 You can build the documentation (built in \`\_build/default/\_doc\`) typing
 
 ```
