@@ -5,6 +5,23 @@ type obj =
   | R of string * string * obj * obj (*Rewrite*)
   | C of string * obj * obj (*Composition*)
 
+let unpack = function
+  | T (_, n, _) -> n
+  | _ -> failwith "Trying to unpack a non-term object"
+
+(** Get the pattern (left) side of a rule *)
+let get_pattern = function
+  | R (_, _, pattern, _) -> pattern
+  | _ -> failwith "Trying to get the pattern of a non-rule object"
+
+let get_result = function
+  | R (_, _, _, result) -> result
+  | _ -> failwith "Trying to get the result of a non-rule object"
+
+let get_sys = function
+  | R (_, sys, _, _) -> sys
+  | _ -> failwith "Trying to get the system of a non-rule object"
+
 (** Get the list of holes in an object *)
 let rec get_holes = function
   | H (_, name) -> [ name ]

@@ -1,26 +1,28 @@
-open! Base
 open Endive_core.Engine
 open Scripts
+open Endive_core.Objects
 
 let obj1 = h "a"
 let obj2 = a "b"
 
-let%test_unit "check1" =
-  [%test_eq: string] (check (r "=>" obj1 obj1)) "a => a is ok"
+let setup commands =
+  ignore (reset ());
+  List.iter (fun (cmd, args) -> ignore (call cmd args)) commands
 
-let%test_unit "check2" =
-  [%test_eq: string] (check (r "=>" obj1 obj2)) "b is not ok"
+let%test "check1" =
+  (setup [ ("set", [ T ("", "h0", []); r "=>" (h "a") (h "a") ]) ];
+   call "check" [])
+  = "Ok"
 
-let%test_unit "call1" =
-  [%test_eq: string] (call "check" [ r "=>" obj2 obj2 ]) "b => b is ok"
+let%test "check2" =
+  (setup [ ("set", [ T ("", "h0", []); r "=>" (h "a") (h "b") ]) ];
+   call "check" [])
+  = "b is not ok"
 
-let%test_unit "call2" =
-  [%test_eq: string] (call "check" [ r "=>" obj2 obj1 ]) "a is not ok"
+let%test "show1" =
+  (setup [ ("set", [ T ("", "h0", []); c (t "f" [ h "a"; h "b" ]) (h "c") ]) ];
+   call "show" [])
+  = "f(a, b) | c"
 
-let%test_unit "call_nb_args" =
-  [%test_eq: string]
-    (call "check" [ obj1; obj1; obj1 ])
-    "wrong number of arguments"
-
-let%test_unit "call_unknown" =
-  [%test_eq: string] (call "cheese" [ obj1 ]) "unknown command cheese"
+let%test "call_nb_args" = call "set" [] = "Not enough arguments"
+let%test "call_unknown" = call "cheese" [ obj1 ] = "Unknown command cheese"
