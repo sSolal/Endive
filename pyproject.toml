@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "endive"
+version = "0.1.0"
+description = "Endive - A standalone app and library"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = []
+
+[tool.setuptools]
+packages = ["endive", "endive.app", "endive.core", "endive.engine", "endive.engine.helpers", "endive.engine.libraries"]
+package-dir = {"endive" = "src"}

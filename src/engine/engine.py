@@ -1,0 +1,50 @@
+"""
+Proof Assistant (New Pipeline Architecture)
+
+This engine takes a line of text, parses it, processes it through the pipeline, and returns the diagnoses in displayed format
+"""
+
+from .pipeline import Pipeline
+from .helpers import (
+    AliasHelper,
+    GoalHelper
+)
+from .parser import parse_line, ParseError
+import re
+
+
+class Engine:
+    """
+
+    The proof assistant maintains a pipeline of helpers that process directives.
+    Each helper can hook into directives for pre-processing and/or handle them fully.
+
+    The flow is:
+    Directive + Term -> Pipeline (Hooks -> Handler) -> Terms + Diagnoses
+    """
+
+    def __init__(self):
+        self.pipeline = Pipeline()
+
+        # Register helpers in order
+        # Order matters for hooks! They are applied in registration order.
+
+        # 1. Alias helper (should run first to substitute names)
+        self.alias_helper = AliasHelper()
+        self.pipeline.helpers.append(self.alias_helper)
+
+        # Goal helper, should handle most directives
+        self.goal_helper = GoalHelper()
+        self.pipeline.helpers.append(self.goal_helper)
+
+    def process(self, line):
+        """
+        Check a single line of proof using the pipeline.
+        """
+        # Parse the line
+        directive, content = parse_line(line)
+
+        if directive is None:  # Empty line or comment
+            return True, ""
+
+        return self.pipeline.process(directive, content)

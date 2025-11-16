@@ -1,0 +1,5 @@
+Check (A => A) ~ A in context
+
+Check (A => B) => (B => C) => ((A => B) | (B => C)) ~
+
+Reduce (A => B) | (B => C) ~ A => C
