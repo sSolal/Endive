@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Examples of formal proofs in Endive - Learn through practical use cases.">
+    <title>Examples - Endive</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Endive</a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="tutorial.html">Tutorial</a></li>
+                <li><a href="examples.html">Examples</a></li>
+                <li><a href="reference.html">Reference</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="https://github.com/sSolal/Endive" target="_blank">GitHub</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>Examples</h1>
+        <p class="section-intro">
+            Learn Endive through practical examples ranging from simple logical proofs to more complex mathematical reasoning.
+        </p>
+
+        <section class="section">
+            <h2>Propositional Logic</h2>
+
+            <h3>Basic Implication Chain</h3>
+            <p>Demonstrating transitive reasoning: if A implies B and B implies C, then A implies C.</p>
+
+            <pre><code>Axiom A
+Axiom h, A => B
+Axiom h2, B => C
+
+Goal C
+Start A
+Use h | h2</code></pre>
+
+            <p>
+                This example shows how composition (<code>|</code>) chains rewriting steps together,
+                mirroring the mathematical notion of transitivity.
+            </p>
+
+            <h3>Hypothetical Syllogism</h3>
+            <p>Proving that implication is transitive as a general rewriting:</p>
+
+            <pre><code>Axiom trans, ([x] => [y]) & ([y] => [z]) => ([x] => [z])
+Axiom ab, A => B
+Axiom bc, B => C
+
+Goal A => C
+Start (A => B) & (B => C)
+Use trans</code></pre>
+
+            <h3>Conjunction Elimination</h3>
+            <p>Extracting components from a conjunction:</p>
+
+            <pre><code>Axiom conj_left, [x] & [y] => [x]
+Axiom conj_right, [x] & [y] => [y]
+Axiom both, A & B
+
+Goal A
+Start (A & B)
+Use conj_left
+
+Goal B
+Start (A & B)
+Use conj_right</code></pre>
+        </section>
+
+        <section class="section">
+            <h2>Arithmetic and Natural Numbers</h2>
+
+            <h3>Successor Properties</h3>
+            <p>Basic facts about the successor function:</p>
+
+            <pre><code>Axiom zero_not_succ, ~(zero = S([n]))
+Axiom succ_injective, S([n]) = S([m]) => [n] = [m]
+
+# Proving 1 ≠ 0
+Axiom one_def, 1 = S(zero)
+
+Goal ~(1 = zero)
+Start (1 = zero)
+Use one_def
+# Now we have S(zero) = zero, which contradicts zero_not_succ</code></pre>
+
+            <h3>Addition Properties</h3>
+            <p>Defining and reasoning about addition:</p>
+
+            <pre><code># Define addition recursively
+Axiom plus_zero, plus([n], zero) = [n]
+Axiom plus_succ, plus([n], S([m])) = S(plus([n], [m]))
+
+# Prove 2 + 1 = 3
+Define TWO := S(S(zero))
+Define THREE := S(S(S(zero)))
+
+Goal plus(TWO, S(zero)) = THREE
+Reduce plus(TWO, S(zero))</code></pre>
+
+            <h3>Commutativity of Addition</h3>
+            <p>A more complex property requiring helper lemmas:</p>
+
+            <pre><code># Helper: n + 0 = n (already have plus_zero)
+# Helper: n + S(m) = S(n + m) (already have plus_succ)
+# Need: S(n) + m = S(n + m)
+
+Axiom succ_plus, plus(S([n]), [m]) = S(plus([n], [m]))
+
+# Now we can state commutativity as an axiom or prove it inductively
+Axiom plus_comm, plus([n], [m]) = plus([m], [n])
+
+Goal plus(2, 3) = plus(3, 2)
+Start plus(2, 3)
+Use plus_comm</code></pre>
+        </section>
+
+        <section class="section">
+            <h2>Equality and Equivalence</h2>
+
+            <h3>Reflexivity, Symmetry, Transitivity</h3>
+            <p>The fundamental properties of equality:</p>
+
+            <pre><code># Equality axioms
+Axiom refl, [x] = [x]
+Axiom sym, [x] = [y] => [y] = [x]
+Axiom trans, ([x] = [y]) & ([y] = [z]) => ([x] = [z])
+
+# Example: proving 3 = 3
+Goal 3 = 3
+Start 3
+Use refl
+
+# Example: if 2 = x and x = 5, then 2 = 5
+Axiom h1, 2 = x
+Axiom h2, x = 5
+
+Goal 2 = 5
+Start (2 = x) & (x = 5)
+Use trans</code></pre>
+
+            <h3>Substitution Property</h3>
+            <p>If two things are equal, they can be substituted in any context:</p>
+
+            <pre><code>Axiom subst, ([x] = [y]) => (f([x]) = f([y]))
+
+Axiom eq, a = b
+
+Goal f(a) = f(b)
+Start (a = b)
+Use subst</code></pre>
+        </section>
+
+        <section class="section">
+            <h2>Order Relations</h2>
+
+            <h3>Less Than or Equal</h3>
+            <p>Working with inequality:</p>
+
+            <pre><code>Axiom le_refl, [n] <= [n]
+Axiom le_trans, ([x] <= [y]) & ([y] <= [z]) => ([x] <= [z])
+Axiom le_succ, [n] <= S([n])
+
+# Proving 2 <= 4
+Axiom h1, 2 <= 3
+Axiom h2, 3 <= 4
+
+Goal 2 <= 4
+Start (2 <= 3) & (3 <= 4)
+Use le_trans</code></pre>
+
+            <h3>Functoriality with Arithmetic</h3>
+            <p>Preserving order under operations:</p>
+
+            <pre><code>Axiom add_preserves_le, [x] <= [y] => plus([x], [z]) <= plus([y], [z])
+Axiom mult_preserves_le, [x] <= [y] => mult([x], [z]) <= mult([y], [z])
+
+Axiom three_le_four, 3 <= 4
+
+Goal mult(3, 2) <= mult(4, 2)
+Start (3 <= 4)
+Use mult_preserves_le</code></pre>
+
+            <p>
+                This demonstrates <strong>functoriality</strong>: we can lift a proof about simpler objects
+                (3 ≤ 4) into a more complex context (3×2 ≤ 4×2) using a functorial rewriting.
+            </p>
+        </section>
+
+        <section class="section">
+            <h2>Pattern Matching Examples</h2>
+
+            <h3>Complex Patterns</h3>
+            <p>Matching nested structures:</p>
+
+            <pre><code>Axiom distribute, mult([x], plus([y], [z])) = plus(mult([x], [y]), mult([x], [z]))
+
+Goal mult(2, plus(3, 4)) = plus(mult(2, 3), mult(2, 4))
+Start mult(2, plus(3, 4))
+Use distribute</code></pre>
+
+            <h3>Multiple Holes</h3>
+            <p>Rules with several variables:</p>
+
+            <pre><code>Axiom assoc_plus, plus([x], plus([y], [z])) = plus(plus([x], [y]), [z])
+
+Goal plus(1, plus(2, 3)) = plus(plus(1, 2), 3)
+Start plus(1, plus(2, 3))
+Use assoc_plus</code></pre>
+        </section>
+
+        <section class="section">
+            <h2>Reduction Examples</h2>
+
+            <h3>Evaluating Expressions</h3>
+            <p>Using reduction to compute values:</p>
+
+            <pre><code># Define multiplication
+Axiom mult_zero, mult([n], zero) = zero
+Axiom mult_succ, mult([n], S([m])) = plus([n], mult([n], [m]))
+
+# Define addition (as before)
+Axiom plus_zero, plus([n], zero) = [n]
+Axiom plus_succ, plus([n], S([m])) = S(plus([n], [m]))
+
+# Compute 2 * 3
+Reduce mult(S(S(zero)), S(S(S(zero))))</code></pre>
+
+            <p>Endive will apply the rewritings repeatedly until reaching a normal form.</p>
+
+            <h3>Simplifying Logical Expressions</h3>
+            <pre><code>Axiom double_neg, ~~[x] => [x]
+Axiom demorgan, ~([x] & [y]) => (~[x] | ~[y])
+
+Reduce ~(~(A | B))</code></pre>
+        </section>
+
+        <section class="section">
+            <h2>Use Cases</h2>
+
+            <h3>Educational Purposes</h3>
+            <p>
+                Endive is well-suited for teaching formal logic and proof techniques.
+                Students can experiment with proof construction in a clear, executable format.
+            </p>
+
+            <h3>Formalizing Mathematical Definitions</h3>
+            <p>
+                Mathematicians can use Endive to formally define structures and verify properties.
+                The rewriting approach makes it easy to encode recursive definitions and inductive reasoning.
+            </p>
+
+            <h3>Exploring Rewriting Systems</h3>
+            <p>
+                Researchers studying term rewriting can use Endive as a platform for experimenting
+                with different rewriting strategies, confluence properties, and termination analysis.
+            </p>
+
+            <h3>Prototyping Type Systems</h3>
+            <p>
+                The pattern matching and reduction features make Endive useful for prototyping
+                type systems and exploring the computational interpretation of logical rewritings.
+            </p>
+
+            <h3>Formal Verification</h3>
+            <p>
+                While Endive is in early development, its foundations support formal verification tasks
+                where properties must be proven correct through mechanical checking.
+            </p>
+        </section>
+
+        <section class="section">
+            <h2>Next Steps</h2>
+
+            <p>
+                These examples demonstrate Endive's core capabilities. For complete syntax and all available features,
+                consult the reference documentation.
+            </p>
+
+            <div class="hero-buttons">
+                <a href="reference.html" class="btn btn-primary">View Reference</a>
+                <a href="tutorial.html" class="btn btn-secondary">Back to Tutorial</a>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Endive Contributors | Licensed under the <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache 2.0 License</a></p>
+        <p><a href="https://github.com/sSolal/Endive" target="_blank">GitHub Repository</a> | <a href="about.html">About &amp; Contributing</a></p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <script src="js/nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="About Endive - An open source proof assistant. Learn about the project, license, and how to contribute.">
+    <title>About - Endive</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Endive</a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="tutorial.html">Tutorial</a></li>
+                <li><a href="examples.html">Examples</a></li>
+                <li><a href="reference.html">Reference</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="https://github.com/sSolal/Endive" target="_blank">GitHub</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>About Endive</h1>
+        <p class="section-intro">
+            Endive is an open source proof assistant that explores formal verification through the lens of term rewriting.
+        </p>
+
+        <section class="section">
+            <h2>Project Status</h2>
+            <p>
+                Endive is currently in <strong>early development</strong> (version 0.1.0).
+                The project has a solid foundation with:
+            </p>
+            <ul>
+                <li>Core rewriting engine</li>
+                <li>Pattern matching and reduction</li>
+                <li>Buildability checking</li>
+                <li>Interactive command-line interface</li>
+                <li>Modular helper system for extensibility</li>
+            </ul>
+
+            <p>
+                While functional, Endive is actively evolving. We welcome feedback, bug reports, and contributions
+                as we continue to develop and refine the system.
+            </p>
+        </section>
+
+        <section class="section">
+            <h2>Open Source</h2>
+
+            <h3>License</h3>
+            <p>
+                Endive is licensed under the <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache 2.0 License</a>,
+                a permissive open source license with explicit patent grants. This means you are free to:
+            </p>
+            <ul>
+                <li><strong>Use</strong> Endive for any purpose, including commercial applications</li>
+                <li><strong>Modify</strong> the source code to fit your needs</li>
+                <li><strong>Distribute</strong> copies of Endive</li>
+                <li><strong>Patent rights</strong> are explicitly granted by contributors</li>
+            </ul>
+
+            <p>
+                The license requires you to include the original copyright notice, license text,
+                and a notice of any modifications you make. It also includes explicit patent grants
+                and trademark provisions.
+            </p>
+
+            <h3>Copyright</h3>
+            <blockquote>
+                Copyright (c) 2025 Endive Contributors
+            </blockquote>
+
+            <p>
+                By contributing to Endive, you agree that your contributions will be licensed under the same Apache 2.0 License.
+            </p>
+        </section>
+
+        <section class="section">
+            <h2>Contributing</h2>
+
+            <p>
+                We welcome contributions from the community! Whether you're fixing bugs, adding features,
+                improving documentation, or sharing ideas, your input helps make Endive better.
+            </p>
+
+            <h3>Ways to Contribute</h3>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>Code Contributions</h3>
+                    <p>Fix bugs, implement new features, or improve the core engine. Submit pull requests on GitHub.</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>Documentation</h3>
+                    <p>Help us improve documentation, write tutorials, or create examples for others to learn from.</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>Bug Reports</h3>
+                    <p>Found a bug? Report it on GitHub Issues with clear reproduction steps.</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>Feature Requests</h3>
+                    <p>Share your ideas for new features or improvements to existing functionality.</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>Testing</h3>
+                    <p>Test Endive with different use cases, write test cases, or help ensure quality.</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>Community Support</h3>
+                    <p>Help others learn Endive by answering questions or sharing your expertise.</p>
+                </div>
+            </div>
+
+            <h3>Getting Started as a Contributor</h3>
+            <ol>
+                <li><strong>Fork the repository</strong> on GitHub</li>
+                <li><strong>Clone your fork</strong> to your local machine:
+                    <pre><code>git clone https://github.com/your-username/Endive.git
+cd Endive</code></pre>
+                </li>
+                <li><strong>Create a branch</strong> for your changes:
+                    <pre><code>git checkout -b feature/your-feature-name</code></pre>
+                </li>
+                <li><strong>Make your changes</strong> and test them thoroughly</li>
+                <li><strong>Run tests</strong> to ensure nothing breaks:
+                    <pre><code>python main.py --test</code></pre>
+                </li>
+                <li><strong>Commit your changes</strong> with clear, descriptive messages:
+                    <pre><code>git commit -m "Add feature: brief description"</code></pre>
+                </li>
+                <li><strong>Push to your fork</strong>:
+                    <pre><code>git push origin feature/your-feature-name</code></pre>
+                </li>
+                <li><strong>Submit a pull request</strong> on GitHub with a description of your changes</li>
+            </ol>
+
+            <h3>Code Guidelines</h3>
+            <ul>
+                <li>Follow the existing code style and structure</li>
+                <li>Write clear, self-documenting code with appropriate comments</li>
+                <li>Add tests for new features or bug fixes</li>
+                <li>Update documentation to reflect your changes</li>
+                <li>Keep commits focused and atomic</li>
+            </ul>
+
+            <h3>Helper System Extensions</h3>
+            <p>
+                Endive's modular helper system makes it easy to add new capabilities.
+                See <code>src/engine/helpers/README.md</code> for detailed guidance on creating new helpers.
+            </p>
+        </section>
+
+        <section class="section">
+            <h2>Architecture</h2>
+
+            <p>
+                Endive is built with a clean, modular architecture that separates concerns:
+            </p>
+
+            <h3>Core Layer</h3>
+            <p>
+                The <code>src/core/</code> directory contains the fundamental data structures and operations:
+            </p>
+            <ul>
+                <li><strong>objects.py:</strong> Term, Rewriting Rule, Composition, and Hole classes</li>
+                <li><strong>operations.py:</strong> Pattern matching, rewriting application, composition, and reduction</li>
+                <li><strong>buildability.py:</strong> Buildability checking logic</li>
+            </ul>
+
+            <h3>Engine Layer</h3>
+            <p>
+                The <code>src/engine/</code> directory implements the parsing and execution pipeline:
+            </p>
+            <ul>
+                <li><strong>parser.py:</strong> Tokenization and parsing of Endive syntax</li>
+                <li><strong>pipeline.py:</strong> Helper orchestration and hook management</li>
+                <li><strong>engine.py:</strong> Main execution engine</li>
+                <li><strong>display.py:</strong> Output formatting and visualization</li>
+                <li><strong>helpers/:</strong> Modular helper system for extensions</li>
+            </ul>
+
+            <h3>Application Layer</h3>
+            <p>
+                The <code>src/app/</code> directory provides user interfaces:
+            </p>
+            <ul>
+                <li><strong>cli.py:</strong> Interactive command-line interface with REPL</li>
+            </ul>
+
+            <p>
+                This layered architecture ensures that the core rewriting logic remains simple and correct,
+                while extensibility is achieved through the helper system.
+            </p>
+        </section>
+
+        <section class="section">
+            <h2>Philosophy</h2>
+
+            <p>
+                Endive is guided by several key principles:
+            </p>
+
+            <h3>Simplicity</h3>
+            <p>
+                The core of Endive is intentionally minimal. Complex features are built on top of simple primitives
+                through the helper system, keeping the foundational logic clean and verifiable.
+            </p>
+
+            <h3>Rewriting First</h3>
+            <p>
+                Rather than building on type theory or set theory, Endive embraces term rewriting as the primary
+                mechanism for both computation and proof. This provides a unique perspective on formal verification.
+            </p>
+
+            <h3>Extensibility</h3>
+            <p>
+                The modular helper system allows users to extend Endive without modifying core code.
+                This enables experimentation with different proof strategies and features.
+            </p>
+
+            <h3>Accessibility</h3>
+            <p>
+                Endive aims to be approachable for newcomers to formal verification while remaining powerful
+                enough for serious mathematical work. Clear documentation and simple syntax support this goal.
+            </p>
+        </section>
+
+        <section class="section">
+            <h2>Community</h2>
+
+            <p>
+                Join the Endive community on GitHub to discuss ideas, ask questions, and collaborate:
+            </p>
+
+            <ul>
+                <li><strong>GitHub Repository:</strong> <a href="https://github.com/sSolal/Endive" target="_blank">github.com/sSolal/Endive</a></li>
+                <li><strong>Issues:</strong> Report bugs and request features</li>
+                <li><strong>Pull Requests:</strong> Contribute code and documentation</li>
+                <li><strong>Discussions:</strong> Ask questions and share ideas</li>
+            </ul>
+
+            <p>
+                Whether you're a formal verification expert, a curious student, or somewhere in between,
+                we'd love to hear from you!
+            </p>
+        </section>
+
+        <section class="section">
+            <h2>Acknowledgments</h2>
+
+            <p>
+                Endive builds on decades of research in term rewriting systems, proof assistants, and formal verification.
+                We're grateful to the broader formal methods community for their foundational work and ongoing contributions
+                to the field.
+            </p>
+        </section>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Endive Contributors | Licensed under the <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache 2.0 License</a></p>
+        <p><a href="https://github.com/sSolal/Endive" target="_blank">GitHub Repository</a> | <a href="about.html">About &amp; Contributing</a></p>
+    </footer>
+
+    <script src="js/nav.js"></script>
+</body>
+</html>
