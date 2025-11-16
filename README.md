@@ -6,7 +6,7 @@ Endive is a proof assistant based on rewriting.
 
 ```
 directive ::= directive_symbol term (, term)*
-term ::= symbol, symbol(term, term...), [hole], term | term, term rule_symbol term, (term)
+object ::= symbol, symbol(object, object...), [hole], object | object, object rule_symbol object, (object)
 rule_symbol ::= =, =>, <=>, ->...
 directive_symbol ::= Axiom, Axiom, Goal, Start, Use...
 ```
@@ -26,23 +26,23 @@ Use h | h2
 
 ## Buildability
 
-The core function of Endive is to help you build terms, and check that terms are indeed buildable.
+The core function of Endive is to help you build objects, and check that objects are indeed buildable.
 
-A term is said to be _buildable_ in a specific _context_, for a given _rule_, if :
+An object is said to be _buildable_ in a specific _context_, for a given _rule_, if :
 
 1.  It's already in the context (axiom)
-2.  It's an application where both parts are buildable
-3.  It's a rule where the output is buildable for the rule with input added to context
+2.  It's a composition of two buildable objects
+3.  It's a rewrite where the output is buildable for the rule with input added to context
 
 ## Reduction
 
 ### Pattern Matching
 
-Pattern matching is the process of finding an assignment of holes in a term that makes it equal to another term. In Endive, holes are represented as `[name]` and act as placeholders for variables.
+Pattern matching is the process of finding an assignment of holes in an object that makes it equal to another object. In Endive, holes are represented as `[name]` and act as placeholders for variables.
 
 **Example:**
 
-*   Term: `f(x, g(y))`
+*   Object: `f(x, g(y))`
 *   Pattern: `f([a], g([b]))`
 *   Match: `[a] = x` and `[b] = y`
 
@@ -57,7 +57,7 @@ The pattern matching algorithm recursively traverses both the pattern and the co
 A term of the form `rule | rule` is called an **application**. Rules have two parts: a **pattern** (input) and a **result** (output).  
 Note that rules and terms are the same "type" in Endive. In what follows, we will only talk about rules, but one can consider that a term is just a rule with the term both as pattern and result.
 
-An application is said to be _reducible_ if it is of the form `A -> B | B' -> C` where `->` represents any rule symbol and `B` and `B'` match.
+A composition is said to be _reducible_ if it is of the form `A -> B | B' -> C` where `->` represents any rule symbol and `B` and `B'` match.
 
 **Rule Application Process:**
 
@@ -68,11 +68,11 @@ An application is said to be _reducible_ if it is of the form `A -> B | B' -> C`
 
 In a nutshell, `A -> B | B' -> D` reduces to `A -> D` if `B` and `B'` match.
 
-Note that patterns of type `A | A' -> B` and `A -> B | B` are also reducible, reading them as `A -> A | A' -> B` and `A -> B | B' -> B` respectively. For legibility, one may however want to sometimes apply a rule to a term (that is not a rule), and obtain a term. See the section on syntactic sugar for logic.
+Note that patterns of type `A | A' -> B` and `A -> B | B` are also reducible, reading them as `A -> A | A' -> B` and `A -> B | B' -> B` respectively. For legibility, one may however want to sometimes apply a rewriting to an object (that is not a rewriting), and obtain an object. See the section on syntactic sugar for logic.
 
 ### Reduction
 
-Reduction is the process of simplifying terms by reducing reducible applications.  
+Reduction is the process of simplifying objects by reducing reducible compositions.  
 Depending on the term, reduction may emulate the behavior of a computation, of a construction, of a dynamical system, or even compute the proven result of a proof.
 
 ## Functoriality
@@ -81,16 +81,16 @@ The expressive power of Endive relies on the concept of functoriality. Functoria
 
 For instance, one having proven that 3 \<= 4 may want to use that to prove that 3 \* 2 \<= 4 \* 2.
 
-To do that, you apply the functorial rule `(a <= b) => (a * c <= b * c)` to the term `3 <= 4`, and you get `3 * 2 <= 4 * 2`.
+To do that, you apply the functorial rewriting `(a <= b) => (a * c <= b * c)` to the object `3 <= 4`, and you get `3 * 2 <= 4 * 2`.
 
-Note that functorial rules in expanded form look ugly, but the information they bear is very compact : "\*" is functorial for "\<=" on its "second" argument.
+Note that functorial rewritings in expanded form look ugly, but the information they hold is very compact : "\*" is functorial for "\<=" on its "second" argument.
 
 ## Syntactic sugar
 
 Since a lot of proofs will contain numbers, we have parsing level syntactic sugar for numbers, arithmetic operations, etc...
 
 ```
-3 + 4 parses as plus(S(S(S(zero))), S(S(S(S(zero))))
+3 + 4 parses as plus(S(S(S(zero)))), S(S(S(S(zero))))
 0 parses as zero
 ```
 
