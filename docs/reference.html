@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Complete reference documentation for the Endive proof assistant syntax and features.">
+    <title>Reference - Endive</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Endive</a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="tutorial.html">Tutorial</a></li>
+                <li><a href="examples.html">Examples</a></li>
+                <li><a href="reference.html">Reference</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="https://github.com/sSolal/Endive" target="_blank">GitHub</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>Reference Documentation</h1>
+        <p class="section-intro">
+            Complete syntax and feature reference for the Endive proof assistant.
+        </p>
+
+        <section class="section">
+            <h2>Syntax Overview</h2>
+
+            <h3>Objects</h3>
+            <p>Objects are the fundamental building blocks in Endive. The syntax for objects is:</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Syntax</th>
+                        <th>Description</th>
+                        <th>Example</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>symbol</code></td>
+                        <td>A named symbol</td>
+                        <td><code>A</code>, <code>zero</code>, <code>plus</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>symbol(object, ...)</code></td>
+                        <td>Term (a symbol applied to arguments)</td>
+                        <td><code>f(x)</code>, <code>plus(2, 3)</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>[name]</code></td>
+                        <td>A hole (pattern variable)</td>
+                        <td><code>[x]</code>, <code>[n]</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>object | object</code></td>
+                        <td>Composition</td>
+                        <td><code>f | g</code>, <code>h1 | h2</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>object rule_symbol object</code></td>
+                        <td>Rewriting</td>
+                        <td><code>A => B</code>, <code>x = y</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>(object)</code></td>
+                        <td>Grouping</td>
+                        <td><code>(A & B) => C</code></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Rewriting Symbols</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Meaning</th>
+                        <th>Usage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>=></code></td>
+                        <td>Implication (unidirectional rewriting)</td>
+                        <td><code>A => B</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>=</code></td>
+                        <td>Equality (bidirectional rewriting)</td>
+                        <td><code>x = y</code></td>
+                    </tr>
+                    <tr>
+                        <td><code><=></code></td>
+                        <td>Equivalence</td>
+                        <td><code>P <=> Q</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>-></code></td>
+                        <td>Function type / mapping</td>
+                        <td><code>A -> B</code></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="section">
+            <h2>Directives</h2>
+
+            <p>Directives are commands that instruct Endive to perform operations.</p>
+
+            <h3>Axiom</h3>
+            <p>Declare a fact or rewriting as an axiom.</p>
+            <pre><code>Axiom &lt;name&gt;, &lt;object&gt;
+Axiom &lt;object&gt;         # Anonymous axiom</code></pre>
+
+            <p><strong>Examples:</strong></p>
+            <pre><code>Axiom A
+Axiom modus_ponens, ([x] & ([x] => [y])) => [y]
+Axiom plus(2, 3) = 5</code></pre>
+
+            <h3>Goal</h3>
+            <p>Specify an object to prove.</p>
+            <pre><code>Goal &lt;object&gt;</code></pre>
+
+            <p><strong>Example:</strong></p>
+            <pre><code>Goal B
+Goal plus(2, 3) = 5</code></pre>
+
+            <h3>Start</h3>
+            <p>Begin a proof with an initial object.</p>
+            <pre><code>Start &lt;object&gt;</code></pre>
+
+            <p><strong>Example:</strong></p>
+            <pre><code>Start A
+Start (A & (A => B))</code></pre>
+
+            <h3>Use</h3>
+            <p>Apply a rewriting or composition of rewritings.</p>
+            <pre><code>Use &lt;rewriting&gt;
+Use &lt;rewriting1&gt; | &lt;rewriting2&gt; | ...</code></pre>
+
+            <p><strong>Examples:</strong></p>
+            <pre><code>Use h
+Use modus_ponens
+Use h1 | h2 | h3</code></pre>
+
+            <h3>Define</h3>
+            <p>Create an alias for an object.</p>
+            <pre><code>Define &lt;NAME&gt; := &lt;object&gt;</code></pre>
+
+            <p><strong>Examples:</strong></p>
+            <pre><code>Define ZERO := S(S(S(zero)))
+Define NAT := mu([X], unit | ([X] -> [X]))</code></pre>
+
+            <h3>Check</h3>
+            <p>Verify if an object is buildable in the current context.</p>
+            <pre><code>Check &lt;object&gt;</code></pre>
+
+            <p><strong>Example:</strong></p>
+            <pre><code>Axiom A
+Axiom h, A => B
+Check B              # Returns: buildable</code></pre>
+
+            <h3>Reduce</h3>
+            <p>Simplify an object by applying rewritings.</p>
+            <pre><code>Reduce &lt;object&gt;</code></pre>
+
+            <p><strong>Example:</strong></p>
+            <pre><code>Axiom plus_zero, plus([n], zero) = [n]
+Axiom plus_succ, plus([n], S([m])) = S(plus([n], [m]))
+Reduce plus(2, 3)    # Evaluates to S(S(S(S(S(zero)))))</code></pre>
+
+            <h3>Clear</h3>
+            <p>Clear the current context.</p>
+            <pre><code>Clear</code></pre>
+
+            <h3>Show</h3>
+            <p>Display the current context (axioms, definitions, etc.).</p>
+            <pre><code>Show</code></pre>
+        </section>
+
+        <section class="section">
+            <h2>Pattern Matching</h2>
+
+            <p>
+                Holes (written as <code>[name]</code>) in patterns match any object.
+                When a rewriting is applied, holes are instantiated with concrete objects.
+            </p>
+
+            <h3>Simple Patterns</h3>
+            <pre><code>Axiom sym, [x] = [y] => [y] = [x]
+
+# Matches: 2 = 3
+# [x] is instantiated to 2
+# [y] is instantiated to 3
+# Output: 3 = 2</code></pre>
+
+            <h3>Nested Patterns</h3>
+            <pre><code>Axiom distribute, mult([x], plus([y], [z])) = plus(mult([x], [y]), mult([x], [z]))
+
+# Matches: mult(2, plus(3, 4))
+# [x] = 2, [y] = 3, [z] = 4
+# Output: plus(mult(2, 3), mult(2, 4))</code></pre>
+
+            <h3>Pattern Constraints</h3>
+            <ul>
+                <li>Each hole can match any object</li>
+                <li>Multiple occurrences of the same hole must match the same object</li>
+                <li>Patterns are matched structurally (same shape required)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre><code>Axiom idempotent, f([x], [x]) = [x]
+
+# Matches: f(A, A) → A
+# Does NOT match: f(A, B) (different objects for [x])</code></pre>
+        </section>
+
+        <section class="section">
+            <h2>Buildability</h2>
+
+            <p>An object <code>T</code> is <strong>buildable</strong> in context <code>Γ</code> if:</p>
+
+            <ol>
+                <li><strong>Axiom:</strong> <code>T</code> is declared as an axiom in <code>Γ</code></li>
+                <li><strong>Composition:</strong> <code>T</code> is a composition of two buildable objects</li>
+                <li><strong>Rewriting output:</strong> <code>T</code> is a rewriting where the output is buildable with the input added to context</li>
+            </ol>
+
+            <p>The <code>Check</code> directive verifies buildability.</p>
+
+            <h3>Example</h3>
+            <pre><code>Axiom A
+Axiom h, A => B
+Axiom g, B => C
+
+Check A      # buildable (axiom)
+Check B      # buildable (via h from A)
+Check C      # buildable (via g from B)
+Check D      # not buildable</code></pre>
+        </section>
+
+        <section class="section">
+            <h2>Reduction</h2>
+
+            <p>
+                Reduction simplifies objects by applying rewritings until a normal form is reached.
+                An object is in <strong>normal form</strong> if no further rewritings apply.
+            </p>
+
+            <h3>Reduction Strategy</h3>
+            <p>Endive uses the following reduction strategy:</p>
+            <ol>
+                <li>Find all compositions in the object that are reducible</li>
+                <li>Apply the first matching rewriting</li>
+                <li>Repeat until no rewritings apply (normal form reached)</li>
+            </ol>
+
+            <h3>Example: Computing Addition</h3>
+            <pre><code>Axiom plus_zero, plus([n], zero) = [n]
+Axiom plus_succ, plus([n], S([m])) = S(plus([n], [m]))
+
+Reduce plus(S(zero), S(zero))
+# → plus(S(zero), zero) = S(zero)
+# → S(plus(S(zero), zero))
+# → S(S(zero))</code></pre>
+        </section>
+
+        <section class="section">
+            <h2>Functoriality</h2>
+
+            <p>
+                Functoriality allows rewritings to be applied inside nested contexts.
+                If you prove <code>A => B</code>, you can use that proof inside larger structures.
+            </p>
+
+            <h3>Example: Arithmetic Functoriality</h3>
+            <pre><code>Axiom le_3_4, 3 <= 4
+Axiom functorial_mult, [x] <= [y] => mult([x], [z]) <= mult([y], [z])
+
+Goal mult(3, 2) <= mult(4, 2)
+Start (3 <= 4)
+Use functorial_mult
+# [x] = 3, [y] = 4, [z] = 2</code></pre>
+
+            <p>
+                The rewriting <code>functorial_mult</code> lifts the proof <code>3 <= 4</code> into the context
+                <code>mult(_, 2)</code>, producing <code>mult(3, 2) <= mult(4, 2)</code>.
+            </p>
+        </section>
+
+        <section class="section">
+            <h2>Syntactic Sugar</h2>
+
+            <p>Endive provides syntactic conveniences that desugar to core term syntax.</p>
+
+            <h3>Natural Numbers</h3>
+            <pre><code>0  →  zero
+1  →  S(zero)
+2  →  S(S(zero))
+3  →  S(S(S(zero)))
+...</code></pre>
+
+            <h3>Arithmetic Operators</h3>
+            <pre><code>3 + 4  →  plus(S(S(S(zero))), S(S(S(S(zero)))))
+2 * 3  →  mult(S(S(zero)), S(S(S(zero))))</code></pre>
+
+            <h3>Quantifiers</h3>
+            <pre><code>forall [x] in N, P([x])  →  Quantifier term representation
+exists [x] in N, P([x])  →  Quantifier term representation</code></pre>
+
+            <h3>Logic Sugar</h3>
+            <p>
+                Objects <code>A</code> can be automatically interpreted as <code>True -> A</code> in logical contexts,
+                and vice versa.
+            </p>
+        </section>
+
+        <section class="section">
+            <h2>Helper System</h2>
+
+            <p>
+                Endive's architecture includes a modular <strong>helper system</strong> that extends the core engine
+                with additional capabilities without modifying the core rewriting logic.
+            </p>
+
+            <h3>Available Helpers</h3>
+            <ul>
+                <li><strong>Alias Helper:</strong> Manages <code>Define</code> directives and name substitutions</li>
+                <li><strong>Canonical Rules Helper:</strong> Handles rewriting normalization</li>
+                <li><strong>Computational Rules Helper:</strong> Manages computational rewritings</li>
+                <li><strong>Buildability Helper:</strong> Implements buildability checking</li>
+                <li><strong>Goal Helper:</strong> Tracks and verifies proof goals</li>
+                <li><strong>Functorial Rules Helper:</strong> Implements functoriality features</li>
+                <li><strong>Suggestion Helper:</strong> Provides proof hints and suggestions</li>
+                <li><strong>Plot Helper:</strong> Visualizes proof trees and object structures</li>
+            </ul>
+
+            <p>
+                Each helper operates through hooks in the parsing and execution pipeline,
+                allowing them to intercept, transform, or respond to user commands.
+            </p>
+        </section>
+
+        <section class="section">
+            <h2>CLI Commands</h2>
+
+            <p>When running the interactive Endive CLI:</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Command</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>:help</code></td>
+                        <td>Display help information</td>
+                    </tr>
+                    <tr>
+                        <td><code>:exit</code></td>
+                        <td>Exit the CLI</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p>All other inputs are interpreted as Endive directives.</p>
+        </section>
+
+        <section class="section">
+            <h2>Running Modes</h2>
+
+            <h3>Interactive Mode</h3>
+            <pre><code class="language-bash">python main.py</code></pre>
+            <p>Start an interactive REPL where you can enter directives one at a time.</p>
+
+            <h3>Debug Mode</h3>
+            <pre><code class="language-bash">python main.py --debug</code></pre>
+            <p>Run with verbose output showing detailed matching, reduction, and buildability checking steps.</p>
+
+            <h3>Test Mode</h3>
+            <pre><code class="language-bash">python main.py --test</code></pre>
+            <p>Run integration tests from the <code>tests/</code> directory.</p>
+
+            <h3>File Mode</h3>
+            <p>Execute directives from a file (implementation may vary):</p>
+            <pre><code class="language-bash">python main.py &lt; examples/arithmetic.end</code></pre>
+        </section>
+
+        <section class="section">
+            <h2>Next Steps</h2>
+
+            <p>
+                This reference covers the complete syntax and features of Endive.
+                For practical examples and learning resources, explore the other sections.
+            </p>
+
+            <div class="hero-buttons">
+                <a href="examples.html" class="btn btn-primary">View Examples</a>
+                <a href="tutorial.html" class="btn btn-secondary">Tutorial</a>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Endive Contributors | Licensed under the <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache 2.0 License</a></p>
+        <p><a href="https://github.com/sSolal/Endive" target="_blank">GitHub Repository</a> | <a href="about.html">About &amp; Contributing</a></p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <script src="js/nav.js"></script>
+</body>
+</html>

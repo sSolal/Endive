@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Endive - A proof assistant based on rewriting. Build and verify mathematical proofs through term rewriting and pattern matching.">
+    <meta name="keywords" content="proof assistant, formal verification, rewriting, term rewriting, mathematics, logic">
+    <meta name="author" content="Endive Contributors">
+    <title>Endive - A Proof Assistant Based on Rewriting</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Endive</a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="tutorial.html">Tutorial</a></li>
+                <li><a href="examples.html">Examples</a></li>
+                <li><a href="reference.html">Reference</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="https://github.com/sSolal/Endive" target="_blank">GitHub</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="hero">
+        <h1>Endive</h1>
+        <p class="subtitle">A Proof Assistant Based on Rewriting</p>
+        <p>Build and verify mathematical proofs through the power of term rewriting</p>
+        <div class="hero-buttons">
+            <a href="tutorial.html" class="btn btn-primary">Get Started</a>
+            <a href="https://github.com/sSolal/Endive" class="btn btn-secondary" target="_blank">View on GitHub</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <section class="section">
+            <h2>Why Proof Assistants Matter</h2>
+            <p class="section-intro">
+                In mathematics and computer science, formal verification provides absolute certainty that a proof or program is correct.
+                Proof assistants are powerful tools that help us construct and verify these formal proofs.
+            </p>
+
+            <p>
+                Proof assistants enable mathematicians, logicians, and computer scientists to:
+            </p>
+            <ul>
+                <li><strong>Verify complex proofs</strong> with machine-checked certainty, eliminating subtle errors that might escape human review</li>
+                <li><strong>Build reliable software</strong> by formally proving that programs meet their specifications</li>
+                <li><strong>Explore new mathematics</strong> by experimenting with formal systems and discovering patterns</li>
+                <li><strong>Teach rigorous reasoning</strong> by making logical steps explicit and transparent</li>
+            </ul>
+
+            <p>
+                As mathematical proofs grow increasingly complex and software becomes more critical to society,
+                the importance of mechanical verification continues to grow.
+            </p>
+        </section>
+
+        <section class="section">
+            <h2>Rewriting as a Foundation for Reasoning</h2>
+            <p class="section-intro">
+                Term rewriting is a simple yet powerful computational model that naturally captures the essence of logical reasoning.
+            </p>
+
+            <p>
+                At its core, rewriting is about transformation: given an object (an expression) and a set of rewritings,
+                we can systematically transform that object by applying matching rewritings. This process mirrors how we reason:
+            </p>
+
+            <blockquote>
+                "If I know A and I know that A implies B, then I can conclude B."
+            </blockquote>
+
+            <p>
+                Rewriting systems offer several advantages for formal reasoning:
+            </p>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>Simplicity</h3>
+                    <p>Rewritings are intuitive: replace a pattern with another object. This simplicity makes the system accessible while remaining powerful.</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>Composability</h3>
+                    <p>Complex proofs emerge from composing simple rewriting steps, mirroring how mathematicians build arguments incrementally.</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>Computation and Logic</h3>
+                    <p>Rewriting unifies computation (evaluating expressions) with logical reasoning (deriving conclusions), following the Curry-Howard correspondence.</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>Functoriality</h3>
+                    <p>Rewritings can be applied within nested contexts, enabling modular reasoning about complex structures.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>What is Endive?</h2>
+            <p>
+                Endive is a proof assistant that embraces rewriting as its foundational principle.
+                It provides a clean, minimalist environment for constructing formal proofs through pattern matching and term transformation.
+            </p>
+
+            <p>
+                Unlike proof assistants based on type theory or set theory, Endive focuses on rewriting as the primary
+                mechanism for both computation and proof construction. This approach offers a unique perspective on formal verification.
+            </p>
+
+            <h3>Key Features</h3>
+            <ul>
+                <li><strong>Pattern matching with holes:</strong> Define rewritings using patterns with variables (holes) that match arbitrary objects</li>
+                <li><strong>Buildability checking:</strong> Verify whether an object can be constructed from axioms and rewritings in a given context</li>
+                <li><strong>Reduction and computation:</strong> Simplify objects by applying rewritings, enabling both symbolic manipulation and evaluation</li>
+                <li><strong>Functoriality:</strong> Apply rewritings within nested structures, allowing proofs to compose naturally</li>
+                <li><strong>Syntactic sugar:</strong> Use natural notation for numbers, quantifiers, and logical operators while maintaining a simple core</li>
+                <li><strong>Extensible architecture:</strong> Modular helper system allows adding new capabilities while preserving the core engine</li>
+            </ul>
+        </section>
+
+        <section class="section">
+            <h2>A Quick Example</h2>
+            <p>Here's a simple proof in Endive showing logical implication:</p>
+
+            <pre><code>Axiom A
+Axiom h, A => B
+Axiom h2, B => C
+Goal C
+Start A
+Use h | h2</code></pre>
+
+            <p>
+                This proof starts with axiom <code>A</code>, then applies the rewriting <code>h</code> to derive <code>B</code>,
+                and finally applies <code>h2</code> to reach the goal <code>C</code>. The composition operator <code>|</code>
+                chains these rewritings together.
+            </p>
+        </section>
+
+        <section class="section">
+            <h2>Getting Started</h2>
+            <p>
+                Ready to explore formal proofs through rewriting? Start with our tutorial to learn the basics,
+                or dive into examples to see Endive in action.
+            </p>
+
+            <div class="hero-buttons">
+                <a href="tutorial.html" class="btn btn-primary">Read the Tutorial</a>
+                <a href="examples.html" class="btn btn-secondary">View Examples</a>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Endive Contributors | Licensed under the <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache 2.0 License</a></p>
+        <p><a href="https://github.com/sSolal/Endive" target="_blank">GitHub Repository</a> | <a href="about.html">About &amp; Contributing</a></p>
+    </footer>
+
+    <script src="js/nav.js"></script>
+</body>
+</html>

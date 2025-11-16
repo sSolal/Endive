@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Learn how to use Endive - A step-by-step tutorial for building formal proofs with term rewriting.">
+    <title>Tutorial - Endive</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Endive</a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="tutorial.html">Tutorial</a></li>
+                <li><a href="examples.html">Examples</a></li>
+                <li><a href="reference.html">Reference</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="https://github.com/sSolal/Endive" target="_blank">GitHub</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>Getting Started with Endive</h1>
+        <p class="section-intro">
+            This tutorial will guide you through installing Endive and constructing your first formal proofs using term rewriting.
+        </p>
+
+        <section class="section">
+            <h2>Installation</h2>
+
+            <h3>Requirements</h3>
+            <ul>
+                <li>Python 3.8 or higher</li>
+                <li>Git (for cloning the repository)</li>
+            </ul>
+
+            <h3>Installing Endive</h3>
+            <p>Clone the repository and install Endive:</p>
+            <pre><code class="language-bash"># Clone the repository
+git clone https://github.com/sSolal/Endive.git
+cd endive
+
+# Install using pip
+pip install -e .</code></pre>
+
+            <h3>Running Endive</h3>
+            <p>Start the interactive command-line interface:</p>
+            <pre><code class="language-bash"># Start Endive CLI
+python main.py
+
+# Start with debug mode for verbose output
+python main.py --debug</code></pre>
+
+            <p>You should see a prompt where you can enter Endive commands. Type <code>:help</code> for help or <code>:exit</code> to quit.</p>
+        </section>
+
+        <section class="section">
+            <h2>Core Concepts</h2>
+
+            <h3>Objects and Rewritings</h3>
+            <p>
+                In Endive, everything is built from <strong>objects</strong>. An object can be:
+            </p>
+            <ul>
+                <li>A <strong>symbol</strong>: <code>A</code>, <code>plus</code>, <code>zero</code></li>
+                <li>A <strong>term</strong>: <code>f(x)</code>, <code>plus(2, 3)</code></li>
+                <li>A <strong>hole</strong> (variable): <code>[x]</code>, <code>[n]</code></li>
+                <li>A <strong>rewriting</strong>: <code>A => B</code>, <code>x = y</code></li>
+                <li>A <strong>composition</strong>: <code>f | g</code> (compose f with g)</li>
+            </ul>
+
+            <p>
+                A <strong>rewriting</strong> transforms one object into another. Rewritings are written as:
+            </p>
+            <pre><code>[x] => [y]     # Simple implication
+[x] = [y]      # Equality (bidirectional)
+[x] <=> [y]    # Equivalence</code></pre>
+
+            <h3>Buildability</h3>
+            <p>
+                The key question Endive answers is: "Can I build object X from the given axioms and rewritings?"
+                An object is <strong>buildable</strong> if:
+            </p>
+            <ol>
+                <li>It's already in the context (an axiom)</li>
+                <li>It's a composition of two buildable objects</li>
+                <li>It's a rewriting where the output is buildable with the input added to context</li>
+            </ol>
+
+            <h3>Pattern Matching</h3>
+            <p>
+                Holes in patterns match any object. For example, the pattern <code>[x] => [y]</code> matches:
+            </p>
+            <ul>
+                <li><code>A => B</code> (with <code>[x] = A</code>, <code>[y] = B</code>)</li>
+                <li><code>plus(2, 3) => 5</code> (with <code>[x] = plus(2, 3)</code>, <code>[y] = 5</code>)</li>
+            </ul>
+        </section>
+
+        <section class="section">
+            <h2>Your First Proof</h2>
+
+            <h3>Example: Modus Ponens</h3>
+            <p>Let's prove a simple logical argument: if we know <code>A</code> and <code>A => B</code>, we can derive <code>B</code>.</p>
+
+            <pre><code># Declare our assumptions
+Axiom A
+Axiom h, A => B
+
+# State what we want to prove
+Goal B
+
+# Build the proof
+Start A
+Use h</code></pre>
+
+            <p><strong>Explanation:</strong></p>
+            <ul>
+                <li><code>Axiom A</code>: We assume <code>A</code> is true</li>
+                <li><code>Axiom h, A => B</code>: We have a rewriting named <code>h</code> that transforms <code>A</code> into <code>B</code></li>
+                <li><code>Goal B</code>: We want to prove <code>B</code></li>
+                <li><code>Start A</code>: Begin the proof with <code>A</code></li>
+                <li><code>Use h</code>: Apply the rewriting <code>h</code> to get <code>B</code></li>
+            </ul>
+
+            <p>If successful, Endive will confirm that <code>B</code> is buildable!</p>
+
+            <h3>Example: Composing Rewritings</h3>
+            <p>We can compose multiple rewritings together using the composition operator <code>|</code>:</p>
+
+            <pre><code>Axiom A
+Axiom h1, A => B
+Axiom h2, B => C
+Axiom h3, C => D
+
+Goal D
+Start A
+Use h1 | h2 | h3</code></pre>
+
+            <p>This applies <code>h1</code>, then <code>h2</code>, then <code>h3</code> in sequence: <code>A → B → C → D</code>.</p>
+        </section>
+
+        <section class="section">
+            <h2>Working with Patterns</h2>
+
+            <h3>Rewritings with Holes</h3>
+            <p>Holes (written as <code>[name]</code>) act as variables that can match any object:</p>
+
+            <pre><code>Axiom modus_ponens, ([x] & ([x] => [y])) => [y]
+Axiom A
+Axiom A => B
+
+Goal B
+Start (A & (A => B))
+Use modus_ponens</code></pre>
+
+            <p>Here, <code>[x]</code> matches <code>A</code> and <code>[y]</code> matches <code>B</code>.</p>
+
+            <h3>Example: Symmetry of Equality</h3>
+            <pre><code>Axiom sym, [x] = [y] => [y] = [x]
+Axiom eq, 2 = 3
+
+Goal 3 = 2
+Start (2 = 3)
+Use sym</code></pre>
+
+            <p>The pattern <code>[x] = [y]</code> matches <code>2 = 3</code>, producing <code>3 = 2</code>.</p>
+        </section>
+
+        <section class="section">
+            <h2>Reduction and Computation</h2>
+
+            <p>Endive can also <strong>reduce</strong> objects by applying computational rewritings:</p>
+
+            <pre><code>Axiom plus_zero, plus([x], zero) = [x]
+Axiom plus_succ, plus([x], S([y])) = S(plus([x], [y]))
+
+Reduce plus(2, 3)</code></pre>
+
+            <p>
+                The <code>Reduce</code> command simplifies the object by repeatedly applying matching rewritings.
+                This enables both symbolic computation and proof verification in the same framework.
+            </p>
+
+            <h3>Checking Objects</h3>
+            <p>Use <code>Check</code> to verify if an object is buildable without proving it step-by-step:</p>
+
+            <pre><code>Axiom A
+Axiom h, A => B
+
+Check B  # Returns: buildable</code></pre>
+        </section>
+
+        <section class="section">
+            <h2>Functoriality</h2>
+
+            <p>
+                One of Endive's powerful features is <strong>functoriality</strong>: the ability to apply rewritings
+                inside nested structures.
+            </p>
+
+            <pre><code>Axiom le_3_4, 3 <= 4
+Axiom functorial_mult, [x] <= [y] => ([x] * [z]) <= ([y] * [z])
+
+Goal (3 * 2) <= (4 * 2)
+Start (3 <= 4)
+Use functorial_mult</code></pre>
+
+            <p>
+                The rewriting <code>functorial_mult</code> allows us to multiply both sides of an inequality,
+                demonstrating how proofs can be lifted into more complex contexts.
+            </p>
+        </section>
+
+        <section class="section">
+            <h2>Using Aliases</h2>
+
+            <p>Define shorthand names for complex objects using <code>Define</code>:</p>
+
+            <pre><code>Define NAT := mu([X], unit | ([X] -> [X]))
+Define ZERO := L(inl(star))
+Define SUCC := L([n], inr([n]))
+
+Axiom zero_in_nat, ZERO in NAT
+Axiom succ_preserves, [n] in NAT => SUCC([n]) in NAT</code></pre>
+
+            <p>Aliases make complex definitions more readable while maintaining the underlying object structure.</p>
+        </section>
+
+        <section class="section">
+            <h2>Tips for Effective Proving</h2>
+
+            <ul>
+                <li><strong>Start simple:</strong> Begin with basic axioms and rewritings, then build complexity gradually</li>
+                <li><strong>Use meaningful names:</strong> Name your axioms and rewritings descriptively (e.g., <code>trans</code> for transitivity)</li>
+                <li><strong>Check intermediate steps:</strong> Use <code>Check</code> to verify that intermediate objects are buildable</li>
+                <li><strong>Debug with <code>--debug</code>:</strong> Run Endive in debug mode to see detailed matching and reduction steps</li>
+                <li><strong>Experiment with reduction:</strong> Use <code>Reduce</code> to explore how objects simplify</li>
+                <li><strong>Leverage functoriality:</strong> Don't repeat proofs for similar structures—use functorial rewritings</li>
+            </ul>
+        </section>
+
+        <section class="section">
+            <h2>Next Steps</h2>
+
+            <p>Now that you understand the basics, explore more complex examples:</p>
+
+            <div class="hero-buttons">
+                <a href="examples.html" class="btn btn-primary">View Examples</a>
+                <a href="reference.html" class="btn btn-secondary">Read the Reference</a>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Endive Contributors | Licensed under the <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache 2.0 License</a></p>
+        <p><a href="https://github.com/sSolal/Endive" target="_blank">GitHub Repository</a> | <a href="about.html">About &amp; Contributing</a></p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <script src="js/nav.js"></script>
+</body>
+</html>
