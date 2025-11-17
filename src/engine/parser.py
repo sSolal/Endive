@@ -18,43 +18,30 @@ class Token:
 def tokenize(line):
     """
     Tokenize a line of text according to the specified grammar.
-    
+
     Returns:
         list of Token objects
     """
     tokens = []
     i = 0
     line = line.strip()
-    
+
     while i < len(line):
         char = line[i]
-        
+
         # Skip whitespace
         if char.isspace():
             i += 1
             continue
-            
-        # Numbers (including decimals)
-        if char.isdigit() or char == '.':
+
+        # Alphanumeric symbols (words, numbers, identifiers)
+        if char.isalnum() or char == '_' or char == '.':
             start = i
-            while i < len(line) and (line[i].isdigit() or line[i] == '.'):
+            while i < len(line) and (line[i].isalnum() or line[i] == '_' or line[i] == '.'):
                 i += 1
-            tokens.append(Token('WORD', line[start:i], start))
+            tokens.append(Token('SYMBOL', line[start:i], start))
             continue
-            
-        # Words (alpha characters)
-        if char.isalpha() or char == '_':
-            start = i
-            while i < len(line) and (line[i].isalnum() or line[i] == '_'):
-                i += 1
-            word = line[start:i]
-            # Check for 'in' keyword (used in quantifier syntax)
-            if word == 'in':
-                tokens.append(Token('IN', word, start))
-            else:
-                tokens.append(Token('WORD', word, start))
-            continue
-            
+
         # Holes [content]
         if char == '[':
             start = i
@@ -69,39 +56,36 @@ def tokenize(line):
             else:
                 raise ParseError(f"Unclosed hole at position {start}")
             continue
-            
-        # Rules (starts with =, -, >, < but not - alone)
-        if char in '=><' or (char == '-' and i + 1 < len(line) and not line[i + 1].isspace()):
-            start = i
-            while i < len(line) and line[i] in '=><-':
-                i += 1
-            rule_text = line[start:i]
-            if rule_text != '-':  # - alone is not a rule
-                tokens.append(Token('RULE', rule_text, start))
-            else:
-                # - alone is an operator
-                tokens.append(Token('OP', '-', start))
-            continue
-            
-        # Operators
-        if char in '+-*/':
-            tokens.append(Token('OP', char, i))
+
+        # Pipe for application
+        if char == '|':
+            tokens.append(Token('PIPE', '|', i))
             i += 1
             continue
-            
+
+        # Special character sequences (symbols like -->, <-=->, etc.) or operators
+        if char in '=><-+*/!@#$%^&~`\\':
+            start = i
+            # Collect all consecutive special characters
+            while i < len(line) and line[i] in '=><-+*/!@#$%^&~`\\':
+                i += 1
+            symbol_text = line[start:i]
+
+            # Check if it's a single arithmetic operator
+            if symbol_text in ['+', '-', '*', '/']:
+                tokens.append(Token('OP', symbol_text, start))
+            else:
+                # Otherwise it's a symbol (like -->, <-=->, etc.)
+                tokens.append(Token('SYMBOL', symbol_text, start))
+            continue
+
         # Parentheses and commas
         if char in '(),':
             token_type = 'LPAREN' if char == '(' else 'RPAREN' if char == ')' else 'COMMA'
             tokens.append(Token(token_type, char, i))
             i += 1
             continue
-            
-        # Pipe for application
-        if char == '|':
-            tokens.append(Token('PIPE', '|', i))
-            i += 1
-            continue
-            
+
         # Unknown character
         raise ParseError(f"Unexpected character '{char}' at position {i}")
     
@@ -111,16 +95,23 @@ class Parser:
     def __init__(self, tokens):
         self.tokens = tokens
         self.pos = 0
-    
+
+    @staticmethod
+    def is_special_char_symbol(symbol):
+        """Check if a symbol is composed only of special characters (not alphanumeric)"""
+        if not symbol:
+            return False
+        return not any(c.isalnum() or c == '_' for c in symbol)
+
     def current_token(self):
         if self.pos < len(self.tokens):
             return self.tokens[self.pos]
         return None
-    
+
     def advance(self):
         if self.pos < len(self.tokens):
             self.pos += 1
-    
+
     def expect(self, token_type):
         token = self.current_token()
         if token is None or token.type != token_type:
@@ -134,9 +125,9 @@ class Parser:
         """Parse: Directive arg_list"""
         if not self.tokens:
             return None, None
-            
-        # First token must be a word (directive)
-        directive_token = self.expect('WORD')
+
+        # First token must be a symbol (directive)
+        directive_token = self.expect('SYMBOL')
         directive = directive_token.value
         
         # Parse argument list
@@ -165,22 +156,55 @@ class Parser:
         return args
     
     def parse_arg(self):
-        """Parse: word(arg_list) | word | arg1 RULE arg2 | arg1 | arg2 | expr"""
-        # Parse the left side first - start with expr to handle arithmetic
-        left = self.parse_expr()
+        """Parse composition (lowest precedence): arg | arg"""
+        left = self.parse_alphanumeric_rules()
 
-        # Check for right-associative rules
-        while self.current_token() and self.current_token().type == 'RULE':
-            rule_symbol = self.current_token().value
-            self.advance()
-            right = self.parse_arg()  # Right associative - parse the rest as an arg
-            left = Rew(left, rule_symbol, right)
-
-        # Check for pipe (application)
+        # Check for pipe (composition) - lowest precedence
         if self.current_token() and self.current_token().type == 'PIPE':
             self.advance()
-            right = self.parse_arg()
+            right = self.parse_arg()  # Right associative
             left = Comp(left, right)
+
+        return left
+
+    def parse_alphanumeric_rules(self):
+        """Parse alphanumeric symbol rules (low precedence): A B C, A gives B, etc."""
+        left = self.parse_special_rules()
+
+        # Check for adjacent objects (error case)
+        # If we see LPAREN or HOLE after an expression, it means two objects are side by side
+        if self.current_token() and self.current_token().type in ('LPAREN', 'HOLE'):
+            raise ParseError(f"Unexpected token {self.current_token()} after expression")
+
+        # Check for alphanumeric symbol as infix rule operator (right-associative)
+        # This handles cases like: A B C, A gives B, etc.
+        while self.current_token() and self.current_token().type == 'SYMBOL':
+            symbol = self.current_token().value
+            # Only parse alphanumeric symbols at this level
+            if self.is_special_char_symbol(symbol):
+                break  # Leave it for lower precedence level
+
+            self.advance()
+            right = self.parse_alphanumeric_rules()  # Right associative
+            left = Rew(left, symbol, right)
+
+        return left
+
+    def parse_special_rules(self):
+        """Parse special character symbol rules (high precedence): A => B, A -> B, etc."""
+        left = self.parse_expr()
+
+        # Check for special character symbol as infix rule operator (right-associative)
+        # This handles cases like: A => B, A -> B, A <=> B, etc.
+        while self.current_token() and self.current_token().type == 'SYMBOL':
+            symbol = self.current_token().value
+            # Only parse special character symbols at this level
+            if not self.is_special_char_symbol(symbol):
+                break  # Leave it for higher level (alphanumeric rules)
+
+            self.advance()
+            right = self.parse_special_rules()  # Right associative
+            left = Rew(left, symbol, right)
 
         return left
     
@@ -221,85 +245,24 @@ class Parser:
 
         return left
 
-    def parse_quantifier(self, quantifier_name):
-        """
-        Parse quantifier syntax sugar: forall [x] in N, P
-        Converts to: forall(N, [x] -> P)
-        """
-        # Expect a hole [x]
-        if not self.current_token() or self.current_token().type != 'HOLE':
-            raise ParseError(f"Expected hole after {quantifier_name}")
-        hole_token = self.current_token()
-        hole = Hole(hole_token.value)
-        self.advance()
-
-        # Expect 'in' keyword
-        if not self.current_token() or self.current_token().type != 'IN':
-            raise ParseError(f"Expected 'in' keyword in {quantifier_name} expression")
-        self.advance()
-
-        # Parse domain
-        domain = self.parse_primary()
-
-        # Expect comma
-        if not self.current_token() or self.current_token().type != 'COMMA':
-            raise ParseError(f"Expected comma after domain in {quantifier_name} expression")
-        self.advance()
-
-        # Parse body/predicate
-        body = self.parse_arg()
-
-        # Construct: quantifier(domain, [x] -> body)
-        rule_term = Rew(hole, "->", body)
-        return Term(quantifier_name, [domain, rule_term])
-    
     def parse_primary(self):
-        """Parse: word | word(arg_list) | (expr) | [hole] | quantifier syntax"""
+        """Parse: symbol | symbol(arg_list) | (expr) | [hole]"""
         token = self.current_token()
         if token is None:
             raise ParseError("Unexpected end of input")
 
-        if token.type == 'WORD':
-            word = token.value
-
-            # Check for quantifier syntax sugar: forall [x] in N, P
-            if word in ('forall', 'exists'):
-                self.advance()
-                # Peek at next token - if it's a HOLE, use quantifier syntax
-                if self.current_token() and self.current_token().type == 'HOLE':
-                    return self.parse_quantifier(word)
-                # Otherwise, fall back to function call syntax
-                # Need to backtrack by checking for LPAREN
-                if self.current_token() and self.current_token().type == 'LPAREN':
-                    self.advance()  # skip '('
-                    arg_list = self.parse_arg_list()
-                    self.expect('RPAREN')  # expect ')'
-                    return Term(word, arg_list)
-                else:
-                    return Term(word)
-
+        if token.type == 'SYMBOL':
+            symbol = token.value
             self.advance()
 
-            # Check if it's a numeric literal - convert to Church numeral
-            if word.isdigit():
-                n = int(word)
-                if n == 0:
-                    return Term("zero")
-                else:
-                    # Build nested S(S(S(...(zero))))
-                    result = Term("zero")
-                    for _ in range(n):
-                        result = Term("S", [result])
-                    return result
-
-            # Check if followed by parentheses
+            # Check if followed by parentheses (function call)
             if self.current_token() and self.current_token().type == 'LPAREN':
                 self.advance()  # skip '('
                 arg_list = self.parse_arg_list()
                 self.expect('RPAREN')  # expect ')'
-                return Term(word, arg_list)
+                return Term(symbol, arg_list)
             else:
-                return Term(word, [])
+                return Term(symbol, [])
         
         elif token.type == 'HOLE':
             hole_name = token.value

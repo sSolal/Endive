@@ -4,9 +4,9 @@
 
 ### Changes
 
-*   **Parser updates**, make the parser more flexible on rule symbols and rule parsing.
-
 *   **Helpers' state display**, add a way for helpers to display their state in a nice way.
+
+*   **Import system**, add a way to import an entire file into the context.
 
 ### Helpers
 
@@ -50,6 +50,7 @@
 
 ## History
 
+*   **Parser updates**, make the parser more flexible on rule symbols and rule parsing.
 *   **Check helper**, add directives to check the buildability of a objects.
 *   **Aliass helper**, allow to define aliases for objects and replace them in other objects.
 
