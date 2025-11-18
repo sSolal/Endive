@@ -1,6 +1,6 @@
 # Endive's bright future
 
-## MVP vision : a simple proof assistant to make arithmetic proofs.
+## MVP vision : a simple proof assistant to make logic and arithmetic proofs.
 
 ### Changes
 
@@ -8,9 +8,11 @@
 
 *   **Import system**, add a way to import an entire file into the context.
 
+*   **Make functionnal**, get rid of ugly "copy()", and have helpers state and objects completely functional.
+
 ### Helpers
 
-*   **Goal helper**, add directives to set goals, and allow backward sequent-calculus style proofs.
+*   **Goal helper**, allow for backward sequent-calculus with multi-premises rules. (Introducing multiple goals.)
 
 *   **Build helper**, add directives to work iteratively on a object.
 
@@ -18,7 +20,13 @@
 
 *   **Functoriality helper**, allow the declaration of "functorial" rules, for easier nested objects rewriting.
 
+### Quick fixes
 
+*   **Display parentheses**, the __repr__ method of objects should take into account precedences to put parentheses where needed.
+
+*   **Add undo**, Add an undo command to the engine. (Wait for the engine to be functional.)
+
+*   **Add traversal utilities**, to reduce redundancy of traversing objects and mapping a function over whole objects-trees.
 
 
 ## V1 vision: a proof assistant to make any kind of maths.
@@ -49,6 +57,12 @@
 
 
 ## History
+
+### Last commit's changes
+
+*   **Goal helper**, add directives to set goals, and allow backward sequent-calculus style proofs.
+
+### Older changes
 
 *   **Parser updates**, make the parser more flexible on rule symbols and rule parsing.
 *   **Check helper**, add directives to check the buildability of a objects.

@@ -44,14 +44,18 @@ class Term(Object):
 class Rew(Object):
     def __init__(self, left, symbol, right):
         super().__init__("Rew", [left, right], symbol, 
-        lambda self: str(self.children[0]) + " " + self.handle + " " + str(self.children[1]))
+        lambda self: f"({str(self.children[0])} {self.handle} {str(self.children[1])})")
 
 class Comp(Object):
     def __init__(self, left, right):
         super().__init__("Comp", [left, right], None,
-        lambda self: str(self.children[0]) + " | " + str(self.children[1]))
+        lambda self: f"({str(self.children[0])} | {str(self.children[1])})")
 
 class Hole(Object):
     def __init__(self, name):
         super().__init__("Hole", [], name, 
         lambda self: "[" + self.handle + "]")
+
+
+def identify(A, rule):
+    return Rew(A, rule, A)

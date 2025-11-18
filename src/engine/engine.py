@@ -7,7 +7,8 @@ This engine takes a line of text, parses it, processes it through the pipeline, 
 from .pipeline import Pipeline
 from .helpers import (
     AliasHelper,
-    GoalHelper
+    GoalHelper,
+    BuildHelper
 )
 from .parser import parse_line, ParseError
 import re
@@ -36,6 +37,10 @@ class Engine:
         # Goal helper, should handle most directives
         self.goal_helper = GoalHelper()
         self.pipeline.helpers.append(self.goal_helper)
+
+        # Build helper, should handle building objects
+        self.build_helper = BuildHelper()
+        self.pipeline.helpers.append(self.build_helper)
 
     def process(self, line):
         """

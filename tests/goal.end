@@ -1,6 +1,33 @@
-Check (A => A) ~ A in context
+Goal (A => B) => ((B => C) => (A => C)) ~ New goal: [((A => B) => ((B => C) => (A => C)))]
 
+Intro ~ New goal: [=>((B => C) => (A => C))]
 
-Check (A => B) => (B => C) => ((A => B) | (B => C)) ~
+Intro ~ New goal: [=>(A => C)]
 
-Reduce (A => B) | (B => C) ~ A => C
+Intro ~ New goal: [=>C]
+
+By (B => C) ~ New goal: [=>B]
+
+By (A => B) ~ New goal: [=>A]
+
+Done ~ Goal completed: ((A => B) => ((B => C) => (A => C)))
+
+Goal (A => B) => ((B => C) => (A => C)) ~ New goal: [((A => B) => ((B => C) => (A => C)))]
+
+Intro ~ New goal: [=>((B => C) => (A => C))]
+
+Intro ~ New goal: [=>(A => C)]
+
+Intro ~ New goal: [=>C]
+
+By (X => C) ~ error # (X => C) is not a known rewriting. Use Force to use it anyway.
+
+By (X => C), force ~ New goal: [=>X]
+
+By (B => X), force ~ New goal: [=>B]
+
+By (A => B) ~ New goal: [=>A]
+
+Done ~ Goal completed: ((A => B) => ((B => C) => (A => ((B | [=>(B => X)]) | [=>(X => C)]))))
+
+Done ~ error # Goal not completed: [=>(B => X)]

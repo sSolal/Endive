@@ -6,11 +6,15 @@ from main import Cli
 from pathlib import Path
 import traceback
 
-def run_file(file):
+def run_file(file, silent=True):
     try:
-        cli = Cli(silent=True, debug=True)
+        cli = Cli(silent=silent, debug=True)
         with open(file, 'r') as f:
             for line in f:
+                if line.strip() == "":
+                    continue
+                if not silent:
+                    print(line.strip())
                 if "~" in line:
                     statement, expected = line.split('~')
                     if '#' in expected:
@@ -38,9 +42,9 @@ def run_file(file):
         print(traceback.format_exc())
         return False
 
-def run():
+def run(silent=True):
     for file in Path('tests/').glob('*.end'):
-        if run_file(file):
+        if run_file(file, silent):
             print(f"Test passed: {file}")
         else:
             print(f"Test failed: {file}")

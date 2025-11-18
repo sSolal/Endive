@@ -11,7 +11,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     if args.test:
-        integration.run()
+        integration.run(silent=not args.debug)
         exit(0)
     app = Cli(debug=args.debug)
     app.run()

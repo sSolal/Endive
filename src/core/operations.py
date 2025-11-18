@@ -7,7 +7,8 @@ This module defines the fundamental data manipulation operations:
 - Application reduction
 """
 
-from .objects import Object,Term, Hole, Rew, Comp
+from .objects import Object,Term, Hole, Rew, Comp, identify
+from copy import deepcopy as copy
 
 def match(A: Object, B: Object):
     """
@@ -25,7 +26,7 @@ def match(A: Object, B: Object):
             return assignments
 
     if A.handle != B.handle or len(A.children) != len(B.children):
-        return False
+        return None
     for A_child, B_child in zip(A.children, B.children):
         found = match(A_child, B_child)
         if found is None:
@@ -45,22 +46,30 @@ def apply(B: Object, assignments: dict):
             return B
     else:
         new_children = [apply(child, assignments) for child in B.children]
-        return Object(B.type, new_children, B.handle, B.repr)
+        new_object = copy(B)
+        new_object.children = new_children
+        return new_object
 
 
 def compose(A, B):
     """
     Compose two rules (match A's right with B's left)
+    You can also compose an object with a rewriting (in that order), and get an object.
     """
-    if A.type != "Rew" or B.type != "Rew" or A.symbol != B.symbol:
+    if B.type != "Rew" or (A.type == "Rew" and A.symbol != B.symbol):
         return None
+    identified = False
+    if A.type != "Rew":
+        A = identify(A, B.symbol)
+        identified = True
     assignements = match(A.right, B.left)
     if assignements is not None:
-        return Rew(A.left, A.symbol, apply(B.right, assignements))
+        result = Rew(A.left, A.symbol, apply(B.right, assignements))
+        return result if not identified else result.right
     else:
         return None
 
-def reduce(term):
+def reduce_once(term):
     """
     Finds all the non-overlapping compositions in the term and applies the rule if possible.
     Returns the "1-step parallel" reduced term, or the original term if no reduction is possible.
@@ -69,20 +78,20 @@ def reduce(term):
         attempt = compose(term.left, term.right)
         if attempt is not None:
             return attempt
-        return term
-    else:
-        new_children = [reduce(child) for child in term.children]
-        return Object(term.type, new_children, term.handle, term.repr)
+    new_object = copy(term)
+    new_children = [reduce_once(child) for child in term.children]
+    new_object.children = new_children
+    return new_object
 
-def reduce_fully(term, max_steps=100):
+def reduce(term, max_steps=100):
     """
     Repeatedly applies reduce until no more reductions are possible.
     Returns the fully reduced term.
     """
     current = term
     for _ in range(max_steps):
-        reduced = reduce(current)
+        reduced = reduce_once(current)
         if reduced == current:
-            raise ValueError("Max number of steps reached, reduction not finished")
+            return current
         current = reduced
-    return current
+    raise ValueError("Max number of steps reached, reduction not finished")
