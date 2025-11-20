@@ -4,6 +4,7 @@ Goal Helper
 Manages usability directives
 """
 
+from typing import Tuple, Optional
 from .helper import Helper
 from ...core import Object, Comp, Rew, Hole, check, reduce, identify, match, apply
 from .utils.goal import GoalState, Goal
@@ -16,7 +17,7 @@ class GoalHelper(Helper):
     Manages goals, context, and term building.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.register_handler('Done', self.handle_done)
         self.register_handler('Goal', self.handle_goal)
@@ -27,54 +28,64 @@ class GoalHelper(Helper):
         self.goal_state = GoalState()
 
 
-    def handle_goal(self, argument):
+    def handle_goal(self, argument: Object) -> Tuple[bool, str]:
+        """Sets a new goal."""
         # For now, goals have to be rewritings.
         self.goal_state.set_goal(argument)
         return True, f"New goal: {self.goal_state.get_goal()}"
 
-    def handle_intro(self):
+    def handle_intro(self) -> Tuple[bool, str]:
+        """Introduces a premise into the context."""
         # Current goal should be a rewriting.
         goal = self.goal_state.get_goal()
-        if goal.term.type != "Rew":
+        goal_term = goal.data['term']
+        if goal_term.type != "Rew":
             return False, "Goal is not a rewriting"
-        new_goal = Rew(goal.left, goal.term.symbol, Goal(goal.right, goal.term.symbol))
+        new_goal = Rew(goal_term.left, goal_term.symbol, Goal(goal_term.right, goal_term.symbol))
         self.goal_state.update_goal(new_goal)
         return True, f"New goal: {new_goal.right}"
 
-    def handle_by(self, argument, force = None):
-        # Apply the argument to a new Goal, and co-compose it with the current goal to find the new goal. 
+    def handle_by(self, argument: Object, force: Optional[Object] = None) -> Tuple[bool, str]:
+        """Applies a rewriting rule to progress toward the goal."""
+        # Apply the argument to a new Goal, and co-compose it with the current goal to find the new goal.
         goal = self.goal_state.get_goal()
+        goal_rew = goal.data['rew']
+        goal_term = goal.data['term']
         context = self.goal_state.get_context()
 
-        if goal.rew is None or goal.rew not in context or argument not in context[goal.rew]:
+        if goal_rew is None or goal_rew not in context or argument not in context[goal_rew]:
             # The rule is not buildable
             if force is None or force.symbol != "force":
                 return False, f"{argument} is not a known rewriting. Use Force to use it anyway."
             else:
-                argument = Goal(argument, goal.rew)
+                argument = Goal(argument, goal_rew)
 
-        if goal.term.type != "Rew":
-            term = identify(goal.term, goal.rew)
+        if goal_term.type != "Rew":
+            term = identify(goal_term, goal_rew)
         else:
-            term = goal.term
+            term = goal_term
         assignements = match(argument.right, term.left)
         if assignements is None:
             return False, f"Can't apply {argument} to obtain {term}"
         new_term = apply(argument.left, assignements)
 
-        new_goal = Comp(Goal(new_term, goal.rew), argument)
+        new_goal = Comp(Goal(new_term, goal_rew), argument)
 
         self.goal_state.update_goal(new_goal)
         return True, f"New goal: {new_goal.left}"
 
-    def handle_done(self):
+    def handle_done(self) -> Tuple[bool, str]:
+        """Marks the current goal as completed if it's in the context."""
         goal = self.goal_state.get_goal()
+        goal_rew = goal.data['rew']
+        goal_term = goal.data['term']
         context = self.goal_state.get_context()
 
-        if goal.rew is not None and goal.rew in context and goal.term in context[goal.rew]:
-            self.goal_state.update_goal(goal.term)
+        if goal_rew is not None and goal_rew in context and goal_term in context[goal_rew]:
+            self.goal_state.update_goal(goal_term)
             return True, f"Goal completed: {reduce(self.goal_state.goal)}"
         return False, f"Goal not completed: {goal}"
 
-    def handle_status(self):
+    def handle_status(self) -> Tuple[bool, str]:
+        """Shows the current goal state and context."""
         return True, f"Goal: {self.goal_state.get_goal()}\ncontext: {self.goal_state.get_context()}\n proof: {self.goal_state.updated_goal(Hole("..."))}"

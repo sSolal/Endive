@@ -10,6 +10,8 @@ readme = "README.md"
 requires-python = ">=3.8"
 dependencies = []
 
+[project.optional-dependencies]
+dev = ["pdoc"]
+
 [tool.setuptools]
-packages = ["endive", "endive.app", "endive.core", "endive.engine", "endive.engine.helpers", "endive.engine.libraries"]
-package-dir = {"endive" = "src"}
+packages = ["src", "src.app", "src.core", "src.engine", "src.engine.helpers", "src.engine.helpers.utils"]

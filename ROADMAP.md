@@ -28,7 +28,9 @@
 
 *   **Add traversal utilities**, to reduce redundancy of traversing objects and mapping a function over whole objects-trees.
 
+*   **Improve multiple goals handling**, currently, all operations are done on the first goal object found in a depth-first search...
 
+,
 ## V1 vision: a proof assistant to make any kind of maths.
 
 *   **Suggestions helper**, suggest tactics based on the current goal or the current object.
@@ -38,6 +40,14 @@
 *   **Automate helper**, add directives to automatically find a proof for simple goals.
 
 *   **GUI**, make a nice GUI for Endive.
+
+*   **Package**, make Endive into a standalone python package
+
+*   **Engine return objects**, allow the engine to return objects, not just strings
+
+*   **Parsing metadata in terms**, allow terms to contain metadata to keep track of where they come from, for further updates to return messages.
+
+
 
 ## Stretched dreams: a proof assistant for non-computer scientists.
 

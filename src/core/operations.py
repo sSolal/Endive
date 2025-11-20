@@ -7,10 +7,10 @@ This module defines the fundamental data manipulation operations:
 - Application reduction
 """
 
+from typing import Optional, Dict
 from .objects import Object,Term, Hole, Rew, Comp, identify
-from copy import deepcopy as copy
 
-def match(A: Object, B: Object):
+def match(A: Object, B: Object) -> Optional[Dict[str, Object]]:
     """
     Find A against B.
     Returns a dictionary of assignments for the holes of B to match A, or None if no match is possible.
@@ -35,7 +35,7 @@ def match(A: Object, B: Object):
     return assignments
 
 
-def apply(B: Object, assignments: dict):
+def apply(B: Object, assignments: Dict[str, Object]) -> Object:
     """
     Applies assignments to a term with holes, filling in the holes.
     """
@@ -45,13 +45,11 @@ def apply(B: Object, assignments: dict):
         else:
             return B
     else:
-        new_children = [apply(child, assignments) for child in B.children]
-        new_object = copy(B)
-        new_object.children = new_children
-        return new_object
+        new_children = tuple(apply(child, assignments) for child in B.children)
+        return Object(B.type, new_children, B.handle, B.repr_func, B.data)
 
 
-def compose(A, B):
+def compose(A: Object, B: Object) -> Optional[Object]:
     """
     Compose two rules (match A's right with B's left)
     You can also compose an object with a rewriting (in that order), and get an object.
@@ -69,7 +67,7 @@ def compose(A, B):
     else:
         return None
 
-def reduce_once(term):
+def reduce_once(term: Object) -> Object:
     """
     Finds all the non-overlapping compositions in the term and applies the rule if possible.
     Returns the "1-step parallel" reduced term, or the original term if no reduction is possible.
@@ -78,12 +76,10 @@ def reduce_once(term):
         attempt = compose(term.left, term.right)
         if attempt is not None:
             return attempt
-    new_object = copy(term)
-    new_children = [reduce_once(child) for child in term.children]
-    new_object.children = new_children
-    return new_object
+    new_children = tuple(reduce_once(child) for child in term.children)
+    return Object(term.type, new_children, term.handle, term.repr_func, term.data)
 
-def reduce(term, max_steps=100):
+def reduce(term: Object, max_steps: int = 100) -> Object:
     """
     Repeatedly applies reduce until no more reductions are possible.
     Returns the fully reduced term.

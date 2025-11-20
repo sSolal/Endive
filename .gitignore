@@ -44,3 +44,6 @@ env/
 
 # OS
 Thumbs.db
+
+# Documentation
+docs/

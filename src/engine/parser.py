@@ -1,21 +1,22 @@
 
 import re
-from ..core import Term, Hole, Rew, Comp
+from typing import List, Tuple, Optional
+from ..core import Object, Term, Hole, Rew, Comp
 
 class ParseError(Exception):
     """Exception raised when parsing fails."""
     pass
 
 class Token:
-    def __init__(self, type, value, position=None):
+    def __init__(self, type: str, value: str, position: Optional[int] = None):
         self.type = type
         self.value = value
         self.position = position
     
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Token({self.type}, {repr(self.value)})"
 
-def tokenize(line):
+def tokenize(line: str) -> List[Token]:
     """
     Tokenize a line of text according to the specified grammar.
 
@@ -92,27 +93,27 @@ def tokenize(line):
     return tokens
 
 class Parser:
-    def __init__(self, tokens):
+    def __init__(self, tokens: List[Token]):
         self.tokens = tokens
         self.pos = 0
 
     @staticmethod
-    def is_special_char_symbol(symbol):
+    def is_special_char_symbol(symbol: str) -> bool:
         """Check if a symbol is composed only of special characters (not alphanumeric)"""
         if not symbol:
             return False
         return not any(c.isalnum() or c == '_' for c in symbol)
 
-    def current_token(self):
+    def current_token(self) -> Optional[Token]:
         if self.pos < len(self.tokens):
             return self.tokens[self.pos]
         return None
 
-    def advance(self):
+    def advance(self) -> None:
         if self.pos < len(self.tokens):
             self.pos += 1
 
-    def expect(self, token_type):
+    def expect(self, token_type: str) -> Token:
         token = self.current_token()
         if token is None or token.type != token_type:
             expected = token_type
@@ -121,24 +122,24 @@ class Parser:
         self.advance()
         return token
     
-    def parse_directive(self):
+    def parse_directive(self) -> Tuple[str, List[Object]]:
         """Parse: Directive arg_list"""
         if not self.tokens:
-            return None, None
+            raise ParseError("Empty token list")
 
         # First token must be a symbol (directive)
         directive_token = self.expect('SYMBOL')
         directive = directive_token.value
-        
+
         # Parse argument list
         if self.current_token() is None:
             # No arguments
             return directive, []
-        
+
         args = self.parse_arg_list()
         return directive, args
     
-    def parse_arg_list(self):
+    def parse_arg_list(self) -> List[Object]:
         """Parse: arg1, arg2, ... => [arg1, arg2...]"""
         args = []
         
@@ -155,7 +156,7 @@ class Parser:
         
         return args
     
-    def parse_arg(self):
+    def parse_arg(self) -> Object:
         """Parse composition (lowest precedence): arg | arg"""
         left = self.parse_alphanumeric_rules()
 
@@ -167,7 +168,7 @@ class Parser:
 
         return left
 
-    def parse_alphanumeric_rules(self):
+    def parse_alphanumeric_rules(self) -> Object:
         """Parse alphanumeric symbol rules (low precedence): A B C, A gives B, etc."""
         left = self.parse_special_rules()
 
@@ -190,7 +191,7 @@ class Parser:
 
         return left
 
-    def parse_special_rules(self):
+    def parse_special_rules(self) -> Object:
         """Parse special character symbol rules (high precedence): A => B, A -> B, etc."""
         left = self.parse_expr()
 
@@ -208,7 +209,7 @@ class Parser:
 
         return left
     
-    def parse_expr(self):
+    def parse_expr(self) -> Object:
         """Parse: factor | factor + expr | factor - expr"""
         left = self.parse_factor()
 
@@ -223,7 +224,7 @@ class Parser:
 
         return left
     
-    def parse_factor(self):
+    def parse_factor(self) -> Object:
         """Parse: term | term * factor"""
         left = self.parse_term()
         
@@ -234,7 +235,7 @@ class Parser:
         
         return left
     
-    def parse_term(self):
+    def parse_term(self) -> Object:
         """Parse: primary | primary / term"""
         left = self.parse_primary()
 
@@ -245,7 +246,7 @@ class Parser:
 
         return left
 
-    def parse_primary(self):
+    def parse_primary(self) -> Object:
         """Parse: symbol | symbol(arg_list) | (expr) | [hole]"""
         token = self.current_token()
         if token is None:
@@ -278,13 +279,8 @@ class Parser:
         else:
             raise ParseError(f"Unexpected token {token}")
 
-def parse_line(line):
-    """
-    Parse a single line of text.
-    
-    Returns:
-        tuple: (directive, content) where directive is a string and content is a list of parsed terms
-    """
+def parse_line(line: str) -> Tuple[Optional[str], Optional[List[Object]]]:
+    """Parse a single line of text, returning (directive, content) or (None, None) for empty/comment lines."""
     line = line.strip()
     
     if not line or line.startswith('#'):

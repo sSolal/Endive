@@ -6,56 +6,78 @@ This module defines the fundamental data structures:
 - Term, Rew, Comp, Hole
 """
 
+from dataclasses import dataclass
+from typing import Tuple, Optional, Callable, Any
 
 
+@dataclass(frozen=True, slots=True, eq=False)
 class Object:
-    def __init__(self, type, children = [], handle = None, repr = None):
-        self.type = type or "Object"
-        self.children = children
-        self.handle = handle # Name for terms, symbol for rules...
-        self.repr = repr
-    def __str__(self):
+    type: str
+    children: Tuple['Object', ...]
+    handle: Optional[str] = None
+    repr_func: Optional[Callable] = None
+    data: Optional[Any] = None  # For custom object types to store additional data
+
+    def __str__(self) -> str:
         return self.__repr__()
-    def __repr__(self):
-        if self.repr:
-            return self.repr(self)
+
+    def __repr__(self) -> str:
+        if self.repr_func:
+            return self.repr_func(self)
         else:
             if len(self.children) == 0:
                 return self.handle
             return self.handle + "(" + ", ".join([str(child) for child in self.children]) + ")"
 
-    def __eq__(self, other):
-        return type(self) == type(other) and self.handle == other.handle and all([a1 == a2 for a1, a2 in zip(self.children, other.children)])
+    def __eq__(self, other: object) -> bool:
+        """Equality based on type, handle, and children (excluding repr_func and data)."""
+        if not isinstance(other, Object):
+            return False
+        return (self.type == other.type and
+                self.handle == other.handle and
+                self.children == other.children)
 
-    def __getattr__(self, name):
-        if name == "left" and len(self.children) == 2:
+    def __hash__(self) -> int:
+        """Hash based on type, handle, and children."""
+        return hash((self.type, self.handle, self.children))
+
+    @property
+    def left(self) -> 'Object':
+        if len(self.children) == 2:
             return self.children[0]
-        elif name == "right" and len(self.children) == 2:
+        raise AttributeError("Object does not have left attribute")
+
+    @property
+    def right(self) -> 'Object':
+        if len(self.children) == 2:
             return self.children[1]
-        elif name == "symbol":
-            return self.handle
-        else:
-            raise AttributeError(f"Object has no attribute {name}")
+        raise AttributeError("Object does not have right attribute")
 
-class Term(Object):
-    def __init__(self, name, arguments = []):
-        super().__init__("Term", arguments, name)
+    @property
+    def symbol(self) -> Optional[str]:
+        return self.handle
 
-class Rew(Object):
-    def __init__(self, left, symbol, right):
-        super().__init__("Rew", [left, right], symbol, 
+def Term(name: str, arguments: Tuple[Object, ...] = ()) -> Object:
+    """Creates a term object."""
+    if not isinstance(arguments, tuple):
+        arguments = tuple(arguments)
+    return Object("Term", arguments, name)
+
+def Rew(left: Object, symbol: str, right: Object) -> Object:
+    """Creates a rewriting rule object."""
+    return Object("Rew", (left, right), symbol,
         lambda self: f"({str(self.children[0])} {self.handle} {str(self.children[1])})")
 
-class Comp(Object):
-    def __init__(self, left, right):
-        super().__init__("Comp", [left, right], None,
+def Comp(left: Object, right: Object) -> Object:
+    """Creates a composition object."""
+    return Object("Comp", (left, right), None,
         lambda self: f"({str(self.children[0])} | {str(self.children[1])})")
 
-class Hole(Object):
-    def __init__(self, name):
-        super().__init__("Hole", [], name, 
+def Hole(name: str) -> Object:
+    """Creates a hole (pattern variable) object."""
+    return Object("Hole", (), name,
         lambda self: "[" + self.handle + "]")
 
-
-def identify(A, rule):
+def identify(A: Object, rule: str) -> Object:
+    """Creates an identity rewrite rule for an object."""
     return Rew(A, rule, A)

@@ -1,5 +1,6 @@
 import os
 import sys
+from typing import Tuple, Optional, Dict
 from ..engine import Engine
 
 
@@ -11,27 +12,28 @@ class Colors:
     BLUE = '\033[94m'
     CYAN = '\033[96m'
     BOLD = '\033[1m'
+    ORANGE = '\033[93m'
     RESET = '\033[0m'
 
 
 class Cli:
-    def __init__(self, debug=False, silent=False):
+    def __init__(self, debug: bool = False, silent: bool = False) -> None:
         self.engine = Engine()
         self.debug = debug
         self.silent = silent
+        self.commands: Dict[str, str] = {":help": "Show help",
+        ":exit": "Exit the CLI"}
         if not silent:
             self.show_welcome()
-        self.commands = {":help": "Show help",
-        ":exit": "Exit the CLI"}
 
-    def show_welcome(self):
+    def show_welcome(self) -> None:
         """Display welcome message and available commands"""
         print(f"{Colors.BOLD}{Colors.CYAN}╔═══════════════════════════════════════════════════╗{Colors.RESET}")
         print(f"{Colors.BOLD}{Colors.CYAN}║    Endive Proof Assistant - CLI Mode              ║{Colors.RESET}")
         print(f"{Colors.BOLD}{Colors.CYAN}╚═══════════════════════════════════════════════════╝{Colors.RESET}")
     
 
-    def show_help(self):
+    def show_help(self) -> None:
         """Display help information"""
         print(f"\n{Colors.BOLD}Endive Proof Assistant Commands:{Colors.RESET}")
         print()
@@ -40,7 +42,7 @@ class Cli:
             print(f"  {Colors.CYAN}{command}{Colors.RESET} - {description}")
         print()
 
-    def process(self, line, silent=None):
+    def process(self, line: str, silent: Optional[bool] = None) -> Optional[Tuple[bool, str]]:
         """Process a single proof directive line"""
         try:
             success, message = self.engine.process(line)
@@ -57,7 +59,7 @@ class Cli:
                 import traceback
                 traceback.print_exc()
 
-    def run(self):
+    def run(self) -> None:
         """Main REPL loop"""
         while True:
             try:
