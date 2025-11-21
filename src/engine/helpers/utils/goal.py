@@ -6,7 +6,7 @@ def Goal(term: Object, rew: Optional[str] = None) -> Object:
     Creates a goal object representing a goal left to prove in a backward sequent-calculus style proof.
     The goal emulates a term, but is not a term itself.
     """
-    goal_data = {'term': term, 'rew': rew}
+    goal_data = {'term': reduce(term), 'rew': rew}
     return Object("Goal", term.children, term.handle,
                   lambda self: f"[{self.data['rew'] if self.data['rew'] is not None else ''}{str(self.data['term'])}]",
                   goal_data)
@@ -31,6 +31,14 @@ class GoalState:
                 if result is not None:
                     return result
         return None
+
+    def get_goals(self, obj: Optional[Object] = None) -> List[Object]:
+        if obj is None:
+            return (self.get_goals(self.goal) if self.goal is not None else [])
+        if obj.type == "Goal":
+            return [obj]
+        else:
+            return [goal for child in obj.children for goal in self.get_goals(child)]
 
 
     def get_context(self, obj: Optional[Object] = None, context: Optional[Dict[str, List[Object]]] = None) -> Optional[Dict[str, List[Object]]]:

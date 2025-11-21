@@ -53,26 +53,39 @@ class GoalHelper(Helper):
         goal_term = goal.data['term']
         context = self.goal_state.get_context()
 
-        if goal_rew is None or goal_rew not in context or argument not in context[goal_rew]:
-            # The rule is not buildable
-            if force is None or force.symbol != "force":
-                return False, f"{argument} is not a known rewriting. Use Force to use it anyway."
-            else:
-                argument = Goal(argument, goal_rew)
+        # We want to unpack the multiple lefts of the nested rewritings, and then build the new goal object accordingly.
 
         if goal_term.type != "Rew":
             term = identify(goal_term, goal_rew)
         else:
             term = goal_term
-        assignements = match(argument.right, term.left)
-        if assignements is None:
-            return False, f"Can't apply {argument} to obtain {term}"
-        new_term = apply(argument.left, assignements)
 
-        new_goal = Comp(Goal(new_term, goal_rew), argument)
+        premises = []
+        current = argument
+        assignements = match(term.left, current)
+        while assignements is None:
+            assignements = match(term.left, current)
+            if assignements is not None:
+                break
+            if current.type != "Rew":
+                return False, f"Can't apply {argument} to obtain {term}"
+            premises.append(current.left)
+            current = current.right
+        
+        if goal_rew is None or goal_rew not in context or argument not in context[goal_rew]:
+            # The rule is not buildable
+            if force is None or force.symbol != "force":
+                return False, f"{argument} is not a known rewriting. Use 'force' to use it anyway."
+            else:
+                argument = Goal(argument, goal_rew)
 
-        self.goal_state.update_goal(new_goal)
-        return True, f"New goal: {new_goal.left}"
+        building = argument
+
+        for premise in premises:
+            building = Comp(Goal(apply(premise, assignements), goal_rew), building)
+
+        self.goal_state.update_goal(building)
+        return True, f"New goal: {self.goal_state.get_goal()}"
 
     def handle_done(self) -> Tuple[bool, str]:
         """Marks the current goal as completed if it's in the context."""
@@ -88,4 +101,12 @@ class GoalHelper(Helper):
 
     def handle_status(self) -> Tuple[bool, str]:
         """Shows the current goal state and context."""
-        return True, f"Goal: {self.goal_state.get_goal()}\ncontext: {self.goal_state.get_context()}\n proof: {self.goal_state.updated_goal(Hole("..."))}"
+        #Show all the goals
+
+        result = "Goals:\n"
+        goals = self.goal_state.get_goals()
+        for goal in goals:
+            result += f"  {goal}\n"
+        result += "Object:\n"
+        result += f"  {self.goal_state.goal}\n"
+        return True, result

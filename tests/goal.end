@@ -20,7 +20,7 @@ Intro ~ New goal: [=>(A => C)]
 
 Intro ~ New goal: [=>C]
 
-By (X => C) ~ error # (X => C) is not a known rewriting. Use Force to use it anyway.
+By (X => C) ~ error # (X => C) is not a known rewriting. Use 'force' to use it anyway.
 
 By (X => C), force ~ New goal: [=>X]
 
@@ -31,3 +31,9 @@ By (A => B) ~ New goal: [=>A]
 Done ~ Goal completed: ((A => B) => ((B => C) => (A => ((B | [=>(B => X)]) | [=>(X => C)]))))
 
 Done ~ error # Goal not completed: [=>(B => X)]
+
+Goal (A => B => Z) => Z
+
+Intro ~ New goal: [=>Z]
+
+By A => B => Z ~ New goal: [=>B]
