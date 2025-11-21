@@ -8,11 +8,7 @@
 
 *   **Import system**, add a way to import an entire file into the context.
 
-*   **Make functionnal**, get rid of ugly "copy()", and have helpers state and objects completely functional.
-
 ### Helpers
-
-*   **Goal helper**, allow for backward sequent-calculus with multi-premises rules. (Introducing multiple goals.)
 
 *   **Build helper**, add directives to work iteratively on a object.
 
@@ -68,12 +64,14 @@
 
 ## History
 
-### Last commit's changes
+### Last commit's changes:
 
-*   **Goal helper**, add directives to set goals, and allow backward sequent-calculus style proofs.
+*   **Goal helper**, allow for backward sequent-calculus with multi-premises rules. (Introducing multiple goals.)
 
 ### Older changes
 
+*   **Make functionnal**, get rid of ugly "copy()", and have helpers state and objects completely functional.
+*   **Goal helper**, add directives to set goals, and allow backward sequent-calculus style proofs.
 *   **Parser updates**, make the parser more flexible on rule symbols and rule parsing.
 *   **Check helper**, add directives to check the buildability of a objects.
 *   **Aliass helper**, allow to define aliases for objects and replace them in other objects.

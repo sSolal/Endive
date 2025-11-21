@@ -32,6 +32,14 @@ class GoalState:
                     return result
         return None
 
+    def get_goals(self, obj: Optional[Object] = None) -> List[Object]:
+        if obj is None:
+            return (self.get_goals(self.goal) if self.goal is not None else [])
+        if obj.type == "Goal":
+            return [obj]
+        else:
+            return [goal for child in obj.children for goal in self.get_goals(child)]
+
 
     def get_context(self, obj: Optional[Object] = None, context: Optional[Dict[str, List[Object]]] = None) -> Optional[Dict[str, List[Object]]]:
         if context is None:
