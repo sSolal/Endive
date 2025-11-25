@@ -5,8 +5,11 @@ def Goal(term: Object, rew: Optional[str] = None) -> Object:
     """
     Creates a goal object representing a goal left to prove in a backward sequent-calculus style proof.
     The goal emulates a term, but is not a term itself.
+    Stores both reduced (for display) and unreduced (for composition) forms.
     """
-    goal_data = {'term': reduce(term), 'rew': rew}
+
+    reduced_term = reduce(term)
+    goal_data = {'term': reduced_term, 'unreduced': term, 'rew': rew}
     return Object("Goal", term.children, term.handle,
                   lambda self: f"[{self.data['rew'] if self.data['rew'] is not None else ''}{str(self.data['term'])}]",
                   goal_data)

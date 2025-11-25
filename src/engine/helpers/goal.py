@@ -6,7 +6,7 @@ Manages usability directives
 
 from typing import Tuple, Optional
 from .helper import Helper
-from ...core import Object, Comp, Rew, Hole, check, reduce, identify, match, apply
+from ...core import Object, Comp, Rew, Hole, Term, check, reduce, identify, match, apply
 from .utils.goal import GoalState, Goal
 
 # TODO : add a check when using "By", warn if not buildable and allow to add as goal anyway with a keyword?
@@ -45,7 +45,7 @@ class GoalHelper(Helper):
         self.goal_state.update_goal(new_goal)
         return True, f"New goal: {new_goal.right}"
 
-    def handle_by(self, argument: Object, force: Optional[Object] = None) -> Tuple[bool, str]:
+    def handle_by(self, argument: Object, force: Optional[Object] = None, unpack: bool = False) -> Tuple[bool, str]:
         """Applies a rewriting rule to progress toward the goal."""
         # Apply the argument to a new Goal, and co-compose it with the current goal to find the new goal.
         goal = self.goal_state.get_goal()
@@ -55,7 +55,8 @@ class GoalHelper(Helper):
 
         # We want to unpack the multiple lefts of the nested rewritings, and then build the new goal object accordingly.
 
-        if goal_term.type != "Rew":
+        ## we always try to apply the rule to the goal "as a term" first, and only if it fails may we consider it as a rewriting.
+        if not unpack:
             term = identify(goal_term, goal_rew)
         else:
             term = goal_term
@@ -68,6 +69,8 @@ class GoalHelper(Helper):
             if assignements is not None:
                 break
             if current.type != "Rew":
+                if not unpack: # We retry with the goal as a rewriting.
+                    return self.handle_by(argument, force, unpack=True)
                 return False, f"Can't apply {argument} to obtain {term}"
             premises.append(current.left)
             current = current.right
@@ -82,7 +85,9 @@ class GoalHelper(Helper):
         building = argument
 
         for premise in premises:
-            building = Comp(Goal(apply(premise, assignements), goal_rew), building)
+            applied_premise = apply(premise, assignements)
+            goal_premise = Goal(applied_premise, goal_rew)
+            building = Comp(goal_premise, building)
 
         self.goal_state.update_goal(building)
         return True, f"New goal: {self.goal_state.get_goal()}"
@@ -92,9 +97,11 @@ class GoalHelper(Helper):
         goal = self.goal_state.get_goal()
         goal_rew = goal.data['rew']
         goal_term = goal.data['term']
+        goal_unreduced = goal.data['unreduced']
         context = self.goal_state.get_context()
+        context["=>"] = context["=>"] + [Term("True", [])]
 
-        if goal_rew is not None and goal_rew in context and goal_term in context[goal_rew]:
+        if goal_rew is not None and goal_rew in context and goal_unreduced in context[goal_rew]:
             self.goal_state.update_goal(goal_term)
             return True, f"Goal completed: {reduce(self.goal_state.goal)}"
         return False, f"Goal not completed: {goal}"

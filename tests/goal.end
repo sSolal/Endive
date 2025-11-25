@@ -37,3 +37,18 @@ Goal (A => B => Z) => Z
 Intro ~ New goal: [=>Z]
 
 By A => B => Z ~ New goal: [=>B]
+
+# Testing multi-premises rewritings
+
+Define def_and, [A] => [B] => and([A], [B])
+
+Goal def_and => X => Y => and(X, Y) ~ New goal: [(([A] => ([B] => and([A], [B]))) => (X => (Y => and(X, Y))))]
+
+Intro
+Intro
+Intro
+
+Done ~ error # Goal not completed: [=>and(X, Y)]
+By def_and ~ New goal: [=>Y]
+Done ~ Goal completed: (([A] => ([B] => and([A], [B]))) => (X => (Y => and([=>X], Y))))
+Done ~ Goal completed: (([A] => ([B] => and([A], [B]))) => (X => (Y => and(X, Y))))
