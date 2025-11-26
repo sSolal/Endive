@@ -11,8 +11,9 @@ According to THOUGHTS.md:
 """
 
 from typing import List, Tuple, Dict
-from .helper import Helper
-from ...core import Object
+from dataclasses import replace
+from .helper import Helper, hookify
+from ...core import Object, Term
 
 
 
@@ -32,7 +33,8 @@ class AliasHelper(Helper):
         self.register_hook(['ALL'], self.all_hook)
         self.register_handler('Define', self.define_handler)
 
-    def all_hook(self, *arguments: Object) -> List[Object]:
+    @hookify
+    def all_hook(self, directive: str, *arguments: Object) -> List[Object]:
         return [self.apply_aliases(arg) for arg in arguments]
 
     def apply_aliases(self, argument: Object) -> Object:
@@ -40,10 +42,11 @@ class AliasHelper(Helper):
             return self.aliases[argument.handle]
         else:
             new_children = tuple(self.apply_aliases(child) for child in argument.children)
-            return Object(argument.type, new_children, argument.handle, argument.repr_func, argument.data)
+            return Object(argument.type, new_children, argument.handle, argument.repr_func, dict(argument.data))
 
-    def define_handler(self, name: Object, obj: Object) -> Tuple[bool, str]:
+    @hookify
+    def define_handler(self, directive: str, name: Object, obj: Object) -> Tuple[bool, List[Object]]:
         if name.type != 'Term' or len(name.children) != 0:
-            return False, "Name must be a simple term with no arguments"
+            return False, [replace(name, data={**name.data, "result": "Name must be a simple term with no arguments"})]
         self.aliases[name.handle] = obj
-        return True, name.handle + " defined"
+        return True, [replace(name, data={**name.data, "result": f"{name.handle} defined"})]

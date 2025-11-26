@@ -4,8 +4,9 @@ Goal Helper
 Manages usability directives
 """
 
-from typing import Tuple, Optional
-from .helper import Helper
+from typing import Tuple, Optional, List
+from dataclasses import replace
+from .helper import Helper, hookify
 from ...core import Object, Comp, Rew, Hole, Term, check, reduce, identify, match, apply
 from .utils.goal import GoalState, Goal
 
@@ -28,24 +29,28 @@ class GoalHelper(Helper):
         self.goal_state = GoalState()
 
 
-    def handle_goal(self, argument: Object) -> Tuple[bool, str]:
+    @hookify
+    def handle_goal(self, directive: str, argument: Object) -> Tuple[bool, List[Object]]:
         """Sets a new goal."""
         # For now, goals have to be rewritings.
         self.goal_state.set_goal(argument)
-        return True, f"New goal: {self.goal_state.get_goal()}"
+        goal = self.goal_state.get_goal()
+        return True, [replace(goal, data={**goal.data, "result": f"New goal: {goal}"})]
 
-    def handle_intro(self) -> Tuple[bool, str]:
+    @hookify
+    def handle_intro(self, directive: str) -> Tuple[bool, List[Object]]:
         """Introduces a premise into the context."""
         # Current goal should be a rewriting.
         goal = self.goal_state.get_goal()
         goal_term = goal.data['term']
         if goal_term.type != "Rew":
-            return False, "Goal is not a rewriting"
+            return False, [replace(goal, data={**goal.data, "result": "Goal is not a rewriting"})]
         new_goal = Rew(goal_term.left, goal_term.symbol, Goal(goal_term.right, goal_term.symbol))
         self.goal_state.update_goal(new_goal)
-        return True, f"New goal: {new_goal.right}"
+        return True, [replace(new_goal.right, data={**new_goal.right.data, "result": f"New goal: {new_goal.right}"})]
 
-    def handle_by(self, argument: Object, force: Optional[Object] = None, unpack: bool = False) -> Tuple[bool, str]:
+    @hookify
+    def handle_by(self, directive: str, argument: Object, force: Optional[Object] = None, unpack: bool = False) -> Tuple[bool, List[Object]]:
         """Applies a rewriting rule to progress toward the goal."""
         # Apply the argument to a new Goal, and co-compose it with the current goal to find the new goal.
         goal = self.goal_state.get_goal()
@@ -70,15 +75,15 @@ class GoalHelper(Helper):
                 break
             if current.type != "Rew":
                 if not unpack: # We retry with the goal as a rewriting.
-                    return self.handle_by(argument, force, unpack=True)
-                return False, f"Can't apply {argument} to obtain {term}"
+                    return self.handle_by(directive, argument, force, unpack=True)
+                return False, [replace(argument, data={**argument.data, "result": f"Can't apply {argument} to obtain {term}"})]
             premises.append(current.left)
             current = current.right
-        
+
         if goal_rew is None or goal_rew not in context or argument not in context[goal_rew]:
             # The rule is not buildable
             if force is None or force.symbol != "force":
-                return False, f"{argument} is not a known rewriting. Use 'force' to use it anyway."
+                return False, [replace(argument, data={**argument.data, "result": f"{argument} is not a known rewriting. Use 'force' to use it anyway."})]
             else:
                 argument = Goal(argument, goal_rew)
 
@@ -90,9 +95,11 @@ class GoalHelper(Helper):
             building = Comp(goal_premise, building)
 
         self.goal_state.update_goal(building)
-        return True, f"New goal: {self.goal_state.get_goal()}"
+        new_goal = self.goal_state.get_goal()
+        return True, [replace(new_goal, data={**new_goal.data, "result": f"New goal: {new_goal}"})]
 
-    def handle_done(self) -> Tuple[bool, str]:
+    @hookify
+    def handle_done(self, directive: str) -> Tuple[bool, List[Object]]:
         """Marks the current goal as completed if it's in the context."""
         goal = self.goal_state.get_goal()
         goal_rew = goal.data['rew']
@@ -103,10 +110,12 @@ class GoalHelper(Helper):
 
         if goal_rew is not None and goal_rew in context and goal_unreduced in context[goal_rew]:
             self.goal_state.update_goal(goal_term)
-            return True, f"Goal completed: {reduce(self.goal_state.goal)}"
-        return False, f"Goal not completed: {goal}"
+            completed = reduce(self.goal_state.goal)
+            return True, [replace(completed, data={**completed.data, "result": f"Goal completed: {completed}"})]
+        return False, [replace(goal, data={**goal.data, "result": f"Goal not completed: {goal}"})]
 
-    def handle_status(self) -> Tuple[bool, str]:
+    @hookify
+    def handle_status(self, directive: str) -> Tuple[bool, List[Object]]:
         """Shows the current goal state and context."""
         #Show all the goals
 
@@ -116,4 +125,5 @@ class GoalHelper(Helper):
             result += f"  {goal}\n"
         result += "Object:\n"
         result += f"  {self.goal_state.goal}\n"
-        return True, result
+        # Return a Term with the result for display
+        return True, [Term("Status", data={"result": result})]

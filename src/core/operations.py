@@ -17,7 +17,7 @@ def prefix_holes(term: Object, prefix: str) -> Object:
     if term.type == "Hole":
         return Hole(prefix + term.handle)
     else:
-        return Object(term.type, tuple(prefix_holes(child, prefix) for child in term.children), term.handle, term.repr_func, term.data)
+        return Object(term.type, tuple(prefix_holes(child, prefix) for child in term.children), term.handle, term.repr_func, dict(term.data))
 
 def unprefix_holes(term: Object, prefixes: List[str]) -> Object:
     """
@@ -29,7 +29,7 @@ def unprefix_holes(term: Object, prefixes: List[str]) -> Object:
             handle = handle.removeprefix(prefix)
         return Hole(handle)
     else:
-        return Object(term.type, tuple(unprefix_holes(child, prefixes) for child in term.children), term.handle, term.repr_func, term.data)
+        return Object(term.type, tuple(unprefix_holes(child, prefixes) for child in term.children), term.handle, term.repr_func, dict(term.data))
 
 def match_left(A: Object, B: Object) -> Optional[Dict[str, Object]]:
     """
@@ -119,7 +119,7 @@ def apply(B: Object, assignments: Dict[str, Object]) -> Object:
             return B
     else:
         new_children = tuple(apply(child, assignments) for child in B.children)
-        return Object(B.type, new_children, B.handle, B.repr_func, B.data)
+        return Object(B.type, new_children, B.handle, B.repr_func, dict(B.data))
 
 def compose_rews(A: Object, B: Object) -> Optional[Object]:
     """
@@ -163,7 +163,7 @@ def reduce_once(term: Object) -> Object:
         if attempt is not None:
             return attempt
     new_children = tuple(reduce_once(child) for child in term.children)
-    return Object(term.type, new_children, term.handle, term.repr_func, term.data)
+    return Object(term.type, new_children, term.handle, term.repr_func, dict(term.data))
 
 def reduce(term: Object, max_steps: int = 100) -> Object:
     """

@@ -6,8 +6,8 @@ This module defines the fundamental data structures:
 - Term, Rew, Comp, Hole
 """
 
-from dataclasses import dataclass
-from typing import Tuple, Optional, Callable, Any
+from dataclasses import dataclass, field
+from typing import Tuple, Optional, Callable, Any, Dict
 
 
 @dataclass(frozen=True, slots=True, eq=False)
@@ -16,7 +16,7 @@ class Object:
     children: Tuple['Object', ...]
     handle: Optional[str] = None
     repr_func: Optional[Callable] = None
-    data: Optional[Any] = None  # For custom object types to store additional data
+    data: Dict[str, Any] = field(default_factory=dict)  # For custom object types to store additional data
 
     def __str__(self) -> str:
         return self.__repr__()

@@ -8,11 +8,13 @@
 
 *   **Import system**, add a way to import an entire file into the context.
 
+*   **Helpers' return mechanism**, allow the helpers to act on returned objects to undo their effects.
+
 ### Helpers
 
 *   **Build helper**, add directives to work iteratively on a object.
 
-*   **Church helper**, move the church numerals handling from the parser to a helper.
+*   **Church helper**, build a helper that converts numeric symbols to their corresponding Church numerals.
 
 *   **Functoriality helper**, allow the declaration of "functorial" rules, for easier nested objects rewriting.
 
@@ -25,6 +27,10 @@
 *   **Add traversal utilities**, to reduce redundancy of traversing objects and mapping a function over whole objects-trees.
 
 *   **Improve multiple goals handling**, currently, all operations are done on the first goal object found in a depth-first search...
+
+### Open questions
+
+*   When matching to a pattern such as 0 | [P], should it be able to match "0 = 0" ? How do we give the user the ability to make that match?
 
 ,
 ## V1 vision: a proof assistant to make any kind of maths.
@@ -61,14 +67,23 @@
 > *   The church numerals handling should be moved to a helper instead of being handled by the parser.
 > *   We need some notion of global context.
 
+### Pipeline's return mechanism
+
+> Allow the pipeline to return objects instead of just strings.
+> The handler should return a tuple of (bool, object), where bool is a success flag.
+> The helpers will be able to register backward hooks to process the objects returned by the handler in the reverse order of the forward hooks.
+> Handler and hooks may store data for between the forward and reverse passes inside the data field of the objects.
+> And return text may be stored in the data field of the objects too, and will be displayed by the UI when the pipeline is done.
 
 ## History
 
 ### Last commit's changes:
 
-*   **Goal helper**, allow for backward sequent-calculus with multi-premises rules. (Introducing multiple goals.)
+*   **Hooks and handlers return type**, unify the typing of hooks and handlers, and allow them to return annotated objects instead of just strings.
 
 ### Older changes
+
+*   **Goal helper**, allow for backward sequent-calculus with multi-premises rules. (Introducing multiple goals.)
 
 *   **Make functionnal**, get rid of ugly "copy()", and have helpers state and objects completely functional.
 *   **Goal helper**, add directives to set goals, and allow backward sequent-calculus style proofs.

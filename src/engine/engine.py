@@ -4,8 +4,9 @@ Proof Assistant (New Pipeline Architecture)
 This engine takes a line of text, parses it, processes it through the pipeline, and returns the diagnoses in displayed format
 """
 
-from typing import Tuple
+from typing import Tuple, List
 from .pipeline import Pipeline
+from ..core import Object
 from .helpers import (
     AliasHelper,
     GoalHelper,
@@ -43,14 +44,15 @@ class Engine:
         self.build_helper = BuildHelper()
         self.pipeline.helpers.append(self.build_helper)
 
-    def process(self, line: str) -> Tuple[bool, str]:
+    def process(self, line: str) -> Tuple[bool, List[Object]]:
         """
         Check a single line of proof using the pipeline.
+        Returns: (success: bool, results: List[Object])
         """
         # Parse the line
         directive, content = parse_line(line)
 
         if directive is None:  # Empty line or comment
-            return True, ""
+            return True, []
 
         return self.pipeline.process(directive, content)

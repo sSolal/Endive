@@ -45,7 +45,18 @@ class Cli:
     def process(self, line: str, silent: Optional[bool] = None) -> Optional[Tuple[bool, str]]:
         """Process a single proof directive line"""
         try:
-            success, message = self.engine.process(line)
+            success, result_objects = self.engine.process(line)
+
+            # Extract display strings from result objects
+            messages = []
+            for obj in result_objects:
+                if "result" in obj.data:
+                    messages.append(obj.data["result"])
+                else:
+                    messages.append(str(obj))
+
+            message = "\n".join(messages) if messages else ""
+
             if not self.silent or silent == False:
                 if success:
                     print(f"{Colors.GREEN}✓{Colors.RESET} {message}")

@@ -94,7 +94,7 @@ class GoalState:
                         new_children.append(child)
 
                 if updated:
-                    return Object(obj.type, tuple(new_children), obj.handle, obj.repr_func, obj.data), True
+                    return Object(obj.type, tuple(new_children), obj.handle, obj.repr_func, dict(obj.data)), True
             return obj, False
 
         result, _ = recursive_update(new_goal, self.goal if obj is None else obj)
