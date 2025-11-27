@@ -69,31 +69,40 @@ class Helper(ABC):
     Base class for all helpers in the proof assistant pipeline.
 
     Each helper can:
-    1. Register hooks to pre-process specific directives
+    1. Register forhooks to pre-process specific directives
     2. Register handlers to fully process specific directives
-    3. Maintain internal state
+    3. Register backhooks to post-process results
+    4. Maintain internal state
 
     Workflow:
-    - Hooks: (str, List[Object]) -> List[Object] - receive directive and arguments, return modified arguments
+    - Forhooks: (str, List[Object]) -> List[Object] - receive directive and arguments, return modified arguments
     - Handlers: (str, List[Object]) -> Tuple[bool, List[Object]] - return success flag and result objects
+    - Backhooks: (str, List[Object]) -> List[Object] - receive directive and results, return modified results
     - 'ALL' is a special directive type that matches all directives
     """
 
     def __init__(self):
         """Initialize the helper with empty state"""
-        self.hooks = {}  # directive_type -> hook_method
+        self.forhooks = {}  # directive_type -> forhook_method
         self.handlers = {}  # directive -> handler_method
+        self.backhooks = {}  # directive_type -> backhook_method
+        self.hooks_state = {}  # per-traversal state, cleared each run
 
 
-    def register_hook(self, directives: List[str], hook_method: Callable[[str, List[Object]], List[Object]]):
+    def register_hook(self, directives: List[str],
+                         forhook_method: Callable[[str, List[Object]], List[Object]],
+                         backhook_method: Optional[Callable[[str, List[Object]], List[Object]]] = None):
         """
-        Register a hook for specific directive types.
-        Hook signature: (directive: str, arguments: List[Object]) -> List[Object]
+        Register a forhook (and optional backhook) for specific directive types.
+        Forhook signature: (directive: str, arguments: List[Object]) -> List[Object]
+        Backhook signature: (directive: str, results: List[Object]) -> List[Object]
 
         Decorate your hook methods with @hookify to adapt explicit parameters.
         """
         for directive in directives:
-            self.hooks[directive] = hook_method
+            self.forhooks[directive] = forhook_method
+            if backhook_method is not None:
+                self.backhooks[directive] = backhook_method
 
     def register_handler(self, directive: str, handler_method: Callable[[str, List[Object]], Tuple[bool, List[Object]]]):
         """
@@ -104,18 +113,30 @@ class Helper(ABC):
         """
         self.handlers[directive] = handler_method
 
-    def get_hook(self, directive: str) -> bool:
-        """Check if this helper has a hook for the given directive type"""
-        if directive in self.hooks:
-            return self.hooks[directive]
-        elif 'ALL' in self.hooks:
-            return self.hooks['ALL']
-        return None
+    def get_hook(self, directive: str):
+        """Get forhook and optional backhook for the given directive type.
+
+        Returns: Tuple[Optional[Callable], Optional[Callable]]
+                 (forhook_method, backhook_method or None)
+        Supports 'ALL' wildcard.
+        """
+        forhook = None
+        backhook = None
+
+        if directive in self.forhooks:
+            forhook = self.forhooks[directive]
+            backhook = self.backhooks.get(directive)
+        elif 'ALL' in self.forhooks:
+            forhook = self.forhooks['ALL']
+            backhook = self.backhooks.get('ALL')
+
+        return (forhook, backhook)
 
     def get_handler(self, directive: str) -> bool:
         """Check if this helper has a handler for the given directive type"""
         if directive in self.handlers:
             return self.handlers[directive]
 
-    def clear(self):
-        pass
+    def reset_hooks_state(self):
+        """Called at start of each pipeline traversal to clear per-traversal state"""
+        self.hooks_state.clear()

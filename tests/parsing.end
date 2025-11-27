@@ -9,8 +9,8 @@ Define prec2, A -> B | B -> C
 Reduce prec2 ~ (A -> C)
 
 # Test arithmetic operators precedence
-Define math1, a + b * c
-Reduce math1 ~ plus(a, mult(b, c))
+Define math1, a -> a + b * c
+Reduce a | math1 ~ plus(a, mult(b, c))
 
 # Test parentheses override precedence
 Define group1, A -> (A -> C) -> (A | A -> C)
@@ -32,8 +32,8 @@ Check nested ~ error # D is not buildable
 Define func, f(a, b, c) ~ func defined
 
 # Test composition associativity (right-associative)
-Define comp_assoc, A | B | C
-Reduce comp_assoc ~ (A | (B | C))
+Define comp_assoc, [A] | [B] | [C]
+Reduce x | [A] -> comp_assoc ~ (x | ([B] | [C]))
 
 # Comments are ignored
 # This is a comment
@@ -43,4 +43,4 @@ Reduce comp_assoc ~ (A | (B | C))
 # Test special character sequences as symbols
 Define fancy, A <-=-> B ~ fancy defined
 Define weird, [k] <-=-> [x] gives [x] ~ weird defined
-Reduce fancy gives fancy | weird ~ ((A <-=-> B) gives B)
+Reduce fancy gives fancy | weird ~ (fancy gives B)

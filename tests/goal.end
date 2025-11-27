@@ -50,5 +50,5 @@ Intro
 
 Done ~ error # Goal not completed: [=>and(X, Y)]
 By def_and ~ New goal: [=>Y]
-Done ~ Goal completed: (([A] => ([B] => and([A], [B]))) => (X => (Y => and([=>X], Y))))
-Done ~ Goal completed: (([A] => ([B] => and([A], [B]))) => (X => (Y => and(X, Y))))
+Done ~ Goal completed: (def_and => (X => (Y => and([=>X], Y))))
+Done ~ Goal completed: (def_and => (X => (Y => and(X, Y))))

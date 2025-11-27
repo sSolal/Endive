@@ -57,26 +57,26 @@ class Object:
     def symbol(self) -> Optional[str]:
         return self.handle
 
-def Term(name: str, arguments: Tuple[Object, ...] = ()) -> Object:
+def Term(name: str, arguments: Tuple[Object, ...] = (), data: Dict[str, Any] = {}) -> Object:
     """Creates a term object."""
     if not isinstance(arguments, tuple):
         arguments = tuple(arguments)
-    return Object("Term", arguments, name)
+    return Object("Term", arguments, name, data=data)
 
-def Rew(left: Object, symbol: str, right: Object) -> Object:
+def Rew(left: Object, symbol: str, right: Object, data: Dict[str, Any] = {}) -> Object:
     """Creates a rewriting rule object."""
     return Object("Rew", (left, right), symbol,
-        lambda self: f"({str(self.children[0])} {self.handle} {str(self.children[1])})")
+        lambda self: f"({str(self.children[0])} {self.handle} {str(self.children[1])})", data=data)
 
-def Comp(left: Object, right: Object) -> Object:
+def Comp(left: Object, right: Object, data: Dict[str, Any] = {}) -> Object:
     """Creates a composition object."""
     return Object("Comp", (left, right), None,
-        lambda self: f"({str(self.children[0])} | {str(self.children[1])})")
+        lambda self: f"({str(self.children[0])} | {str(self.children[1])})", data=data)
 
-def Hole(name: str) -> Object:
+def Hole(name: str, data: Dict[str, Any] = {}) -> Object:
     """Creates a hole (pattern variable) object."""
     return Object("Hole", (), name,
-        lambda self: "[" + self.handle + "]")
+        lambda self: "[" + self.handle + "]", data=data)
 
 def identify(A: Object, rule: str) -> Object:
     """Creates an identity rewrite rule for an object."""
