@@ -49,4 +49,4 @@ class AliasHelper(Helper):
         if name.type != 'Term' or len(name.children) != 0:
             return False, [replace(name, data={**name.data, "result": "Name must be a simple term with no arguments"})]
         self.aliases[name.handle] = obj
-        return True, [replace(name, data={**name.data, "result": f"{name.handle} defined"})]
+        return True, [replace(name, data={**name.data, "result": "[] defined"})]

@@ -81,3 +81,19 @@ def Hole(name: str) -> Object:
 def identify(A: Object, rule: str) -> Object:
     """Creates an identity rewrite rule for an object."""
     return Rew(A, rule, A)
+
+def get_child(obj: Object, indices: Tuple[int, ...]) -> Optional[Object]:
+    """
+    Navigate to a child using a sequence of indices.
+    > get_child(parent, ())  # Returns parent
+    >get_child(parent, (1, 1))  # Returns second child's second child
+    """
+    current = obj
+    try:
+        for index in indices:
+            if index < 0 or index >= len(current.children):
+                return None
+            current = current.children[index]
+        return current
+    except (IndexError, AttributeError, TypeError):
+        return None

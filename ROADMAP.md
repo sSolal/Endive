@@ -4,8 +4,6 @@
 
 ### Changes
 
-*   **Helpers' state display**, add a way for helpers to display their state in a nice way.
-
 *   **Import system**, add a way to import an entire file into the context.
 
 *   **Helpers' return mechanism**, allow the helpers to act on returned objects to undo their effects.
@@ -34,6 +32,8 @@
 
 ,
 ## V1 vision: a proof assistant to make any kind of maths.
+
+*   **Streamline the printing**, make a real set of helpers for a nicer CLI.
 
 *   **Suggestions helper**, suggest tactics based on the current goal or the current object.
 
@@ -79,12 +79,12 @@
 
 ### Last commit's changes:
 
-*   **Hooks and handlers return type**, unify the typing of hooks and handlers, and allow them to return annotated objects instead of just strings.
+*   **Pipeline now returns objects**, instead of just strings. Objects can be annotated, and annotations can reference children objects.
 
 ### Older changes
 
+*   **Hooks and handlers return type**, unify the typing of hooks and handlers, and allow them to return annotated objects instead of just strings.
 *   **Goal helper**, allow for backward sequent-calculus with multi-premises rules. (Introducing multiple goals.)
-
 *   **Make functionnal**, get rid of ugly "copy()", and have helpers state and objects completely functional.
 *   **Goal helper**, add directives to set goals, and allow backward sequent-calculus style proofs.
 *   **Parser updates**, make the parser more flexible on rule symbols and rule parsing.

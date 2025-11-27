@@ -1,7 +1,38 @@
 import os
 import sys
+import re
 from typing import Tuple, Optional, Dict
 from ..engine import Engine
+from ..core import get_child
+
+
+def interpolate(obj, result_str: str) -> str:
+    """
+    Interpolate object references in a result string.
+
+    Supports:
+    - [] - Reference the object itself
+    - [0.5.2] - Reference nested children using 0-based indices
+    """
+    def replace_reference(match):
+        ref = match.group(1)
+
+        if ref == '':
+            return str(obj)
+
+        # Parse dot notation into list of integers
+        try:
+            indices = tuple(int(idx) for idx in ref.split('.'))
+        except ValueError:
+            raise ValueError(f"Invalid path syntax: {ref}")
+
+        child = get_child(obj, indices)
+        if child is None:
+            raise ValueError(f"Invalid path: {ref} in {obj}")
+        return str(child)
+
+    pattern = r'\[(\d+(?:\.\d+)*|)\]'
+    return re.sub(pattern, replace_reference, result_str)
 
 
 class Colors:
@@ -51,7 +82,8 @@ class Cli:
             messages = []
             for obj in result_objects:
                 if "result" in obj.data:
-                    messages.append(obj.data["result"])
+                    interpolated = interpolate(obj, obj.data["result"])
+                    messages.append(interpolated)
                 else:
                     messages.append(str(obj))
 
