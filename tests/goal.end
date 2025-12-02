@@ -28,7 +28,7 @@ By (B => X), force ~ New goal: [=>B]
 
 By (A => B) ~ New goal: [=>A]
 
-Done ~ Goal completed: ((A => B) => ((B => C) => (A => ((B | [=>(B => X)]) | [=>(X => C)]))))
+Done ~ Goal completed: ((A => B) => ((B => C) => (A => ((B | ([=>(B => X)] | (X => X))) | ([=>(X => C)] | (C => C))))))
 
 Done ~ error # Goal not completed: [=>(B => X)]
 
@@ -50,5 +50,11 @@ Intro
 
 Done ~ error # Goal not completed: [=>and(X, Y)]
 By def_and ~ New goal: [=>Y]
-Done ~ Goal completed: (def_and => (X => (Y => and([=>X], Y))))
+Done ~ Goal completed: (def_and => (X => (Y => (Y | ([=>X] | (X => (Y => and(X, Y))))))))
 Done ~ Goal completed: (def_and => (X => (Y => and(X, Y))))
+
+Goal A
+By X => Y => Z => A ~ error # Rules with more than 2 premises are not yet supported. Found 3 premises.
+
+Goal A => B
+By X => Y => A => B ~ error # (X => (Y => (A => B))) is not a known rewriting. Use 'force' to use it anyway.

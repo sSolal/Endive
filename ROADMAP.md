@@ -6,7 +6,7 @@
 
 *   **Import system**, add a way to import an entire file into the context.
 
-*   **Helpers' return mechanism**, allow the helpers to act on returned objects to undo their effects.
+*   **Custom display**, add a way to customize the display of certain objects (arithmetic operations).
 
 ### Helpers
 
@@ -26,9 +26,6 @@
 
 *   **Improve multiple goals handling**, currently, all operations are done on the first goal object found in a depth-first search...
 
-### Open questions
-
-*   When matching to a pattern such as 0 | [P], should it be able to match "0 = 0" ? How do we give the user the ability to make that match?
 
 ,
 ## V1 vision: a proof assistant to make any kind of maths.
@@ -48,6 +45,10 @@
 *   **Engine return objects**, allow the engine to return objects, not just strings
 
 *   **Parsing metadata in terms**, allow terms to contain metadata to keep track of where they come from, for further updates to return messages.
+
+### Open questions
+
+*   When matching to a pattern such as 0 | [P], should it be able to match "0 = 0" ? How do we give the user the ability to make that match?
 
 
 
@@ -77,12 +78,14 @@
 
 ## History
 
-### Last commit's changes:
+### Last commits' changes:
 
-*   **Pipeline now returns objects**, instead of just strings. Objects can be annotated, and annotations can reference children objects.
+*   **Multi premises rules**, allow the use of rules with multiple premises in goal.
 
 ### Older changes
 
+*   **Helpers' return mechanism**, allow the helpers to act on returned objects to undo their effects.
+*   **Pipeline now returns objects**, instead of just strings. Objects can be annotated, and annotations can reference children objects.
 *   **Hooks and handlers return type**, unify the typing of hooks and handlers, and allow them to return annotated objects instead of just strings.
 *   **Goal helper**, allow for backward sequent-calculus with multi-premises rules. (Introducing multiple goals.)
 *   **Make functionnal**, get rid of ugly "copy()", and have helpers state and objects completely functional.

@@ -1,0 +1,26 @@
+Define def_and, [A] => [B] => and([A], [B])
+Define induction, and((0 | [P]), (([n] | [P]) => (S([n]) | [P]))) => forall(N, [P])
+
+Define equal_zero, True => (0 = 0)
+
+Define equal_succ, ([x] = [y]) => (S([x]) = S([y]))
+
+Goal def_and => induction => equal_zero => equal_succ => forall(N, [k] -> [k] = [k])
+
+Intro
+Intro
+Intro
+Intro
+
+By induction
+
+By def_and
+
+Intro
+By equal_succ
+Done
+
+By equal_zero
+Done
+
+Status

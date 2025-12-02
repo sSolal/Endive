@@ -125,7 +125,7 @@ def compose_rews(A: Object, B: Object) -> Optional[Object]:
     """
     Compose two rewritings, and get a rewriting.
     """
-    if B.type != "Rew" or (A.symbol != B.symbol):
+    if A.type != "Rew" or B.type != "Rew" or (A.symbol != B.symbol):
         return None
 
     # We first want to rename all holes in A and B to avoid conflicts with A's holes in the assignments.

@@ -104,3 +104,23 @@ class GoalState:
         new_goal_term = self.updated_goal(new_goal)
         self.goal = new_goal_term
         return self.goal
+
+def currifier(symbol: str) -> Object:
+        """
+        Constructs the lemma: ([X] => ([Y] => [Z])) => (([Z] => [W]) => ([X] => ([Y] => ([W])))
+        (With proof :
+        ([X] => ([Y] => [Z])) => (([Z] => [W]) => ([X] => ([Y] => (([Y] | ([X] | ([X] => [Y] => [Z]))) | [Z] => [W]))))
+        )
+        
+        This lemma enables composing 2-premise curried rewritings with a rewriting that is expected to act on their result.
+        It allows us to properly reduce compositions with objects such as (A => (B => X)) and (X => Y).
+
+        Args:
+            symbol: The rewriting symbol (e.g., "=>")
+
+        """
+        X, Y, Z, W = Hole("X"), Hole("Y"), Hole("Z"), Hole("W")
+        inner = Rew(X, symbol, Rew(Y, symbol, Z))
+        transformation = Rew(Z, symbol, W)
+        result = Rew(X, symbol, Rew(Y, symbol, Comp(Comp(Y, Comp(X, inner)), transformation)))
+        return Rew(inner, symbol, Rew(transformation, symbol, result))

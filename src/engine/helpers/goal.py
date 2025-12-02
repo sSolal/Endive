@@ -8,10 +8,11 @@ from typing import Tuple, Optional, List
 from dataclasses import replace
 from .helper import Helper, hookify
 from ...core import Object, Comp, Rew, Hole, Term, check, reduce, identify, match, apply
-from .utils.goal import GoalState, Goal
+from .utils.goal import GoalState, Goal, currifier
 
-# TODO : add a check when using "By", warn if not buildable and allow to add as goal anyway with a keyword?
-# TODO : Allow the use of "By" with rules that have multiple premises.
+
+# TODO : Extend currifier approach to support 3+ premise rewritings
+# TODO : When there are no goals left, Done should give a nice message.
 
 class GoalHelper(Helper):
     """
@@ -27,7 +28,6 @@ class GoalHelper(Helper):
         self.register_handler('By', self.handle_by)
 
         self.goal_state = GoalState()
-
 
     @hookify
     def handle_goal(self, directive: str, argument: Object) -> Tuple[bool, List[Object]]:
@@ -80,6 +80,13 @@ class GoalHelper(Helper):
             premises.append(current.left)
             current = current.right
 
+        # Error if more than 2 premises
+        if len(premises) > 2:
+            return False, [replace(argument, data={
+                **argument.data,
+                "result": f"Rules with more than 2 premises are not yet supported. Found {len(premises)} premises."
+            })]
+
         if goal_rew is None or goal_rew not in context or argument not in context[goal_rew]:
             # The rule is not buildable
             if force is None or force.symbol != "force":
@@ -87,12 +94,24 @@ class GoalHelper(Helper):
             else:
                 argument = Goal(argument, goal_rew)
 
-        building = argument
+        # Build composition based on premise count
+        if len(premises) == 2:
+            
+            building = Comp(term, Comp(argument, currifier(goal_rew)))
 
-        for premise in premises:
-            applied_premise = apply(premise, assignements)
-            goal_premise = Goal(applied_premise, goal_rew)
-            building = Comp(goal_premise, building)
+            # Wrap premises as Goals (B before A in composition)
+            for premise in premises:
+                applied_premise = apply(premise, assignements)
+                goal_premise = Goal(applied_premise, goal_rew)
+                building = Comp(goal_premise, building)
+        else:
+            # Original behavior for 0, 1 premise cases
+            building = Comp(argument, term)
+
+            for premise in premises:
+                applied_premise = apply(premise, assignements)
+                goal_premise = Goal(applied_premise, goal_rew)
+                building = Comp(goal_premise, building)
 
         self.goal_state.update_goal(building)
         new_goal = self.goal_state.get_goal()
