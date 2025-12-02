@@ -6,23 +6,23 @@ Check prec1 ~ (A -> B) in context
 
 # Test precedence: pipe (composition) has lowest precedence
 Define prec2, A -> B | B -> C
-Reduce prec2 ~ (A -> C)
+Reduce prec2 ~ A -> C
 
 # Test arithmetic operators precedence
-Define math1, a -> a + b * c
-Reduce a | math1 ~ plus(a, mult(b, c))
+Define math1, a -> (a + b) * c + d
+Reduce a | math1 ~ (a + b) * c + d
 
 # Test parentheses override precedence
 Define group1, A -> (A -> C) -> (A | A -> C)
 Check group1 ~
-Reduce group1 ~ (A -> ((A -> C) -> C))
+Reduce group1 ~ A -> (A -> C) -> C
 
 # Test holes with various naming styles
 Define hole, [x] ~ hole defined
 
 # Test mixed symbol types (special chars have higher precedence)
 Define mixed1, A => B -> C
-Reduce A | mixed1 ~ (B -> C)
+Reduce A | mixed1 ~ B -> C
 
 # Test deeply nested parentheses
 Define nested, ((A -> B) -> D) -> D
@@ -33,7 +33,7 @@ Define func, f(a, b, c) ~ func defined
 
 # Test composition associativity (right-associative)
 Define comp_assoc, [A] | [B] | [C]
-Reduce x | [A] -> comp_assoc ~ (x | ([B] | [C]))
+Reduce x | [A] -> comp_assoc ~ x | [B] | [C]
 
 # Comments are ignored
 # This is a comment
@@ -43,4 +43,4 @@ Reduce x | [A] -> comp_assoc ~ (x | ([B] | [C]))
 # Test special character sequences as symbols
 Define fancy, A <-=-> B ~ fancy defined
 Define weird, [k] <-=-> [x] gives [x] ~ weird defined
-Reduce fancy gives fancy | weird ~ (fancy gives B)
+Reduce fancy gives fancy | weird ~ fancy gives B

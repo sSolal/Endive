@@ -6,8 +6,6 @@
 
 *   **Import system**, add a way to import an entire file into the context.
 
-*   **Custom display**, add a way to customize the display of certain objects (arithmetic operations).
-
 ### Helpers
 
 *   **Build helper**, add directives to work iteratively on a object.
@@ -18,14 +16,13 @@
 
 ### Quick fixes
 
-*   **Display parentheses**, the __repr__ method of objects should take into account precedences to put parentheses where needed.
-
-*   **Add undo**, Add an undo command to the engine. (Wait for the engine to be functional.)
+*   **Add undo**, Add an undo command to the engine/repl.
 
 *   **Add traversal utilities**, to reduce redundancy of traversing objects and mapping a function over whole objects-trees.
 
 *   **Improve multiple goals handling**, currently, all operations are done on the first goal object found in a depth-first search...
 
+*   **Add syntax for multi-premises rules**, for instance "X ; Y => Z" should parse as "X => (Y => Z)". And maybe syntax for currified application, like X ; Y | Z should parse as "Y | (X | Z)".
 
 ,
 ## V1 vision: a proof assistant to make any kind of maths.
@@ -68,18 +65,13 @@
 > *   The church numerals handling should be moved to a helper instead of being handled by the parser.
 > *   We need some notion of global context.
 
-### Pipeline's return mechanism
-
-> Allow the pipeline to return objects instead of just strings.
-> The handler should return a tuple of (bool, object), where bool is a success flag.
-> The helpers will be able to register backward hooks to process the objects returned by the handler in the reverse order of the forward hooks.
-> Handler and hooks may store data for between the forward and reverse passes inside the data field of the objects.
-> And return text may be stored in the data field of the objects too, and will be displayed by the UI when the pipeline is done.
 
 ## History
 
 ### Last commits' changes:
 
+*   **Display parentheses**, the __repr__ method of objects should take into account precedences to put parentheses where needed.
+*   **Custom display**, add a way to customize the display of certain objects (arithmetic operations).
 *   **Multi premises rules**, allow the use of rules with multiple premises in goal.
 
 ### Older changes

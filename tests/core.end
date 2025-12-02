@@ -9,7 +9,7 @@ Check nested ~ ([A] | [B]) in context
 Define rule1, A -> B
 Define rule2, B -> C
 Check (A -> B) => ((B -> C) => ((A -> B) | (B -> C))) ~ 
-Reduce (A -> B) | (B -> C) ~ (A -> C)
+Reduce (A -> B) | (B -> C) ~ A -> C
 
 # Test reduction with identity
 Define id, [x] -> [x]
@@ -17,7 +17,7 @@ Reduce A | id ~ A
 
 # Test patterns with multiple holes - swap
 Define swap, ([a] | [b]) -> ([b] | [a])
-Reduce (X | Y) | swap ~ (Y | X)
+Reduce (X | Y) | swap ~ Y | X
 
 # Test deeply nested rewriting
 Define three, A -> (B -> C)
@@ -25,9 +25,10 @@ Check (A | three) -> (B -> C) ~ (B -> C) in context
 
 # Test complex nested term with function application
 Define complex, f([x] | [y]) -> (g([x]) | g([y]))
-Reduce f(a | b) | complex ~ (g(a) | g(b))
+Reduce f(a | b) | complex ~ g(a) | g(b)
 
 # Test hole matching with complex patterns
 Define pattern, ([x] | ([y] -> [z])) -> (([y] -> [z]) | [x])
-Reduce (f(abc, de) | ([x] -> (g | [h]))) | pattern ~ (([x] -> (g | [h])) | f(abc, de))
+Reduce (f(abc, de) | ([x] -> (g | [h]))) | pattern ~ [x] -> (g | [h]) | f(abc, de)
+
 

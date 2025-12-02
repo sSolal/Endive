@@ -3,6 +3,7 @@ import sys
 import re
 from typing import Tuple, Optional, Dict
 from ..engine import Engine
+from ..engine.display import display
 from ..core import get_child
 
 
@@ -18,7 +19,7 @@ def interpolate(obj, result_str: str) -> str:
         ref = match.group(1)
 
         if ref == '':
-            return str(obj)
+            return display(obj)
 
         # Parse dot notation into list of integers
         try:
@@ -29,7 +30,7 @@ def interpolate(obj, result_str: str) -> str:
         child = get_child(obj, indices)
         if child is None:
             raise ValueError(f"Invalid path: {ref} in {obj}")
-        return str(child)
+        return display(child)
 
     pattern = r'\[(\d+(?:\.\d+)*|)\]'
     return re.sub(pattern, replace_reference, result_str)
@@ -85,7 +86,7 @@ class Cli:
                     interpolated = interpolate(obj, obj.data["result"])
                     messages.append(interpolated)
                 else:
-                    messages.append(str(obj))
+                    messages.append(display(obj))
 
             message = "\n".join(messages) if messages else ""
 
