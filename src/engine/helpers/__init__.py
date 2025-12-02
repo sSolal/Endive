@@ -12,9 +12,11 @@ Each helper implements the Helper base class and provides:
 from .alias import AliasHelper
 from .goal import GoalHelper
 from .build import BuildHelper
+from .peano import PeanoHelper
 from .helper import Helper
 
 __all__ = [
+    'PeanoHelper',
     'AliasHelper',
     'GoalHelper',
     'BuildHelper',

@@ -1,0 +1,43 @@
+# Peano Encoding Tests
+# Testing bidirectional conversion between integers and Peano encoding
+
+# Test basic integer to Peano conversion in definitions
+Define zero_test, 0
+Define one, 1
+Define three, 3
+Define ten, 10
+
+# Test that integers are converted to Peano for matching
+Define succ_rule, [x] -> S([x])
+Reduce 0 | succ_rule ~ 1
+Reduce 2 | succ_rule ~ 3
+
+# Test Peano to integer conversion in output (using Reduce to display)
+Reduce S(zero) ~ 1
+Reduce S(S(S(zero))) ~ 3
+Reduce S(S(S(S(S(S(S(S(S(S(zero)))))))))) ~ 10
+
+# Test zero conversion
+Reduce zero ~ 0
+
+# Test rewriting with Peano patterns
+Define add_zero, [n] + zero -> [n]
+Reduce 5 + 0 | add_zero ~ 5
+
+# Test that Peano terms in rewrites work correctly
+Define peano_id, S(S(zero)) -> S(S(zero))
+Reduce 2 | peano_id ~ 2
+
+# Test nested Peano in function applications
+Define double, S(S([x])) -> S(S(S(S([x]))))
+Reduce S(S(1)) | double ~ 5
+
+# Test that mixed Peano and integer work (all converted to integers in output)
+Reduce f(3, S(S(zero))) ~ f(3, 2)
+
+# Test composition with Peano numbers
+Define inc, [x] -> S([x])
+Define dec, S([x]) -> [x]
+Reduce 5 | (inc | dec) ~ 5
+Reduce 5 | dec ~ 4
+Reduce (inc | dec) ~ [x] -> [x]

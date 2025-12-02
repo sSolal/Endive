@@ -10,8 +10,6 @@
 
 *   **Build helper**, add directives to work iteratively on a object.
 
-*   **Church helper**, build a helper that converts numeric symbols to their corresponding Church numerals.
-
 *   **Functoriality helper**, allow the declaration of "functorial" rules, for easier nested objects rewriting.
 
 ### Quick fixes
@@ -69,6 +67,8 @@
 ## History
 
 ### Last commits' changes:
+
+*   **Peano helper**, build a helper that converts numeric symbols to their corresponding Peano numerals.
 
 *   **Display parentheses**, the __repr__ method of objects should take into account precedences to put parentheses where needed.
 *   **Custom display**, add a way to customize the display of certain objects (arithmetic operations).

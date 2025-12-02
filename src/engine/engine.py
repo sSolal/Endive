@@ -8,6 +8,7 @@ from typing import Tuple, List
 from .pipeline import Pipeline
 from ..core import Object
 from .helpers import (
+    PeanoHelper,
     AliasHelper,
     GoalHelper,
     BuildHelper
@@ -32,7 +33,11 @@ class Engine:
         # Register helpers in order
         # Order matters for hooks! They are applied in registration order.
 
-        # 1. Alias helper (should run first to substitute names)
+        # 1. Peano helper (should run first to convert integers to/from Peano)
+        self.peano_helper = PeanoHelper()
+        self.pipeline.helpers.append(self.peano_helper)
+
+        # 2. Alias helper (should run after Peano to substitute names)
         self.alias_helper = AliasHelper()
         self.pipeline.helpers.append(self.alias_helper)
 
