@@ -4,12 +4,12 @@
 
 ### Changes
 
+
+*   **Extend Functorial helper to `By` directive**, allow the use of functorial rules both in back and forward reasoning.
+
+### Helpers/Modules
+
 *   **Import system**, add a way to import an entire file into the context.
-
-### Helpers
-
-
-*   **Functoriality helper**, allow the declaration of "functorial" rules, for easier nested objects rewriting.
 
 ### Quick fixes
 
@@ -22,6 +22,7 @@
 *   **Add syntax for multi-premises rules**, for instance "X ; Y => Z" should parse as "X => (Y => Z)". And maybe syntax for currified application, like X ; Y | Z should parse as "Y | (X | Z)".
 
 *   **Add a context-verifier hook**, from the goal helper, to give a message if the user tries to use "Use" from build with a non buildable rewriting.
+
 ,
 ## V1 vision: a proof assistant to make any kind of maths.
 
@@ -67,6 +68,8 @@
 ## History
 
 ### Last commits' changes:
+
+*   **Functoriality helper**, allow the declaration of "functorial" rules, for easier nested objects rewriting.
 
 *   **Build helper**, add directives to work iteratively on a object.
 

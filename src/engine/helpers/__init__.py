@@ -13,6 +13,7 @@ from .alias import AliasHelper
 from .goal import GoalHelper
 from .build import BuildHelper
 from .peano import PeanoHelper
+from .functorial import FunctorialHelper
 from .helper import Helper
 
 __all__ = [
@@ -20,5 +21,6 @@ __all__ = [
     'AliasHelper',
     'GoalHelper',
     'BuildHelper',
+    'FunctorialHelper',
     'Helper',
 ]

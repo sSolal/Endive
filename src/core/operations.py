@@ -9,27 +9,19 @@ This module defines the fundamental data manipulation operations:
 
 from typing import Optional, Dict, List
 from .objects import Object,Term, Hole, Rew, Comp, identify
+from .utils import get_hole_names
 
-def prefix_holes(term: Object, prefix: str) -> Object:
-    """
-    Prefix all holes in a term with a given prefix.
-    """
+def rename_holes(term: Object, rename_map: Dict[str, str]) -> Object:
     if term.type == "Hole":
-        return Hole(prefix + term.handle)
-    else:
-        return Object(term.type, tuple(prefix_holes(child, prefix) for child in term.children), term.handle, term.repr_func, dict(term.data))
+        new_handle = rename_map.get(term.handle, term.handle)
+        if new_handle != term.handle:
+            return Hole(new_handle, dict(term.data))
+        return term
 
-def unprefix_holes(term: Object, prefixes: List[str]) -> Object:
-    """
-    Unprefix all holes in a term with a given prefix.
-    """
-    if term.type == "Hole":
-        handle = term.handle
-        for prefix in prefixes:
-            handle = handle.removeprefix(prefix)
-        return Hole(handle)
-    else:
-        return Object(term.type, tuple(unprefix_holes(child, prefixes) for child in term.children), term.handle, term.repr_func, dict(term.data))
+    new_children = tuple(rename_holes(child, rename_map) for child in term.children)
+    if new_children != term.children:
+        return Object(term.type, new_children, term.handle, term.repr_func, dict(term.data))
+    return term
 
 def match_left(A: Object, B: Object) -> Optional[Dict[str, Object]]:
     """
@@ -128,13 +120,29 @@ def compose_rews(A: Object, B: Object) -> Optional[Object]:
     if A.type != "Rew" or B.type != "Rew" or (A.symbol != B.symbol):
         return None
 
-    # We first want to rename all holes in A and B to avoid conflicts with A's holes in the assignments.
-    A_renamed = prefix_holes(A, "A_")
-    B_renamed = prefix_holes(B, "B_")
-    assignements = match(A_renamed.right, B_renamed.left)
-    if assignements is not None:
-        new_A = unprefix_holes(apply(A_renamed.left, assignements), ["A_", "B_"])
-        new_B = unprefix_holes(apply(B_renamed.right, assignements), ["A_", "B_"])
+    # Collect all hole names from both rules
+    holes_A = get_hole_names(A)
+    holes_B = get_hole_names(B)
+
+    rename_map = {}
+    reserved_names = holes_A.copy()
+
+    for hole_name in holes_B:
+        if hole_name in reserved_names:
+            # Add primes until unique
+            new_name = hole_name + "'"
+            while new_name in reserved_names:
+                new_name += "'"
+            rename_map[hole_name] = new_name
+            reserved_names.add(new_name)
+
+    B_renamed = rename_holes(B, rename_map) if rename_map else B
+
+    # Match and compose
+    assignments = match(A.right, B_renamed.left)
+    if assignments is not None:
+        new_A = apply(A.left, assignments)
+        new_B = apply(B_renamed.right, assignments)
         result = Rew(new_A, A.symbol, new_B)
         return result
     return None

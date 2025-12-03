@@ -34,7 +34,7 @@ class BuildState:
                 {**rule.data, "result": "Use requires a rewriting rule"}
             )
 
-        composition = Comp(self.working_term_unreduced, rule)
+        composition = Comp(self.working_term, rule)
         reduced = reduce(composition)
 
         if reduced == composition:
@@ -44,7 +44,7 @@ class BuildState:
             )
 
         self.working_term = reduced
-        self.working_term_unreduced = composition
+        self.working_term_unreduced = Comp(self.working_term_unreduced, rule)
         return True, Object(
             reduced.type, reduced.children, reduced.handle, reduced.repr_func,
             {**reduced.data, "result": "Applied rule, new term: []"}

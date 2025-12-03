@@ -11,7 +11,8 @@ from .helpers import (
     PeanoHelper,
     AliasHelper,
     GoalHelper,
-    BuildHelper
+    BuildHelper,
+    FunctorialHelper
 )
 from .parser import parse_line, ParseError
 import re
@@ -33,21 +34,28 @@ class Engine:
         # Register helpers in order
         # Order matters for hooks! They are applied in registration order.
 
-        # 1. Peano helper (should run first to convert integers to/from Peano)
-        self.peano_helper = PeanoHelper()
-        self.pipeline.helpers.append(self.peano_helper)
 
-        # 2. Alias helper (should run after Peano to substitute names)
+        # Alias helper (should run after Peano to substitute names)
         self.alias_helper = AliasHelper()
         self.pipeline.helpers.append(self.alias_helper)
+
+         # Build helper, should handle building objects
+        self.build_helper = BuildHelper()
+        self.pipeline.helpers.append(self.build_helper)
+
+        # Functorial helper (requires BuildHelper reference)
+        self.functorial_helper = FunctorialHelper(self.build_helper)
+        self.pipeline.helpers.append(self.functorial_helper)
+
+        # Peano helper (should run first to convert integers to/from Peano) (comes after helpers that may need numeric inputs)
+        self.peano_helper = PeanoHelper()
+        self.pipeline.helpers.append(self.peano_helper)
 
         # Goal helper, should handle most directives
         self.goal_helper = GoalHelper()
         self.pipeline.helpers.append(self.goal_helper)
 
-        # Build helper, should handle building objects
-        self.build_helper = BuildHelper()
-        self.pipeline.helpers.append(self.build_helper)
+       
 
     def process(self, line: str) -> Tuple[bool, List[Object]]:
         """
