@@ -26,6 +26,7 @@ class GoalHelper(Helper):
         self.register_handler('Intro', self.handle_intro)
         self.register_handler('Status', self.handle_status)
         self.register_handler('By', self.handle_by)
+        self.register_handler('Axiom', self.handle_axiom)
 
         self.goal_state = GoalState()
 
@@ -126,7 +127,6 @@ class GoalHelper(Helper):
         goal_term = goal.data['term']
         goal_unreduced = goal.data['unreduced']
         context = self.goal_state.get_context()
-        context["=>"] = context.get("=>", []) + [Term("True", [])]
 
         # Determine what to check
         if candidate is not None:
@@ -160,3 +160,27 @@ class GoalHelper(Helper):
         result += f"  {self.goal_state.goal}\n"
         # Return a Term with the result for display
         return True, [Term("Status", data={"result": result})]
+
+    @hookify
+    def handle_axiom(self, directive: str, *args: Object) -> Tuple[bool, List[Object]]:
+        """Add a term to the generic context.
+
+        Usage:
+            Axiom True          # Adds True to => context
+            Axiom <=>, True     # Adds True to <=> context
+        """
+        if len(args) == 1:
+            rule_symbol = "=>"
+            axiom_term = args[0]
+        elif len(args) == 2:
+            # First arg is rule symbol (e.g., <=>, =>)
+            if args[0].type == "Term":
+                rule_symbol = args[0].symbol
+            else:
+                rule_symbol = getattr(args[0], 'symbol', str(args[0]))
+            axiom_term = args[1]
+        else:
+            return False, [Term("Error", data={"result": f"Axiom expects 1 or 2 arguments, got {len(args)}"})]
+
+        self.goal_state.add_axiom(rule_symbol, axiom_term)
+        return True, [replace(axiom_term, data={**axiom_term.data, "result": f"Added [] to context for {rule_symbol}"})]

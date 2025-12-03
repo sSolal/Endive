@@ -1,5 +1,5 @@
 from typing import Optional, Dict, List, Tuple
-from ....core import Object, Comp, Rew, Hole, check, reduce, identify, match, apply
+from ....core import Object, Comp, Rew, Hole, Term, check, reduce, identify, match, apply
 
 def Goal(term: Object, rew: Optional[str] = None) -> Object:
     """
@@ -18,6 +18,7 @@ class GoalState:
     def __init__(self) -> None:
         self.goal: Optional[Object] = None  # Current term being built towards the goal.
         # This term is kind of a "partial" term, containing "Goal" objects where there are things left to prove.
+        self.generic_context: Dict[str, List[Object]] = {"=>": [Term("True", [])]}
 
     def set_goal(self, new_goal: Object) -> Object:
         self.goal = Goal(new_goal)
@@ -43,6 +44,12 @@ class GoalState:
         else:
             return [goal for child in obj.children for goal in self.get_goals(child)]
 
+    def add_axiom(self, rule_symbol: str, term: Object) -> None:
+        """Add a term to the generic context for the specified rule."""
+        if rule_symbol not in self.generic_context:
+            self.generic_context[rule_symbol] = []
+        self.generic_context[rule_symbol].append(term)
+
 
     def get_context(self, obj: Optional[Object] = None, context: Optional[Dict[str, List[Object]]] = None) -> Optional[Dict[str, List[Object]]]:
         if context is None:
@@ -52,7 +59,21 @@ class GoalState:
             context = dict(context)
 
         if obj is None:
-            return (self.get_context(self.goal) if self.goal is not None else None)
+            # When starting the traversal, use self.goal
+            if self.goal is not None:
+                result = self.get_context(self.goal)
+            else:
+                result = {}
+
+            # Merge generic context before returning (create empty dict if result is None)
+            if result is None:
+                result = {}
+            for symbol, terms in self.generic_context.items():
+                if symbol not in result:
+                    result[symbol] = []
+                result[symbol] = result[symbol] + terms
+
+            return result
         if obj.type == "Goal":
             return context
         elif obj.type == "Rew":

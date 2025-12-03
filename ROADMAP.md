@@ -23,6 +23,13 @@
 
 *   **Add a context-verifier hook**, from the goal helper, to give a message if the user tries to use "Use" from build with a non buildable rewriting.
 
+*   **Make a greater usage of dicts, sets, etc...**, to reduce boilerplate code that could be abstracted away.
+
+*   **Allow axiomatization in other handlers**, add a hook of the goal helper to allow for an optional "axiom" argument to Define, Functorial, Alias, etc...
+
+*   **Allow to set a rewriting for the goal**, allow to put a goal that isn't a rewriting, precising which rewriting to build for.
+
+*   **Fix Done messaging**, when Done is called with an argument, and fails, it should explicitly say that the argument is not correct.
 ,
 ## V1 vision: a proof assistant to make any kind of maths.
 
@@ -68,6 +75,8 @@
 ## History
 
 ### Last commits' changes:
+
+*   **Add an axiom declaration directive**, allow to add things to a global context in goal helper.
 
 *   **Functoriality helper**, allow the declaration of "functorial" rules, for easier nested objects rewriting.
 

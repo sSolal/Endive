@@ -58,3 +58,26 @@ By X => Y => Z => A ~ error # Rules with more than 2 premises are not yet suppor
 
 Goal A => B
 By X => Y => A => B ~ error # X => Y => A => B is not a known rewriting. Use 'force' to use it anyway.
+
+
+Goal True => A
+Intro
+Done ~ error # Goal not completed: [=>A]
+Axiom A
+Done ~ Goal completed: True => A
+
+Axiom ->, pi
+Axiom ->, zero
+Axiom ->, dot
+Define inc, [k] -> S([k])
+Axiom ->, inc
+Define def_times, [a] -> [b] -> [a] * [b]
+Axiom ->, def_times
+Goal dot -> 2 * pi
+Intro
+By def_times ~ New goal: [->pi]
+Done ~ Goal completed: dot -> (pi | [->S(S(zero))] | 2 -> pi -> 2 * pi)
+Start zero
+Use inc ~ Applied rule, new term: 1
+Use inc ~ Applied rule, new term: 2
+Done ~ Goal completed: dot -> 2 * pi
