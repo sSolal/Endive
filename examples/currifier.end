@@ -1,0 +1,5 @@
+Goal ([X] => ([Y] => [Z])) => (([Z] => [W]) => ([X] => ([Y] => [W])))
+
+Intro
+Intro
+Intro

@@ -1,0 +1,48 @@
+# Build Helper Tests
+# Tests for Start, Use, Clear directives and integration with Goal
+
+# Test 1: Basic Start
+Define ax1, A => B
+Start A ~ Started building from: A
+
+# Test 2: Forward-chaining with Use
+Define ax2, B => C
+Start A
+Use ax1 ~ Applied rule, new term: B
+
+# Test 3: Multiple Use applications
+Start A
+Use ax1
+Use ax2 ~ Applied rule, new term: C
+
+# Test 4: Use without Start (error)
+Clear
+Use ax1 ~ error # No working term. Use 'Start' first.
+
+# Test 5: Use with non-rewriting (error)
+Start A
+Use A ~ error # Use requires a rewriting rule
+
+# Test 6: Use with non-matching rule (error)
+Define ax3, D => E
+Start A
+Use ax3 ~ error # Cannot apply ax3 to A
+
+# Test 7: Clear directive
+Start A
+Clear ~ Working term cleared
+
+# Test 8: Integration with Goal - hybrid proof
+Define rule1, X => Y
+Define rule2, Y => Z
+
+Goal rule1 => rule2 => (X => Z)
+Intro
+Intro
+Intro ~ New goal: [=>Z]
+
+# Use forward-chaining to build Z
+Start X
+Use rule1
+Use rule2
+Done ~ Goal completed: rule1 => rule2 => X => Z

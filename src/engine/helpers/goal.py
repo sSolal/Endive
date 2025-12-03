@@ -118,20 +118,34 @@ class GoalHelper(Helper):
         return True, [replace(new_goal, data={**new_goal.data, "result": "New goal: []"})]
 
     @hookify
-    def handle_done(self, directive: str) -> Tuple[bool, List[Object]]:
-        """Marks the current goal as completed if it's in the context."""
+    def handle_done(self, directive: str, candidate: Object = None) -> Tuple[bool, List[Object]]:
+        """Marks the current goal as completed if the provided candidate is buildable, or the goal is in the context.
+        """
         goal = self.goal_state.get_goal()
         goal_rew = goal.data['rew']
         goal_term = goal.data['term']
         goal_unreduced = goal.data['unreduced']
         context = self.goal_state.get_context()
-        context["=>"] = context["=>"] + [Term("True", [])]
+        context["=>"] = context.get("=>", []) + [Term("True", [])]
 
-        if goal_rew is not None and goal_rew in context and goal_unreduced in context[goal_rew]:
-            self.goal_state.update_goal(goal_term)
-            completed = reduce(self.goal_state.goal)
-            return True, [replace(completed, data={**completed.data, "result": "Goal completed: []"})]
-        return False, [replace(goal, data={**goal.data, "result": "Goal not completed: []"})]
+        # Determine what to check
+        if candidate is not None:
+            # Forward-chaining: check both buildability (in goal context) and reduction
+            is_buildable, _ = check(candidate, goal_rew, context)
+            reduces_to_goal = reduce(candidate) == goal_term
+
+            if is_buildable and reduces_to_goal:
+                self.goal_state.update_goal(candidate)
+                completed = reduce(self.goal_state.goal)
+                return True, [replace(completed, data={**completed.data, "result": "Goal completed: []"})]
+            return False, [replace(goal, data={**goal.data, "result": "Goal not completed: []"})]
+        else:
+            # Backward-chaining: check if goal itself is buildable in context
+            if goal_rew is not None and goal_rew in context and goal_unreduced in context[goal_rew]:
+                self.goal_state.update_goal(goal_term)
+                completed = reduce(self.goal_state.goal)
+                return True, [replace(completed, data={**completed.data, "result": "Goal completed: []"})]
+            return False, [replace(goal, data={**goal.data, "result": "Goal not completed: []"})]
 
     @hookify
     def handle_status(self, directive: str) -> Tuple[bool, List[Object]]:

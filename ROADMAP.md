@@ -8,7 +8,6 @@
 
 ### Helpers
 
-*   **Build helper**, add directives to work iteratively on a object.
 
 *   **Functoriality helper**, allow the declaration of "functorial" rules, for easier nested objects rewriting.
 
@@ -22,6 +21,7 @@
 
 *   **Add syntax for multi-premises rules**, for instance "X ; Y => Z" should parse as "X => (Y => Z)". And maybe syntax for currified application, like X ; Y | Z should parse as "Y | (X | Z)".
 
+*   **Add a context-verifier hook**, from the goal helper, to give a message if the user tries to use "Use" from build with a non buildable rewriting.
 ,
 ## V1 vision: a proof assistant to make any kind of maths.
 
@@ -68,14 +68,14 @@
 
 ### Last commits' changes:
 
+*   **Build helper**, add directives to work iteratively on a object.
+
 *   **Peano helper**, build a helper that converts numeric symbols to their corresponding Peano numerals.
 
+### Older changes
 *   **Display parentheses**, the __repr__ method of objects should take into account precedences to put parentheses where needed.
 *   **Custom display**, add a way to customize the display of certain objects (arithmetic operations).
 *   **Multi premises rules**, allow the use of rules with multiple premises in goal.
-
-### Older changes
-
 *   **Helpers' return mechanism**, allow the helpers to act on returned objects to undo their effects.
 *   **Pipeline now returns objects**, instead of just strings. Objects can be annotated, and annotations can reference children objects.
 *   **Hooks and handlers return type**, unify the typing of hooks and handlers, and allow them to return annotated objects instead of just strings.
