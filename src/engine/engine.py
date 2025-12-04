@@ -62,10 +62,19 @@ class Engine:
         Check a single line of proof using the pipeline.
         Returns: (success: bool, results: List[Object])
         """
-        # Parse the line
         directive, content = parse_line(line)
-
         if directive is None:  # Empty line or comment
             return True, []
-
         return self.pipeline.process(directive, content)
+
+    def undo(self) -> bool:
+        """Undo last state change. Returns False if nothing to undo."""
+        return self.pipeline.undo()
+
+    def breakpoint(self, name: str) -> None:
+        """Create named breakpoint for rollback."""
+        self.pipeline.breakpoint(name)
+
+    def rollback(self, name: str) -> bool:
+        """Rollback to named breakpoint. Returns False if not found."""
+        return self.pipeline.rollback(name)

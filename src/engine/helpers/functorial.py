@@ -12,26 +12,19 @@ from typing import List, Tuple
 from dataclasses import replace
 from .helper import Helper, hookify
 from ...core import Object, Term, Comp, reduce, extract_integer
-from .utils.functorial import FunctorialState
+from .utils.functorial import FunctorialState, get_functorial, add_functorial
 
 
-
-class FunctorialHelper(Helper):
+class FunctorialHelper(Helper[FunctorialState]):
     """
     Manages functorial rewriting rules for automatic rule wrapping.
 
-    Directives:
-    - Functorial: Register a functorial rule
-
-    Hooks:
-    - Use: Transform Use directive arguments to wrap rules with functorials
+    State: tuple of ((key), (value)) pairs
     """
 
     def __init__(self, build_helper) -> None:
-        super().__init__()
-        self.functorial_state = FunctorialState()
-        self.build_helper = build_helper
-
+        super().__init__(())  # Empty tuple as initial state
+        self.build_helper = build_helper  # Cross-helper reference (not part of state)
         self.register_handler('Functorial', self.handle_functorial)
         self.register_hook(['Use'], self.use_forhook)
 
@@ -68,13 +61,9 @@ class FunctorialHelper(Helper):
             return False, [replace(rule, data={**rule.data,
                 "result": "Functorial rule must be a rewriting"})]
 
-        self.functorial_state.add_functorial(
-            inner_rew.handle,
-            term_symbol.handle,
-            pos_int,
-            outer_rew.handle,
-            rule
-        )
+        self.set_state(add_functorial(
+            self.state, inner_rew.handle, term_symbol.handle, pos_int, outer_rew.handle, rule
+        ))
 
         return True, [replace(rule, data={**rule.data,
             "result": f"Functorial registered for {term_symbol.handle} at position {pos_int}"})]
@@ -121,7 +110,7 @@ class FunctorialHelper(Helper):
         Raises ValueError if working_term is None or functorial not found.
         """
         # Get working term from BuildHelper
-        working_term = self.build_helper.build_state.working_term
+        working_term = self.build_helper.state.working_term
         if working_term is None:
             raise ValueError("No working term. Use 'Start' before 'Use' with positions.")
 
@@ -151,8 +140,8 @@ class FunctorialHelper(Helper):
         for term_symbol, position_idx in reversed(path):
 
             # Lookup functorial rule
-            functorial_data = self.functorial_state.get_functorial(
-                current_inner_rew, term_symbol, position_idx
+            functorial_data = get_functorial(
+                self.state, current_inner_rew, term_symbol, position_idx
             )
 
             if functorial_data is None:

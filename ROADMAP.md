@@ -11,9 +11,9 @@
 
 *   **Import system**, add a way to import an entire file into the context.
 
-### Quick fixes
+*   **Turn Peano into Arithmetic**, add hooks to turn unknown symbols into holes, and to turn 2abc(...) terms into 2 * abc(...)
 
-*   **Add undo**, Add an undo command to the engine/repl.
+### Quick fixes
 
 *   **Add traversal utilities**, to reduce redundancy of traversing objects and mapping a function over whole objects-trees.
 
@@ -30,6 +30,8 @@
 *   **Allow to set a rewriting for the goal**, allow to put a goal that isn't a rewriting, precising which rewriting to build for.
 
 *   **Fix Done messaging**, when Done is called with an argument, and fails, it should explicitly say that the argument is not correct.
+
+*   **Allow tests to contain :commands**, to test for checkpoints, rollbacks, undo, etc...
 ,
 ## V1 vision: a proof assistant to make any kind of maths.
 
@@ -76,15 +78,14 @@
 
 ### Last commits' changes:
 
+*   **Add undo, checkpoint and rollback**, Add an undo command to the engine/repl, and make helper's state immutable and stacked.
+
 *   **Add an axiom declaration directive**, allow to add things to a global context in goal helper.
 
-*   **Functoriality helper**, allow the declaration of "functorial" rules, for easier nested objects rewriting.
-
-*   **Build helper**, add directives to work iteratively on a object.
-
-*   **Peano helper**, build a helper that converts numeric symbols to their corresponding Peano numerals.
-
 ### Older changes
+*   **Functoriality helper**, allow the declaration of "functorial" rules, for easier nested objects rewriting.
+*   **Build helper**, add directives to work iteratively on a object.
+*   **Peano helper**, build a helper that converts numeric symbols to their corresponding Peano numerals.
 *   **Display parentheses**, the __repr__ method of objects should take into account precedences to put parentheses where needed.
 *   **Custom display**, add a way to customize the display of certain objects (arithmetic operations).
 *   **Multi premises rules**, allow the use of rules with multiple premises in goal.

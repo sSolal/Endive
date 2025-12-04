@@ -53,8 +53,13 @@ class Cli:
         self.engine = Engine()
         self.debug = debug
         self.silent = silent
-        self.commands: Dict[str, str] = {":help": "Show help",
-        ":exit": "Exit the CLI"}
+        self.commands: Dict[str, str] = {
+            ":help": "Show help",
+            ":exit": "Exit the CLI",
+            ":undo": "Undo last operation",
+            ":checkpoint <name>": "Create named checkpoint",
+            ":rollback <name>": "Rollback to checkpoint"
+        }
         if not silent:
             self.show_welcome()
 
@@ -118,6 +123,27 @@ class Cli:
                     break
                 elif command == ":help":
                     self.show_help()
+                elif command == ":undo":
+                    if self.engine.undo():
+                        print(f"{Colors.GREEN}✓{Colors.RESET} Undone")
+                    else:
+                        print(f"{Colors.YELLOW}Nothing to undo{Colors.RESET}")
+                elif command.startswith(":checkpoint "):
+                    name = command[12:].strip()
+                    if name:
+                        self.engine.breakpoint(name)
+                        print(f"{Colors.GREEN}✓{Colors.RESET} Checkpoint '{name}' created")
+                    else:
+                        print(f"{Colors.RED}✗ Usage: :checkpoint <name>{Colors.RESET}")
+                elif command.startswith(":rollback "):
+                    name = command[10:].strip()
+                    if name:
+                        if self.engine.rollback(name):
+                            print(f"{Colors.GREEN}✓{Colors.RESET} Rolled back to '{name}'")
+                        else:
+                            print(f"{Colors.RED}✗ Checkpoint '{name}' not found{Colors.RESET}")
+                    else:
+                        print(f"{Colors.RED}✗ Usage: :rollback <name>{Colors.RESET}")
                 elif command.startswith(":"):
                     print(f"{Colors.RED}✗ Unknown command: {command}{Colors.RESET}")
                     print(f"  Type {Colors.CYAN}:help{Colors.RESET} for available commands")

@@ -3,20 +3,21 @@ Helper Base Class
 
 Helpers are the core components of the proof assistant pipeline.
 Each helper has:
-- State: Internal data (goals, aliases, rules, etc.)
+- State: Single immutable value (managed via stack for undo/breakpoint/rollback)
 - Hooks: Pre-processing for specific directives (run BEFORE handling)
 - Handlers: Final processing for specific directives
 
 The pipeline routes each directive through registered hooks, then to the registered handler.
 """
 
-from abc import ABC, abstractmethod
-from typing import Dict, List, Tuple, Any, Optional, Callable, TypeVar
+from abc import ABC
+from typing import Dict, List, Tuple, Any, Optional, Callable, TypeVar, Generic
 from functools import wraps
 import inspect
 from ...core import Object
 
 T = TypeVar('T')
+S = TypeVar('S')  # State type
 
 
 def hookify(f: Callable[..., T]) -> Callable[[str, List[Object]], T]:
@@ -64,7 +65,7 @@ def hookify(f: Callable[..., T]) -> Callable[[str, List[Object]], T]:
     return wrapper
 
 
-class Helper(ABC):
+class Helper(ABC, Generic[S]):
     """
     Base class for all helpers in the proof assistant pipeline.
 
@@ -72,7 +73,14 @@ class Helper(ABC):
     1. Register forhooks to pre-process specific directives
     2. Register handlers to fully process specific directives
     3. Register backhooks to post-process results
-    4. Maintain internal state
+    4. Maintain immutable state with undo/breakpoint/rollback support
+
+    State Management:
+    - self.state: Current immutable state (any immutable value: None, tuple, frozen dataclass, etc.)
+    - self.set_state(new): Replace state, pushing to history stack
+    - self.undo(): Pop last state from stack
+    - self.breakpoint(name): Mark current position for rollback
+    - self.rollback(name): Return to named breakpoint
 
     Workflow:
     - Forhooks: (str, List[Object]) -> List[Object] - receive directive and arguments, return modified arguments
@@ -81,12 +89,61 @@ class Helper(ABC):
     - 'ALL' is a special directive type that matches all directives
     """
 
-    def __init__(self):
-        """Initialize the helper with empty state"""
+    def __init__(self, initial_state: S = None):
+        """Initialize the helper with optional initial state"""
         self.forhooks = {}  # directive_type -> forhook_method
         self.handlers = {}  # directive -> handler_method
         self.backhooks = {}  # directive_type -> backhook_method
         self.hooks_state = {}  # per-traversal state, cleared each run
+
+        # State management
+        self._state: S = initial_state
+        self._state_stack: List[S] = [initial_state]
+        self._breakpoints: Dict[str, int] = {}  # name -> stack index
+
+    @property
+    def state(self) -> S:
+        """Read-only access to current state"""
+        return self._state
+
+    def set_state(self, new_state: S) -> None:
+        """Replace state, pushing to history stack"""
+        self._state = new_state
+        self._state_stack.append(new_state)
+
+    def undo(self) -> bool:
+        """Pop last state. Returns False if at initial state."""
+        if len(self._state_stack) <= 1:
+            return False
+        self._state_stack.pop()
+        self._state = self._state_stack[-1]
+        return True
+
+    def breakpoint(self, name: str) -> None:
+        """Mark current stack position with name"""
+        self._breakpoints[name] = len(self._state_stack) - 1
+
+    def rollback(self, name: str) -> bool:
+        """Return to named breakpoint. Returns False if not found."""
+        if name not in self._breakpoints:
+            return False
+        idx = self._breakpoints[name]
+        self._state_stack = self._state_stack[:idx + 1]
+        self._state = self._state_stack[-1]
+        # Remove breakpoints beyond this point
+        self._breakpoints = {k: v for k, v in self._breakpoints.items() if v <= idx}
+        return True
+
+    def stack_depth(self) -> int:
+        """Return current stack depth (for Pipeline coordination)"""
+        return len(self._state_stack)
+
+    def truncate_to(self, depth: int) -> None:
+        """Truncate stack to given depth (for Pipeline coordination)"""
+        if depth < len(self._state_stack):
+            self._state_stack = self._state_stack[:depth]
+            self._state = self._state_stack[-1]
+            self._breakpoints = {k: v for k, v in self._breakpoints.items() if v < depth}
 
 
     def register_hook(self, directives: List[str],
