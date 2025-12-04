@@ -53,14 +53,14 @@ def match_left(A: Object, B: Object) -> Optional[Dict[str, Object]]:
     return assignments
 
 
-def match(A: Object, B: Object) -> Optional[Dict[str, Object]]:
+def match(A: Object, B: Object, assignments: Optional[Dict[str, Object]] = None) -> Optional[Dict[str, Object]]:
     """
     Bidirectional syntactic unification of A and B.
     Returns a dictionary of assignments for holes in both A and B such that
     when applied to both terms, they become identical. Returns None if unification fails.
-    Assumes terms have no common holes (no conflict resolution needed).
     """
-    assignments = {}
+    if assignments is None:
+        assignments = {}
 
 
     # If B is a hole, assign it to A
@@ -70,7 +70,7 @@ def match(A: Object, B: Object) -> Optional[Dict[str, Object]]:
         else:
             assignments[B.handle] = A
             return assignments
-            
+
     # If A is a hole, assign it to B
     if A.type == "Hole":
         if A.handle in assignments:
@@ -88,14 +88,11 @@ def match(A: Object, B: Object) -> Optional[Dict[str, Object]]:
     if A.handle != B.handle or len(A.children) != len(B.children):
         return None
 
-    # Recursively match all children and merge assignments
+    # Recursively match all children, threading assignments through
     for A_child, B_child in zip(A.children, B.children):
-        found = match(A_child, B_child)
-        if found is None:
+        assignments = match(A_child, B_child, assignments)
+        if assignments is None:
             return None
-        # Simple merge: update with new assignments
-        # (assuming no conflicts since terms have no common holes)
-        assignments.update(found)
 
     return assignments
 
