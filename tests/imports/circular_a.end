@@ -1,0 +1,2 @@
+# Circular import test A - imports B (relative path)
+Using circular_b

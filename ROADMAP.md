@@ -9,8 +9,6 @@
 
 ### Helpers/Modules
 
-*   **Import system**, add a way to import an entire file into the context.
-
 *   **Turn Peano into Arithmetic**, add hooks to turn unknown symbols into holes, and to turn 2abc(...) terms into 2 * abc(...)
 
 ### Quick fixes
@@ -77,6 +75,8 @@
 ## History
 
 ### Last commits' changes:
+
+*   **Import system**, add a way to import an entire file into the context.
 
 *   **Add undo, checkpoint and rollback**, Add an undo command to the engine/repl, and make helper's state immutable and stacked.
 

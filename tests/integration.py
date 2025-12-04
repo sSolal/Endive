@@ -9,6 +9,8 @@ from src.app.cli import Colors
 
 def run_file(file, silent=True):
     cli = Cli(silent=silent, debug=True)
+    # Set base path for imports to the file's directory
+    cli.engine.set_base_path(Path(file).parent.resolve())
     test_success = True
     nb_issues = 0
     with open(file, 'r') as f:

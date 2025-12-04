@@ -1,0 +1,8 @@
+# Nested import - imports prelude and adds more
+# Note: relative to this file's directory, so just 'prelude' not 'imports.prelude'
+Using prelude
+
+# Add more definitions
+Define nested, value
+
+Axiom xyz

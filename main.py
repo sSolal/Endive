@@ -1,5 +1,6 @@
 ## The main app
 
+from pathlib import Path
 from src.app import Cli
 from tests import integration
 import argparse
@@ -18,6 +19,8 @@ if __name__ == "__main__":
     app = Cli(debug=args.debug)
 
     if args.file:
+        # Set base path for imports to the file's directory
+        app.engine.set_base_path(Path(args.file).parent.resolve())
         with open(args.file, 'r') as f:
             for line in f:
                 if line.strip() == "":

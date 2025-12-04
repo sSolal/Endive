@@ -1,0 +1,5 @@
+# Prelude - common definitions for testing imports
+
+# Define some aliases
+Define foo, bar
+Define hello, world

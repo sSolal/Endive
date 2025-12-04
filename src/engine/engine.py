@@ -6,7 +6,8 @@ This engine takes a line of text, parses it, processes it through the pipeline, 
 
 from typing import Tuple, List
 from .pipeline import Pipeline
-from ..core import Object
+from .importer import ImportHandler
+from ..core import Object, Term
 from .helpers import (
     PeanoHelper,
     AliasHelper,
@@ -15,7 +16,6 @@ from .helpers import (
     FunctorialHelper
 )
 from .parser import parse_line, ParseError
-import re
 
 
 class Engine:
@@ -30,6 +30,7 @@ class Engine:
 
     def __init__(self) -> None:
         self.pipeline = Pipeline()
+        self.importer = ImportHandler(self)
 
         # Register helpers in order
         # Order matters for hooks! They are applied in registration order.
@@ -65,6 +66,11 @@ class Engine:
         directive, content = parse_line(line)
         if directive is None:  # Empty line or comment
             return True, []
+        # Intercept Using directive for import handling
+        if directive == "Using":
+            if not content:
+                return False, [Term("Error", data={"result": "Using requires filename"})]
+            return self.importer.handle(content[0].symbol)
         return self.pipeline.process(directive, content)
 
     def undo(self) -> bool:
@@ -78,3 +84,7 @@ class Engine:
     def rollback(self, name: str) -> bool:
         """Rollback to named breakpoint. Returns False if not found."""
         return self.pipeline.rollback(name)
+
+    def set_base_path(self, path) -> None:
+        """Set the base path for resolving imports."""
+        self.importer.set_base_path(path)
