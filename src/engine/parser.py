@@ -290,6 +290,12 @@ def parse_line(line: str) -> Tuple[Optional[str], Optional[List[Object]]]:
         tokens = tokenize(line)
         parser = Parser(tokens)
         directive, content = parser.parse_directive()
+
+        # Validate that all tokens were consumed
+        if parser.pos < len(parser.tokens):
+            unexpected_token = parser.tokens[parser.pos]
+            raise ParseError(f"Unexpected token '{unexpected_token.value}' at position {unexpected_token.position}")
+
         return directive, content
     except Exception as e:
         raise ParseError(f"Parse error: {str(e)}")
