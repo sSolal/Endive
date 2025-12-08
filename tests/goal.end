@@ -1,8 +1,8 @@
-Goal (A => B) => ((B => C) => (A => C)) ~ New goal: [((A => B) => ((B => C) => (A => C)))]
+Goal (A => B) => ((B => C) => (A => C)) ~ New goal: [=>(A => B) => (B => C) => A => C]
 
-Intro ~ New goal: [=>((B => C) => (A => C))]
+Intro ~ New goal: [=>(B => C) => A => C]
 
-Intro ~ New goal: [=>(A => C)]
+Intro ~ New goal: [=>A => C]
 
 Intro ~ New goal: [=>C]
 
@@ -12,11 +12,11 @@ By (A => B) ~ New goal: [=>A]
 
 Done ~ Goal completed: (A => B) => (B => C) => A => C
 
-Goal (A => B) => ((B => C) => (A => C)) ~ New goal: [((A => B) => ((B => C) => (A => C)))]
+Goal (A => B) => ((B => C) => (A => C)) ~ New goal: [=>(A => B) => (B => C) => A => C]
 
-Intro ~ New goal: [=>((B => C) => (A => C))]
+Intro ~ New goal: [=>(B => C) => A => C]
 
-Intro ~ New goal: [=>(A => C)]
+Intro ~ New goal: [=>A => C]
 
 Intro ~ New goal: [=>C]
 
@@ -28,9 +28,9 @@ By (B => X), force ~ New goal: [=>B]
 
 By (A => B) ~ New goal: [=>A]
 
-Done ~ Goal completed: (A => B) => (B => C) => A => ((B | [=>(B => X)] | X => X) | [=>(X => C)] | C => C)
+Done ~ Goal completed: (A => B) => (B => C) => A => ((B | [=>B => X] | X => X) | [=>X => C] | C => C)
 
-Done ~ error # Goal not completed: [=>(B => X)]
+Done ~ error # Goal not completed: [=>B => X]
 
 Goal (A => B => Z) => Z
 
@@ -42,13 +42,13 @@ By A => B => Z ~ New goal: [=>B]
 
 Define def_and, [A] => [B] => and([A], [B])
 
-Goal def_and => X => Y => and(X, Y) ~ New goal: [(([A] => ([B] => and([A], [B]))) => (X => (Y => and(X, Y))))]
+Goal def_and => X => Y => and(X, Y) ~ New goal: [=>def_and => X => Y => (X ∧ Y)]
 
 Intro
 Intro
 Intro
 
-Done ~ error # Goal not completed: [=>and(X, Y)]
+Done ~ error # Goal not completed: [=>X ∧ Y]
 By def_and ~ New goal: [=>Y]
 Done ~ Goal completed: def_and => X => Y => (Y | [=>X] | X => Y => (X ∧ Y))
 Done ~ Goal completed: def_and => X => Y => (X ∧ Y)
@@ -76,7 +76,7 @@ Axiom ->, def_times
 Goal dot -> 2 * pi
 Intro
 By def_times ~ New goal: [->pi]
-Done ~ Goal completed: dot -> (pi | [->S(S(zero))] | 2 -> pi -> 2 * pi)
+Done ~ Goal completed: dot -> (pi | [->2] | 2 -> pi -> 2 * pi)
 Start zero
 Use inc ~ Applied rule, new term: 1
 Use inc ~ Applied rule, new term: 2

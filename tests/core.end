@@ -28,7 +28,8 @@ Define complex, f([x] | [y]) -> (g([x]) | g([y]))
 Reduce f(a | b) | complex ~ g(a) | g(b)
 
 # Test hole matching with complex patterns
-Define pattern, ([x] | ([y] -> [z])) -> (([y] -> [z]) | [x])
-Reduce (f(abc, de) | ([x] -> (g | [h]))) | pattern ~ [x] -> (g | [h]) | f(abc, de)
+Define pattern, (f([x], [x2]) | (g([y]) -> [z])) -> (([y] -> [z]) | f([x2], [x]))
+# [y] should not match [x] in our argument, else it gets reduced before having a chance to match
+Reduce (f(abc, de) | (g(u) -> (g | [h]))) | pattern ~ u -> (g | [h]) | f(de, abc)
 
 

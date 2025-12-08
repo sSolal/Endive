@@ -24,5 +24,4 @@ Using imports.circular_a ~ error # Circular import: circular_a
 
 Using imports.exercise ~ Imported: imports.exercise
 Use bz ~ Applied rule, new term: Z
-Intro ~ New goal: [=>Z]
 Done ~ Goal completed: (A => B) => A => Z

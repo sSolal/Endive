@@ -38,8 +38,7 @@ Define rule2, Y => Z
 
 Goal rule1 => rule2 => (X => Z)
 Intro
-Intro
-Intro ~ New goal: [=>Z]
+Intro ~ New goal: [=>X => Z]
 
 # Use forward-chaining to build Z
 Start X

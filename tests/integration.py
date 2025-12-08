@@ -50,12 +50,14 @@ def run_file(file, silent=True):
     return test_success, nb_issues
 
 
-def run(silent=True):
+def run(silent=True, focus=None):
     print([str(file) for file in Path('tests/').glob('*.end')])
     nb_passed = 0
     nb_failed = 0
     total_issues = 0
     for file in Path('tests/').glob('*.end'):
+        if focus is not None and str(file) != focus:
+            continue
         success, nb_issues = run_file(file, silent)
         total_issues += nb_issues
         if success:
