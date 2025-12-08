@@ -89,7 +89,6 @@ class FunctorialHelper(Helper[FunctorialState]):
                 return [replace(rule, data={**rule.data,
                     "result": f"Position must be a number, got: {pos_obj}"})]
             pos_indices.append(pos_int)
-
         # Wrap the rule
         try:
             wrapped_rule = self.wrap_rule(rule, pos_indices)
@@ -118,9 +117,14 @@ class FunctorialHelper(Helper[FunctorialState]):
         if rule.type != 'Rew':
             raise ValueError("Can only wrap rewriting rules")
 
+        # If working_term is a rewriting, navigate its right side
+        if working_term.type == "Rew":
+            current_term = working_term.right
+        else:
+            current_term = working_term
+
         # Navigate to build the path
         path = []
-        current_term = working_term
 
         for pos_idx in positions:
             # Check bounds
@@ -151,9 +155,9 @@ class FunctorialHelper(Helper[FunctorialState]):
 
             outer_rew, functorial = functorial_data
 
-            # Compose wrapped_rule with functorial using Comp and reduce
+            # Compose wrapped_rule with functorial (don't reduce - preserve for buildability)
             composition = Comp(wrapped_rule, functorial)
-            wrapped_rule = reduce(composition)
+            wrapped_rule = composition
 
             # Update inner_rew for next iteration
             current_inner_rew = outer_rew

@@ -1,18 +1,23 @@
 from typing import Optional, Dict, List, Tuple
 from dataclasses import dataclass
 from ....core import Object, Comp, Rew, Hole, Term, check, reduce, identify, match, apply
+from ....engine.display import display
 
 
 def Goal(term: Object, rew: Optional[str] = None) -> Object:
     """
     Creates a goal object representing a goal left to prove in a backward sequent-calculus style proof.
-    The goal emulates a term, but is not a term itself.
-    Stores both reduced (for display) and unreduced (for composition) forms.
+    The goal wraps the term as a child, allowing backhooks to transform it.
+    Stores both reduced (as children[0]) and unreduced (for composition) forms.
     """
     reduced_term = reduce(term)
-    goal_data = {'term': reduced_term, 'unreduced': term, 'rew': rew}
-    return Object("Goal", term.children, term.handle,
-                  lambda self: f"[{self.data['rew'] if self.data['rew'] is not None else ''}{str(self.data['term'])}]",
+    goal_data = {'unreduced': term, 'rew': rew}
+
+    def repr(self):
+        return f"[{self.data['rew'] if self.data['rew'] is not None else ''}{display(self.children[0])}]"
+
+    return Object("Goal", (reduced_term,), "",
+                  repr,
                   goal_data)
 
 
@@ -27,9 +32,9 @@ class GoalState:
     generic_context: GenericContext = (("=>", Term("True", ())),)  # Default context
 
 
-def set_goal(state: GoalState, new_goal: Object) -> Tuple[GoalState, Object]:
+def set_goal(state: GoalState, new_goal: Object, rew: Optional[str] = "=>") -> Tuple[GoalState, Object]:
     """Set a new goal. Returns (new_state, goal_object)."""
-    goal_obj = Goal(new_goal)
+    goal_obj = Goal(new_goal, rew)
     new_state = GoalState(goal=goal_obj, generic_context=state.generic_context)
     return new_state, goal_obj
 

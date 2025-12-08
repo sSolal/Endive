@@ -163,12 +163,20 @@ def reduce_once(term: Object) -> Object:
     Finds all the non-overlapping compositions in the term and applies the rule if possible.
     Returns the "1-step parallel" reduced term, or the original term if no reduction is possible.
     """
+
+    # First, reduce all children
+    new_children = tuple(reduce_once(child) for child in term.children)
+    result = Object(term.type, new_children, term.handle, term.repr_func, dict(term.data))
+
+    if result != term:
+        term = result
+
+    # Then, if this is a composition, try to compose
     if term.type == "Comp":
         attempt = compose(term.left, term.right)
         if attempt is not None:
             return attempt
-    new_children = tuple(reduce_once(child) for child in term.children)
-    return Object(term.type, new_children, term.handle, term.repr_func, dict(term.data))
+    return term
 
 def reduce(term: Object, max_steps: int = 100) -> Object:
     """

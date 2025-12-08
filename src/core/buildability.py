@@ -27,7 +27,7 @@ def check(obj: Object, rule: Optional[str] = None, context: Optional[Dict[str, L
     if rule in context and obj in context[rule]:
         return True, str(obj) + " in context"
     elif obj.type == "Rew":
-        return check(obj.right, obj.symbol, dict_add(context, obj.symbol, reduce(obj.left)))
+        return check(obj.right, obj.symbol, dict_add(dict(context), obj.symbol, reduce(obj.left)))
     elif obj.type == "Comp":
         res, mes = check(obj.left, rule, context)
         if not res:

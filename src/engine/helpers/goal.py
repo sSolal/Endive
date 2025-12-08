@@ -45,7 +45,7 @@ class GoalHelper(Helper[GoalState]):
     def handle_intro(self, directive: str) -> Tuple[bool, List[Object]]:
         """Introduces a premise into the context."""
         goal = get_goal(self.state)
-        goal_term = goal.data['term']
+        goal_term = goal.children[0]
         if goal_term.type != "Rew":
             return False, [replace(goal, data={**goal.data, "result": "Goal is not a rewriting"})]
         new_goal = Rew(goal_term.left, goal_term.symbol, Goal(goal_term.right, goal_term.symbol))
@@ -59,7 +59,7 @@ class GoalHelper(Helper[GoalState]):
         # Apply the argument to a new Goal, and co-compose it with the current goal to find the new goal.
         goal = get_goal(self.state)
         goal_rew = goal.data['rew']
-        goal_term = goal.data['term']
+        goal_term = goal.children[0]
         context = get_context(self.state)
 
         # We want to unpack the multiple lefts of the nested rewritings, and then build the new goal object accordingly.
@@ -123,20 +123,34 @@ class GoalHelper(Helper[GoalState]):
         """Marks the current goal as completed if the provided candidate is buildable, or the goal is in the context."""
         goal = get_goal(self.state)
         goal_rew = goal.data['rew']
-        goal_term = goal.data['term']
+        goal_term = goal.children[0]
         goal_unreduced = goal.data['unreduced']
         context = get_context(self.state)
 
         if candidate is not None:
             # Forward-chaining: check both buildability and reduction
-            is_buildable, _ = check(candidate, goal_rew, context)
-            reduces_to_goal = reduce(candidate) == goal_term
+            is_buildable, message = check(candidate, goal_rew, context)
+            # Reduce the candidate first
+            reduced_candidate = reduce(candidate)
+            reduces_to_goal = reduced_candidate == goal_term
 
             if is_buildable and reduces_to_goal:
                 new_state, _ = update_goal(self.state, candidate)
                 self.set_state(new_state)
                 completed = reduce(self.state.goal)
                 return True, [replace(completed, data={**completed.data, "result": "Goal completed: []"})]
+
+            if is_buildable and reduced_candidate.type == "Rew": # Second chance : check buildability of the left and the buildability
+                is_buildable_left, message = check(reduced_candidate.left, goal_rew, context)
+                reduced_candidate_right = reduce(reduced_candidate.right)
+                reduces_to_goal = reduced_candidate_right == goal_term
+
+                if is_buildable_left and reduces_to_goal:
+                    new_state, _ = update_goal(self.state, Comp(reduced_candidate.left, candidate))
+                    self.set_state(new_state)
+                    completed = reduce(self.state.goal)
+                    return True, [replace(completed, data={**completed.data, "result": "Goal completed: []"})]
+
             return False, [replace(goal, data={**goal.data, "result": "Goal not completed: []"})]
         else:
             # Backward-chaining: check if goal is buildable in context
