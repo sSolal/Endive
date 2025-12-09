@@ -73,8 +73,8 @@ class Engine:
             return self.importer.handle(content[0].symbol)
         return self.pipeline.process(directive, content)
 
-    def undo(self) -> bool:
-        """Undo last state change. Returns False if nothing to undo."""
+    def undo(self):
+        """Undo last directive. Returns (False, None) if nothing to undo, otherwise (True, directive_name)."""
         return self.pipeline.undo()
 
     def breakpoint(self, name: str) -> None:

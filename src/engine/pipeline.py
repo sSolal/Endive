@@ -16,7 +16,7 @@ State Management:
 - rollback(name): Return all helpers to named breakpoint
 """
 
-from typing import List, Tuple, Dict
+from typing import List, Tuple, Dict, Optional
 from .helpers import Helper
 from ..core import Object, Term
 
@@ -27,31 +27,46 @@ class Pipeline:
 
     The pipeline maintains:
     - List of helpers (order matters for hooks)
-    - Stack of which helper handled each directive (for undo)
+    - Stack of (directive, helper) pairs for each processed directive (for undo)
     """
 
     def __init__(self):
         self.helpers: List[Helper] = []
-        self._handler_stack: List[Helper] = []  # Track which helper handled each directive
+        self.handler_stack: List[Tuple[str, Helper]] = []  # Track (directive, helper) for each directive
+        self.breakpoints: Dict[str, int] = {}  # name -> handler_stack depth at checkpoint
 
-    def undo(self) -> bool:
-        """Undo the last handler's state change. Returns False if nothing to undo."""
-        if not self._handler_stack:
-            return False
-        helper = self._handler_stack.pop()
-        return helper.undo()
+    def undo(self) -> Tuple[bool, Optional[str]]:
+        """Undo the last directive. Returns (False, None) if nothing to undo, otherwise (True, directive_name)."""
+        if not self.handler_stack:
+            return False, None
+        directive, helper = self.handler_stack.pop()
+        helper.undo()  # Always undo state, even if it returns False
+        return True, directive
 
     def breakpoint(self, name: str) -> None:
-        """Create named breakpoint across all helpers."""
+        """Create named breakpoint across all helpers and pipeline."""
+        self.breakpoints[name] = len(self.handler_stack)
         for helper in self.helpers:
             helper.breakpoint(name)
 
     def rollback(self, name: str) -> bool:
         """Rollback all helpers to named breakpoint. Returns False if not found."""
-        if not all(name in h._breakpoints for h in self.helpers):
+        if name not in self.breakpoints:
             return False
+        if not all(name in h.breakpoints for h in self.helpers):
+            return False
+
+        # Rollback handler stack to checkpoint depth
+        stack_depth = self.breakpoints[name]
+        self.handler_stack = self.handler_stack[:stack_depth]
+
+        # Rollback all helpers
         for helper in self.helpers:
             helper.rollback(name)
+
+        # Remove checkpoints beyond this point
+        self.breakpoints = {k: v for k, v in self.breakpoints.items() if v <= stack_depth}
+
         return True
 
     def process(self, directive: str, arguments: List[Object]) -> Tuple[bool, List[Object]]:
@@ -87,7 +102,7 @@ class Pipeline:
 
         # Track which helper handled this directive (for undo)
         if handling_helper is not None:
-            self._handler_stack.append(handling_helper)
+            self.handler_stack.append((directive, handling_helper))
 
         # Phase 3: Apply backhooks in reverse order
         for backhook in reversed(backhooks_to_run):

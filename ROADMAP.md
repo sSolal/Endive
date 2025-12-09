@@ -2,30 +2,9 @@
 
 ## MVP vision : a simple proof assistant to make logic and arithmetic proofs.
 
-### Changes
-
-
-*   **Extend Functorial helper to `By` directive**, allow the use of functorial rules both in back and forward reasoning.
-
-*   **Extend the build helper to handle backchaining too**, so that you can build backward while keeping the right rewriting symbols.
-
-*   **Add a way to instantiate a rewriting without composition**, either with syntactic sugar, or with a helper, allow to create [a] => X from [a] => [b]. (Probably a helper)
-
-### Helpers/Modules
-
-*   **Turn Peano into Arithmetic**, add hooks to turn unknown symbols into holes, and to turn 2abc(...) terms into 2 * abc(...)
-
 ### Quick fixes
 
-*   **Add traversal utilities**, to reduce redundancy of traversing objects and mapping a function over whole objects-trees.
-
-*   **Improve multiple goals handling**, currently, all operations are done on the first goal object found in a depth-first search...
-
-*   **Add syntax for multi-premises rules**, for instance "X ; Y => Z" should parse as "X => (Y => Z)". And maybe syntax for currified application, like X ; Y | Z should parse as "Y | (X | Z)".
-
 *   **Add a context-verifier hook**, from the goal helper, to give a message if the user tries to use "Use" from build with a non buildable rewriting.
-
-*   **Make a greater usage of dicts, sets, etc...**, to reduce boilerplate code that could be abstracted away.
 
 *   **Allow axiomatization in other handlers**, add a hook of the goal helper to allow for an optional "axiom" argument to Define, Functorial, Alias, etc...
 
@@ -33,9 +12,24 @@
 
 *   **Fix Done messaging**, when Done is called with an argument, and fails, it should explicitly say that the argument is not correct.
 
-*   **Allow tests to contain :commands**, to test for checkpoints, rollbacks, undo, etc...
-,
+*   **Define should allow to redefine, with a warning on replacement**
 ## V1 vision: a proof assistant to make any kind of maths.
+
+### From MVP
+
+*   **Improve multiple goals handling**, currently, all operations are done on the first goal object found in a depth-first search...
+
+*   **Make a greater usage of dicts, sets, etc...**, to reduce boilerplate code that could be abstracted away.
+
+*   **Add traversal utilities**, to reduce redundancy of traversing objects and mapping a function over whole objects-trees.
+
+*   **Add a way to instantiate a rewriting without composition**, either with syntactic sugar, or with a helper, allow to create [a] => X from [a] => [b]. (Probably a helper)
+
+*   **Extend the build helper to handle backchaining too**, so that you can build backward while keeping the right rewriting symbols, extend functional helper to handle it too.
+
+*   **Add syntax for multi-premises rules**, for instance "X ; Y => Z" should parse as "X => (Y => Z)". And maybe syntax for currified application, like X ; Y | Z should parse as "Y | (X | Z)".
+
+### New features
 
 *   **Streamline the printing**, make a real set of helpers for a nicer CLI.
 
@@ -80,15 +74,15 @@
 
 ### Last commits' changes:
 
+*   **Allow tests to contain :commands**, to test for checkpoints, rollbacks, undo, etc...
+
 *   **Add examples**, add a first few examples to showcase how Endive works.
 
-*   **Import system**, add a way to import an entire file into the context.
-
-*   **Add undo, checkpoint and rollback**, Add an undo command to the engine/repl, and make helper's state immutable and stacked.
-
-*   **Add an axiom declaration directive**, allow to add things to a global context in goal helper.
-
 ### Older changes
+
+*   **Import system**, add a way to import an entire file into the context.
+*   **Add undo, checkpoint and rollback**, Add an undo command to the engine/repl, and make helper's state immutable and stacked.
+*   **Add an axiom declaration directive**, allow to add things to a global context in goal helper.
 *   **Functoriality helper**, allow the declaration of "functorial" rules, for easier nested objects rewriting.
 *   **Build helper**, add directives to work iteratively on a object.
 *   **Peano helper**, build a helper that converts numeric symbols to their corresponding Peano numerals.

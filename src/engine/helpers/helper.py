@@ -97,53 +97,47 @@ class Helper(ABC, Generic[S]):
         self.hooks_state = {}  # per-traversal state, cleared each run
 
         # State management
-        self._state: S = initial_state
-        self._state_stack: List[S] = [initial_state]
-        self._breakpoints: Dict[str, int] = {}  # name -> stack index
-
-    @property
-    def state(self) -> S:
-        """Read-only access to current state"""
-        return self._state
-
+        self.state: S = initial_state
+        self.state_stack: List[S] = [initial_state]
+        self.breakpoints: Dict[str, int] = {}  # name -> stack index
     def set_state(self, new_state: S) -> None:
         """Replace state, pushing to history stack"""
-        self._state = new_state
-        self._state_stack.append(new_state)
+        self.state = new_state
+        self.state_stack.append(new_state)
 
     def undo(self) -> bool:
         """Pop last state. Returns False if at initial state."""
-        if len(self._state_stack) <= 1:
+        if len(self.state_stack) <= 1:
             return False
-        self._state_stack.pop()
-        self._state = self._state_stack[-1]
+        self.state_stack.pop()
+        self.state = self.state_stack[-1]
         return True
 
     def breakpoint(self, name: str) -> None:
         """Mark current stack position with name"""
-        self._breakpoints[name] = len(self._state_stack) - 1
+        self.breakpoints[name] = len(self.state_stack) - 1
 
     def rollback(self, name: str) -> bool:
         """Return to named breakpoint. Returns False if not found."""
-        if name not in self._breakpoints:
+        if name not in self.breakpoints:
             return False
-        idx = self._breakpoints[name]
-        self._state_stack = self._state_stack[:idx + 1]
-        self._state = self._state_stack[-1]
+        idx = self.breakpoints[name]
+        self.state_stack = self.state_stack[:idx + 1]
+        self.state = self.state_stack[-1]
         # Remove breakpoints beyond this point
-        self._breakpoints = {k: v for k, v in self._breakpoints.items() if v <= idx}
+        self.breakpoints = {k: v for k, v in self.breakpoints.items() if v <= idx}
         return True
 
     def stack_depth(self) -> int:
         """Return current stack depth (for Pipeline coordination)"""
-        return len(self._state_stack)
+        return len(self.state_stack)
 
     def truncate_to(self, depth: int) -> None:
         """Truncate stack to given depth (for Pipeline coordination)"""
-        if depth < len(self._state_stack):
-            self._state_stack = self._state_stack[:depth]
-            self._state = self._state_stack[-1]
-            self._breakpoints = {k: v for k, v in self._breakpoints.items() if v < depth}
+        if depth < len(self.state_stack):
+            self.state_stack = self.state_stack[:depth]
+            self.state = self.state_stack[-1]
+            self.breakpoints = {k: v for k, v in self.breakpoints.items() if v < depth}
 
 
     def register_hook(self, directives: List[str],

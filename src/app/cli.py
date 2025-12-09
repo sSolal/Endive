@@ -80,9 +80,66 @@ class Cli:
             print(f"  {Colors.CYAN}{command}{Colors.RESET} - {description}")
         print()
 
+    def handle_command(self, line: str) -> Optional[Tuple[bool, str]]:
+        """Handle CLI commands starting with :. Returns None if not a command."""
+        if not line.startswith(':'):
+            return None
+
+        # Parse command and arguments
+        parts = line.split(None, 1)
+        command = parts[0]
+        arg = parts[1] if len(parts) > 1 else None
+
+        # Handle each command
+        if command == ":help":
+            help_lines = ["\nEndive Proof Assistant Commands:", "", "Available Commands:"]
+            for cmd, desc in self.commands.items():
+                help_lines.append(f"  {cmd} - {desc}")
+            help_lines.append("")
+            return True, "\n".join(help_lines)
+
+        elif command == ":exit":
+            return False, "Cannot exit in non-interactive mode"
+
+        elif command == ":undo":
+            success, directive = self.engine.undo()
+            if success:
+                return True, f"{directive} undone"
+            else:
+                return False, "Nothing to undo"
+
+        elif command == ":checkpoint":
+            if not arg:
+                return False, "Usage: :checkpoint <name>"
+            self.engine.breakpoint(arg)
+            return True, f"Checkpoint '{arg}' created"
+
+        elif command == ":rollback":
+            if not arg:
+                return False, "Usage: :rollback <name>"
+            if self.engine.rollback(arg):
+                return True, f"Rolled back to '{arg}'"
+            else:
+                return False, f"Checkpoint '{arg}' not found"
+
+        else:
+            return False, f"Unknown command: {command}"
+
     def process(self, line: str, silent: Optional[bool] = None) -> Optional[Tuple[bool, str]]:
         """Process a single proof directive line"""
         try:
+            # Check if this is a command
+            cmd_result = self.handle_command(line)
+            if cmd_result is not None:
+                success, message = cmd_result
+                if not self.silent or silent == False:
+                    if success:
+                        print(f"{Colors.GREEN}✓{Colors.RESET} {message}")
+                    else:
+                        print(f"{Colors.RED}✗ {message}{Colors.RESET}")
+                return success, message
+
+            # Otherwise, process as proof directive
             success, result_objects = self.engine.process(line)
 
             # Extract display strings from result objects
@@ -118,38 +175,12 @@ class Cli:
                 if not command:
                     continue
 
-                # Handle special commands
+                # Handle :exit specially (breaks the loop)
                 if command == ":exit":
                     print(f"{Colors.CYAN}Goodbye!{Colors.RESET}")
                     break
-                elif command == ":help":
-                    self.show_help()
-                elif command == ":undo":
-                    if self.engine.undo():
-                        print(f"{Colors.GREEN}✓{Colors.RESET} Undone")
-                    else:
-                        print(f"{Colors.YELLOW}Nothing to undo{Colors.RESET}")
-                elif command.startswith(":checkpoint "):
-                    name = command[12:].strip()
-                    if name:
-                        self.engine.breakpoint(name)
-                        print(f"{Colors.GREEN}✓{Colors.RESET} Checkpoint '{name}' created")
-                    else:
-                        print(f"{Colors.RED}✗ Usage: :checkpoint <name>{Colors.RESET}")
-                elif command.startswith(":rollback "):
-                    name = command[10:].strip()
-                    if name:
-                        if self.engine.rollback(name):
-                            print(f"{Colors.GREEN}✓{Colors.RESET} Rolled back to '{name}'")
-                        else:
-                            print(f"{Colors.RED}✗ Checkpoint '{name}' not found{Colors.RESET}")
-                    else:
-                        print(f"{Colors.RED}✗ Usage: :rollback <name>{Colors.RESET}")
-                elif command.startswith(":"):
-                    print(f"{Colors.RED}✗ Unknown command: {command}{Colors.RESET}")
-                    print(f"  Type {Colors.CYAN}:help{Colors.RESET} for available commands")
                 else:
-                    # Process as proof directive
+                    # All other commands and directives handled by process()
                     self.process(command)
 
             except KeyboardInterrupt:
