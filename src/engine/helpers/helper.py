@@ -91,9 +91,8 @@ class Helper(ABC, Generic[S]):
 
     def __init__(self, initial_state: S = None):
         """Initialize the helper with optional initial state"""
-        self.forhooks = {}  # directive_type -> forhook_method
+        self.hooks: List[Tuple[List[str], Callable, Optional[Callable]]] = []  # list of (directives, forhook, backhook)
         self.handlers = {}  # directive -> handler_method
-        self.backhooks = {}  # directive_type -> backhook_method
         self.hooks_state = {}  # per-traversal state, cleared each run
 
         # State management
@@ -150,10 +149,7 @@ class Helper(ABC, Generic[S]):
 
         Decorate your hook methods with @hookify to adapt explicit parameters.
         """
-        for directive in directives:
-            self.forhooks[directive] = forhook_method
-            if backhook_method is not None:
-                self.backhooks[directive] = backhook_method
+        self.hooks.append((directives, forhook_method, backhook_method))
 
     def register_handler(self, directive: str, handler_method: Callable[[str, List[Object]], Tuple[bool, List[Object]]]):
         """
@@ -164,24 +160,18 @@ class Helper(ABC, Generic[S]):
         """
         self.handlers[directive] = handler_method
 
-    def get_hook(self, directive: str):
-        """Get forhook and optional backhook for the given directive type.
+    def get_hooks(self, directive: str):
+        """Get all matching forhook and backhook pairs for the given directive.
 
-        Returns: Tuple[Optional[Callable], Optional[Callable]]
-                 (forhook_method, backhook_method or None)
+        Returns: List[Tuple[Callable, Optional[Callable]]]
+                 List of (forhook_method, backhook_method or None) in registration order
         Supports 'ALL' wildcard.
         """
-        forhook = None
-        backhook = None
-
-        if directive in self.forhooks:
-            forhook = self.forhooks[directive]
-            backhook = self.backhooks.get(directive)
-        elif 'ALL' in self.forhooks:
-            forhook = self.forhooks['ALL']
-            backhook = self.backhooks.get('ALL')
-
-        return (forhook, backhook)
+        result = []
+        for directives, forhook, backhook in self.hooks:
+            if directive in directives or 'ALL' in directives:
+                result.append((forhook, backhook))
+        return result
 
     def get_handler(self, directive: str) -> bool:
         """Check if this helper has a handler for the given directive type"""

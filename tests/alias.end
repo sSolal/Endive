@@ -7,3 +7,7 @@ Check a -> c ~ a in context
 Check id ~ [x] in context
 
 Check [A] => B ~ error # B is not buildable
+
+# Test redefinition warning
+Define foo, x ~ foo defined
+Define foo, y ~ foo defined (redefinition)

@@ -77,13 +77,15 @@ class Pipeline:
         # Phase 1: Apply forhooks in forward order, collect backhooks
         backhooks_to_run = []  # Store backhooks to run in reverse
         for helper in self.helpers:
-            forhook, backhook = helper.get_hook(directive)
-            if forhook is not None:
+            hooks = helper.get_hooks(directive)
+            if hooks:
                 helper.reset_hooks_state()
-                arguments = forhook(directive, arguments)
-                # Store backhook if present (will run in reverse order)
-                if backhook is not None:
-                    backhooks_to_run.append(backhook)
+                # Apply all matching forhooks for this helper in registration order
+                for forhook, backhook in hooks:
+                    arguments = forhook(directive, arguments)
+                    # Store backhook if present (will run in reverse order)
+                    if backhook is not None:
+                        backhooks_to_run.append(backhook)
 
         # Phase 2: Find and call handler
         result = None
