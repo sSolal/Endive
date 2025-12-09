@@ -57,6 +57,7 @@ def build_use(state: BuildState, rule: Object) -> Tuple[bool, BuildState, Object
                 rule_reduced.type, rule_reduced.children, rule_reduced.handle, rule_reduced.repr_func,
                 {**rule_reduced.data, "result": f"Cannot apply [] to {state.working_term}"}
             )
+        composed = reduce(composed)
         # Unreduced: append to existing chain
         unreduced_chain = Comp(state.working_term_unreduced, rule)
     else:
@@ -68,6 +69,7 @@ def build_use(state: BuildState, rule: Object) -> Tuple[bool, BuildState, Object
                 rule_reduced.type, rule_reduced.children, rule_reduced.handle, rule_reduced.repr_func,
                 {**rule_reduced.data, "result": f"Cannot apply [] to {state.working_term}"}
             )
+        composed = reduce(composed)
         # Unreduced: create identity from unreduced form and compose
         identity_unreduced = identify(state.working_term_unreduced, rew_symbol)
         unreduced_chain = Comp(identity_unreduced, rule)

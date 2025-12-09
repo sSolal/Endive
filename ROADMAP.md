@@ -7,6 +7,10 @@
 
 *   **Extend Functorial helper to `By` directive**, allow the use of functorial rules both in back and forward reasoning.
 
+*   **Extend the build helper to handle backchaining too**, so that you can build backward while keeping the right rewriting symbols.
+
+*   **Add a way to instantiate a rewriting without composition**, either with syntactic sugar, or with a helper, allow to create [a] => X from [a] => [b]. (Probably a helper)
+
 ### Helpers/Modules
 
 *   **Turn Peano into Arithmetic**, add hooks to turn unknown symbols into holes, and to turn 2abc(...) terms into 2 * abc(...)
@@ -75,6 +79,8 @@
 ## History
 
 ### Last commits' changes:
+
+*   **Add examples**, add a first few examples to showcase how Endive works.
 
 *   **Import system**, add a way to import an entire file into the context.
 

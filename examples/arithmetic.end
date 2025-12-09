@@ -1,0 +1,46 @@
+
+Define induction, and((0 | [P]), (([n] | [P]) => (S([n]) | [P]))) => forall(N, [P])
+
+Axiom induction
+
+Define sum_base, sum(0, 0, [f]) = 0
+Define sum_ind, sum(0, S([k]), [f]) = sum(0, [k], [f]) + (S([k])|[f])
+Axiom sum_base
+Axiom sum_ind
+
+Functorial =, mult, 0, =, ([a] = [b]) => [a] * [c] = [b] * [c]
+Functorial =, mult, 1, =, ([a] = [b]) => [c] * [a] = [c] * [b]
+Axiom ([a] = [b]) => [a] * [c] = [b] * [c]
+Axiom ([a] = [b]) => [c] * [a] = [c] * [b]
+
+Functorial =, plus, 0, =, ([a] = [b]) => [a] + [c] = [b] + [c]
+Functorial =, plus, 1, =, ([a] = [b]) => [c] + [a] = [c] + [b]
+Axiom ([a] = [b]) => [a] + [c] = [b] + [c]
+Axiom ([a] = [b]) => [c] + [a] = [c] + [b]
+
+Define distributivity, [k]*([a] + [b]) = [k] * [a] + [k] * [b]
+Axiom distributivity
+
+Define factorization, [k]*[a] + [k]*[b] = [k] * ([a] + [b])
+Axiom factorization
+
+Define eq_comm, ([a] = [b]) => ([b] = [a])
+Axiom eq_comm
+
+Define add_base, [a] + 0 = [a]
+Axiom add_base
+Define add_ind, [a] + S([b]) = S([a]) + [b]
+Axiom add_ind
+
+Define times_zero, [a] * 0 = 0
+Axiom times_zero
+Define zero_times, 0 = [a] * 0
+Axiom zero_times
+
+Define mult_comm, [a] * [b] = [b] * [a]
+Axiom mult_comm
+Define add_comm, [a] + [b] = [b] + [a]
+Axiom add_comm
+
+Define equal_trans, ([a] = [c]) => ([b] = [c]) => ([a] = [b])
+Axiom equal_trans 

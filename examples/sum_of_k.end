@@ -1,0 +1,34 @@
+Using logic
+Using arithmetic
+
+
+Goal forall(N, [n] -> (2 * sum(0, [n], [k] -> [k]) = [n]*([n] + 1)))
+
+By induction
+
+By def_and
+Intro
+
+Start 2 * sum(0, S([n]), [k] -> [k])
+Use sum_ind, 1
+Use distributivity
+Use 2 * sum(0, [n], [k] -> [k]) = [n]*([n] + 1), 0
+
+Use add_ind, 0, 1
+Use add_base, 0, 1
+Use mult_comm, 0
+Use mult_comm, 1
+Use factorization
+Use add_ind, 1
+Done
+
+By (([a] = 0) => ([a] = 0)) | equal_trans
+Start 0 * (0 + 1)
+Use mult_comm
+Use times_zero
+Done
+
+Start 2 * sum(0, 0, [k] -> [k])
+Use sum_base, 1
+Use times_zero
+Done

@@ -53,66 +53,100 @@ class GoalHelper(Helper[GoalState]):
         self.set_state(new_state)
         return True, [replace(new_goal.right, data={**new_goal.right.data, "result": "New goal: []"})]
 
-    @hookify
-    def handle_by(self, directive: str, argument: Object, force: Optional[Object] = None, unpack: bool = False) -> Tuple[bool, List[Object]]:
-        """Applies a rewriting rule to progress toward the goal."""
-        # Apply the argument to a new Goal, and co-compose it with the current goal to find the new goal.
-        goal = get_goal(self.state)
-        goal_rew = goal.data['rew']
-        goal_term = goal.children[0]
-        context = get_context(self.state)
+    def check_rew_to_goal(self, goal_term, argument):
+        """
+        Check if a rewriting can be applied to a goal to extract premises and assignments.
 
-        # We want to unpack the multiple lefts of the nested rewritings, and then build the new goal object accordingly.
-
-        ## we always try to apply the rule to the goal "as a term" first, and only if it fails may we consider it as a rewriting.
-        if not unpack:
-            term = identify(goal_term, goal_rew)
-        else:
-            term = goal_term
-
+        Returns:
+            (True, premises, assignments): On successful match
+            (False, error_objects): On failure
+        """
         premises = []
-        current = argument
-        assignements = match(term.left, current)
+        current = reduce(argument)
+        assignements = match(goal_term.left, current)
         while assignements is None:
-            assignements = match(term.left, current)
+            assignements = match(goal_term.left, current)
             if assignements is not None:
                 break
             if current.type != "Rew":
-                if not unpack:  # Retry with the goal as a rewriting
-                    return self.handle_by(directive, argument, force, unpack=True)
-                return False, [replace(argument, data={**argument.data, "result": f"Can't apply {argument} to obtain {term}"})]
+                return False, [replace(argument, data={**argument.data, "result": f"Can't apply {argument} to obtain {goal_term}"})]
             premises.append(current.left)
             current = current.right
 
+        # Validate premise count
         if len(premises) > 2:
             return False, [replace(argument, data={
                 **argument.data,
                 "result": f"Rules with more than 2 premises are not yet supported. Found {len(premises)} premises."
             })]
 
-        if goal_rew is None or goal_rew not in context or argument not in context[goal_rew]:
-            # The rule is not buildable
-            if force is None or force.symbol != "force":
-                return False, [replace(argument, data={**argument.data, "result": "[] is not a known rewriting. Use 'force' to use it anyway."})]
-            else:
-                argument = Goal(argument, goal_rew)
+        return True, premises, assignements
 
+    def build_rew_goal(self, goal_term, goal_rew, argument, premises, assignements):
+        """
+        Build the composition given matched premises and assignments.
+
+        Args:
+            argument: The argument to use in building (may be wrapped in Goal if forced)
+        """
         # Build composition based on premise count
         if len(premises) == 2:
-            building = Comp(term, Comp(argument, currifier(goal_rew)))
-
-            # Wrap premises as Goals (B before A in composition)
+            building = Comp(goal_term, Comp(argument, currifier(goal_rew)))
             for premise in premises:
                 applied_premise = apply(premise, assignements)
                 goal_premise = Goal(applied_premise, goal_rew)
                 building = Comp(goal_premise, building)
         else:
-            building = Comp(argument, term)
+            building = Comp(argument, goal_term)
             for premise in premises:
                 applied_premise = apply(premise, assignements)
                 goal_premise = Goal(applied_premise, goal_rew)
                 building = Comp(goal_premise, building)
 
+        return building
+
+    @hookify
+    def handle_by(self, directive: str, argument: Object, force: Optional[Object] = None) -> Tuple[bool, List[Object]]:
+        """Applies a rewriting rule to progress toward the goal."""
+        goal = get_goal(self.state)
+        goal_rew = goal.data['rew']
+        goal_term = goal.children[0]
+        context = get_context(self.state)
+
+        term = identify(goal_term, goal_rew)
+
+        # Try to match the rule with the goal
+        match_result = self.check_rew_to_goal(term, argument)
+
+        # If matching fails, retry considering the goal term as a rew (only if it actually is a rew)
+        if not match_result[0]:
+            if goal_term.type == "Rew":
+                match_result = self.check_rew_to_goal(goal_term, argument)
+                if not match_result[0]:
+                    # Both attempts failed - return error
+                    return False, match_result[1]
+                # Second attempt succeeded, use goal_term for building
+                term = goal_term
+            else:
+                # Goal is not a Rew, can't retry - return the error
+                return False, match_result[1]
+
+        # Matching succeeded - unpack results
+        _, premises, assignements = match_result
+
+        # Check buildability
+        is_buildable, message = check(argument, goal_rew, context)
+        if goal_rew is None or not is_buildable:
+            if force is None or force.symbol != "force":
+                return False, [replace(argument, data={**argument.data, "result": "[] is not a known rewriting. Use 'force' to use it anyway."})]
+            else:
+                # Force was provided - wrap argument in Goal to make it usable
+                argument = Goal(argument, goal_rew)
+
+        # Build composition with the (possibly wrapped) argument
+        building = self.build_rew_goal(term, goal_rew, argument, premises, assignements)
+
+        # Update state and return
         new_state, _ = update_goal(self.state, building)
         self.set_state(new_state)
         new_goal = get_goal(self.state)
@@ -122,6 +156,11 @@ class GoalHelper(Helper[GoalState]):
     def handle_done(self, directive: str, candidate: Object = None) -> Tuple[bool, List[Object]]:
         """Marks the current goal as completed if the provided candidate is buildable, or the goal is in the context."""
         goal = get_goal(self.state)
+
+        # Guard against no active goals
+        if goal is None:
+            return False, [Term("Error", data={"result": "No active goals"})]
+
         goal_rew = goal.data['rew']
         goal_term = goal.children[0]
         goal_unreduced = goal.data['unreduced']

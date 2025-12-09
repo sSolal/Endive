@@ -1,0 +1,2 @@
+Define def_and, [A] => [B] => and([A], [B])
+Axiom def_and
