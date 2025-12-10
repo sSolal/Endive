@@ -1,5 +1,5 @@
 """
-Core Engine for Whale Proof Assistant
+Core Engine for Endive Proof Assistant
 
 This module defines the fundamental data structures:
 - Object (abstract syntax tree object)
@@ -57,24 +57,40 @@ class Object:
     def symbol(self) -> Optional[str]:
         return self.handle
 
-def Term(name: str, arguments: Tuple[Object, ...] = (), data: Dict[str, Any] = {}) -> Object:
+    def with_children(self, new_children: Tuple['Object', ...]) -> 'Object':
+        """Create a new Object with updated children, preserving other attributes."""
+        return Object(self.type, new_children, self.handle, self.repr_func, dict(self.data))
+
+    def with_data(self, **updates: Any) -> 'Object':
+        """Create a new Object with updated data fields, preserving other attributes."""
+        return Object(self.type, self.children, self.handle, self.repr_func, {**self.data, **updates})
+
+def Term(name: str, arguments: Tuple[Object, ...] = (), data: Optional[Dict[str, Any]] = None) -> Object:
     """Creates a term object."""
+    if data is None:
+        data = {}
     if not isinstance(arguments, tuple):
         arguments = tuple(arguments)
     return Object("Term", arguments, name, data=data)
 
-def Rew(left: Object, symbol: str, right: Object, data: Dict[str, Any] = {}) -> Object:
+def Rew(left: Object, symbol: str, right: Object, data: Optional[Dict[str, Any]] = None) -> Object:
     """Creates a rewriting rule object."""
+    if data is None:
+        data = {}
     return Object("Rew", (left, right), symbol,
         lambda self: f"({str(self.children[0])} {self.handle} {str(self.children[1])})", data=data)
 
-def Comp(left: Object, right: Object, data: Dict[str, Any] = {}) -> Object:
+def Comp(left: Object, right: Object, data: Optional[Dict[str, Any]] = None) -> Object:
     """Creates a composition object."""
+    if data is None:
+        data = {}
     return Object("Comp", (left, right), None,
         lambda self: f"({str(self.children[0])} | {str(self.children[1])})", data=data)
 
-def Hole(name: str, data: Dict[str, Any] = {}) -> Object:
+def Hole(name: str, data: Optional[Dict[str, Any]] = None) -> Object:
     """Creates a hole (pattern variable) object."""
+    if data is None:
+        data = {}
     return Object("Hole", (), name,
         lambda self: "[" + self.handle + "]", data=data)
 

@@ -1,5 +1,5 @@
 """
-Core Engine for Whale Proof Assistant
+Core Engine for Endive Proof Assistant
 
 This module defines the fundamental data manipulation operations:
 - Pattern matching

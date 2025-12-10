@@ -2,10 +2,9 @@
 Takes all the .end files in folder and runs them through the cli.
 """
 
-from main import Cli
 from pathlib import Path
 import traceback
-from src.app.cli import Colors
+from src.app.cli import Cli, Colors
 
 def run_file(file, silent=True):
     cli = Cli(silent=silent, debug=True)

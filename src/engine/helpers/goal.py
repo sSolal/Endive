@@ -64,15 +64,13 @@ class GoalHelper(Helper[GoalState]):
         """
         premises = []
         current = reduce(argument)
-        assignements = match(goal_term.left, current)
-        while assignements is None:
-            assignements = match(goal_term.left, current)
-            if assignements is not None:
-                break
+        assignments = match(goal_term.left, current)
+        while assignments is None:
             if current.type != "Rew":
                 return False, [replace(argument, data={**argument.data, "result": f"Can't apply {argument} to obtain {goal_term}"})]
             premises.append(current.left)
             current = current.right
+            assignments = match(goal_term.left, current)
 
         # Validate premise count
         if len(premises) > 2:
@@ -81,9 +79,9 @@ class GoalHelper(Helper[GoalState]):
                 "result": f"Rules with more than 2 premises are not yet supported. Found {len(premises)} premises."
             })]
 
-        return True, premises, assignements
+        return True, premises, assignments
 
-    def build_rew_goal(self, goal_term, goal_rew, argument, premises, assignements):
+    def build_rew_goal(self, goal_term, goal_rew, argument, premises, assignments):
         """
         Build the composition given matched premises and assignments.
 
@@ -94,13 +92,13 @@ class GoalHelper(Helper[GoalState]):
         if len(premises) == 2:
             building = Comp(goal_term, Comp(argument, currifier(goal_rew)))
             for premise in premises:
-                applied_premise = apply(premise, assignements)
+                applied_premise = apply(premise, assignments)
                 goal_premise = Goal(applied_premise, goal_rew)
                 building = Comp(goal_premise, building)
         else:
             building = Comp(argument, goal_term)
             for premise in premises:
-                applied_premise = apply(premise, assignements)
+                applied_premise = apply(premise, assignments)
                 goal_premise = Goal(applied_premise, goal_rew)
                 building = Comp(goal_premise, building)
 
@@ -133,7 +131,7 @@ class GoalHelper(Helper[GoalState]):
                 return False, match_result[1]
 
         # Matching succeeded - unpack results
-        _, premises, assignements = match_result
+        _, premises, assignments = match_result
 
         # Check buildability
         is_buildable, message = check(argument, goal_rew, context)
@@ -145,7 +143,7 @@ class GoalHelper(Helper[GoalState]):
                 argument = Goal(argument, goal_rew)
 
         # Build composition with the (possibly wrapped) argument
-        building = self.build_rew_goal(term, goal_rew, argument, premises, assignements)
+        building = self.build_rew_goal(term, goal_rew, argument, premises, assignments)
 
         # Update state and return
         new_state, _ = update_goal(self.state, building)

@@ -48,4 +48,7 @@ Thumbs.db
 # Documentation
 docs/
 
+# Local files
+local/
+
 CLAUDE.md

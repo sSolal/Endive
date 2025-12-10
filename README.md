@@ -153,7 +153,10 @@ The parser contains all the syntactic sugar.
 #### Helpers
 
 *   Helper (abstract class)
-    *   hooks
+    *   forhooks / backhooks
     *   handlers
-*   AliasHelper (allows for definition, and substitute alias in objects)
-*   GoalHelper (for now, only one command Check that says if a term is buildable or not)
+*   AliasHelper (allows for definition and substitutes aliases in objects)
+*   GoalHelper (manages proof goals with directives: Goal, Intro, By, Axiom, Done, Status)
+*   BuildHelper (manages forward-chaining proofs with directives: Start, Use, Clear, Check)
+*   FunctorialHelper (manages functorial rewriting rules)
+*   PeanoHelper (provides Peano arithmetic support)

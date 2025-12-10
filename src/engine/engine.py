@@ -15,7 +15,7 @@ from .helpers import (
     BuildHelper,
     FunctorialHelper
 )
-from .parser import parse_line, ParseError
+from .parser import parse_line
 
 
 class Engine:
