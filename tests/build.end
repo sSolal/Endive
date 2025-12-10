@@ -45,3 +45,12 @@ Start X
 Use rule1
 Use rule2
 Done ~ Goal completed: rule1 => rule2 => X => Z
+
+# Test 9: Use with non-buildable rule shows warning
+Define buildable, A => B
+Goal buildable => (A => C)
+Intro ~ New goal: [=>A => C]
+
+Start A
+Use buildable ~ Applied rule, new term: B
+Use (B => C) ~ Applied rule, new term: C (Warning: the rule you used is not buildable)

@@ -1,18 +1,5 @@
 # Endive's bright future
 
-## MVP vision : a simple proof assistant to make logic and arithmetic proofs.
-
-### Quick fixes
-
-*   **Add a context-verifier hook**, from the goal helper, to give a message if the user tries to use "Use" from build with a non buildable rewriting.
-
-*   **Allow axiomatization in other handlers**, add a hook of the goal helper to allow for an optional "axiom" argument to Define, Functorial, Alias, etc...
-
-*   **Allow to set a rewriting for the goal**, allow to put a goal that isn't a rewriting, precising which rewriting to build for.
-
-*   **Fix Done messaging**, when Done is called with an argument, and fails, it should explicitly say that the argument is not correct.
-
-*   **Define should allow to redefine, with a warning on replacement**
 ## V1 vision: a proof assistant to make any kind of maths.
 
 ### From MVP
@@ -29,7 +16,14 @@
 
 *   **Add syntax for multi-premises rules**, for instance "X ; Y => Z" should parse as "X => (Y => Z)". And maybe syntax for currified application, like X ; Y | Z should parse as "Y | (X | Z)".
 
+*   **Change alias definition in Axiom to axiom definition in Define/Functorial**
+
+*   **Allow to set a rewriting for the goal**, allow to put a goal that isn't a rewriting, precising which rewriting to build for.
+
+
 ### New features
+
+*   **Make proven term usable in subsequent checks**
 
 *   **Streamline the printing**, make a real set of helpers for a nicer CLI.
 
@@ -73,6 +67,11 @@
 ## History
 
 ### Last commits' changes:
+
+
+*   **Add a context-verifier hook**, from the goal helper, to give a message if the user tries to use "Use" from build with a non buildable rewriting.
+
+*   **Allow alias definition in other handlers**, add a hook of the goal helper to allow for an optional "axiom" argument to Define, Functorial, Alias, etc...
 
 *   **Allow tests to contain :commands**, to test for checkpoints, rollbacks, undo, etc...
 

@@ -31,6 +31,7 @@ class GoalHelper(Helper[GoalState]):
         self.register_handler('Status', self.handle_status)
         self.register_handler('By', self.handle_by)
         self.register_handler('Axiom', self.handle_axiom)
+        self.register_hook(['Use'], self.use_forhook, self.use_backhook)
 
     @hookify
     def handle_goal(self, directive: str, argument: Object) -> Tuple[bool, List[Object]]:
@@ -190,7 +191,7 @@ class GoalHelper(Helper[GoalState]):
                     completed = reduce(self.state.goal)
                     return True, [replace(completed, data={**completed.data, "result": "Goal completed: []"})]
 
-            return False, [replace(goal, data={**goal.data, "result": "Goal not completed: []"})]
+            return False, [replace(goal, data={**goal.data, "result": "Candidate does not complete the goal: []"})]
         else:
             # Backward-chaining: check if goal is buildable in context
             if goal_rew is not None and goal_rew in context and goal_unreduced in context[goal_rew]:
@@ -210,6 +211,40 @@ class GoalHelper(Helper[GoalState]):
         result += "Object:\n"
         result += f"  {self.state.goal}\n"
         return True, [Term("Status", data={"result": result})]
+
+    @hookify
+    def use_forhook(self, directive: str, rule: Object) -> List[Object]:
+        """Check buildability of rule argument, store warning if needed."""
+        goal = get_goal(self.state)
+
+        if goal is None:
+            return [rule]
+
+        goal_rew = goal.data.get('rew')
+        context = get_context(self.state)
+
+        is_buildable, message = check(rule, goal_rew, context)
+
+        if not is_buildable:
+            # Store warning in temporary state for backhook to use
+            self.hooks_state['buildability_warning'] = True
+
+        return [rule]
+
+    @hookify
+    def use_backhook(self, directive: str, result: Object) -> List[Object]:
+        """Add buildability warning to result if forhook detected non-buildable rule."""
+
+        if not self.hooks_state.get('buildability_warning', False):
+            return [result]
+
+        existing_result = result.data.get('result', '')
+        if existing_result:
+            warning_msg = existing_result + " (Warning: the rule you used is not buildable)"
+        else:
+            warning_msg = "(Warning: the rule you used is not buildable)"
+
+        return [replace(result, data={**result.data, "result": warning_msg})]
 
     @hookify
     def handle_axiom(self, directive: str, *args: Object) -> Tuple[bool, List[Object]]:
