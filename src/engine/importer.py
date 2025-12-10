@@ -56,7 +56,7 @@ class ImportHandler:
             with open(path) as f:
                 for line in f:
                     line = line.strip()
-                    if line and not line.startswith("#"):
+                    if line and not line.startswith("//"):
                         success, results = self.engine.process(line)
                         if not success:
                             self.importing.pop()

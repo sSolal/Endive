@@ -1,35 +1,35 @@
-# Core Operations Edge Case Tests
-# Testing match, apply, compose, reduce with complex patterns
+// Core Operations Edge Case Tests
+// Testing match, apply, compose, reduce with complex patterns
 
-# Test nested pattern matching with composition
-Define nested, ([A] | [B]) -> ([A] | [B])
-Check nested ~ ([A] | [B]) in context
+// Test nested pattern matching with composition
+Define nested, (#A | #B) -> (#A | #B)
+Check nested ~ (#A | #B) in context
 
-# Test composition reduces correctly (put in context with B and C)
+// Test composition reduces correctly (put in context with B and C)
 Define rule1, A -> B
 Define rule2, B -> C
 Check (A -> B) => ((B -> C) => ((A -> B) | (B -> C))) ~ 
 Reduce (A -> B) | (B -> C) ~ A -> C
 
-# Test reduction with identity
-Define id, [x] -> [x]
+// Test reduction with identity
+Define id, #x -> #x
 Reduce A | id ~ A
 
-# Test patterns with multiple holes - swap
-Define swap, ([a] | [b]) -> ([b] | [a])
+// Test patterns with multiple holes - swap
+Define swap, (#a | #b) -> (#b | #a)
 Reduce (X | Y) | swap ~ Y | X
 
-# Test deeply nested rewriting
+// Test deeply nested rewriting
 Define three, A -> (B -> C)
 Check (A | three) -> (B -> C) ~ (B -> C) in context
 
-# Test complex nested term with function application
-Define complex, f([x] | [y]) -> (g([x]) | g([y]))
+// Test complex nested term with function application
+Define complex, f(#x | #y) -> (g(#x) | g(#y))
 Reduce f(a | b) | complex ~ g(a) | g(b)
 
-# Test hole matching with complex patterns
-Define pattern, (f([x], [x2]) | (g([y]) -> [z])) -> (([y] -> [z]) | f([x2], [x]))
-# [y] should not match [x] in our argument, else it gets reduced before having a chance to match
-Reduce (f(abc, de) | (g(u) -> (g | [h]))) | pattern ~ u -> (g | [h]) | f(de, abc)
+// Test hole matching with complex patterns
+Define pattern, (f(#x, #x2) | (g(#y) -> #z)) -> ((#y -> #z) | f(#x2, #x))
+// #y should not match #x in our argument, else it gets reduced before having a chance to match
+Reduce (f(abc, de) | (g(u) -> (g | #h))) | pattern ~ u -> (g | #h) | f(de, abc)
 
 

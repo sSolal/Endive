@@ -43,19 +43,18 @@ def tokenize(line: str) -> List[Token]:
             tokens.append(Token('SYMBOL', line[start:i], start))
             continue
 
-        # Holes [content]
-        if char == '[':
+        # Holes #name
+        if char == '#':
             start = i
-            i += 1  # skip '['
-            hole_content = ""
-            while i < len(line) and line[i] != ']':
-                hole_content += line[i]
-                i += 1
-            if i < len(line) and line[i] == ']':
-                i += 1  # skip ']'
+            i += 1  # skip '#'
+            if i < len(line) and (line[i].isalnum() or line[i] == '_'):
+                hole_content = ""
+                while i < len(line) and (line[i].isalnum() or line[i] == '_'):
+                    hole_content += line[i]
+                    i += 1
                 tokens.append(Token('HOLE', hole_content, start))
             else:
-                raise ParseError(f"Unclosed hole at position {start}")
+                raise ParseError(f"Invalid hole syntax at position {start}. Use #name for holes.")
             continue
 
         # Pipe for application
@@ -65,10 +64,10 @@ def tokenize(line: str) -> List[Token]:
             continue
 
         # Special character sequences (symbols like -->, <-=->, etc.) or operators
-        if char in '=><-+*/!@#$%^&~`\\':
+        if char in '=><-+*/!@$%^&~:`\\':
             start = i
             # Collect all consecutive special characters
-            while i < len(line) and line[i] in '=><-+*/!@#$%^&~`\\':
+            while i < len(line) and line[i] in '=><-+*/!@$%^&~:`\\':
                 i += 1
             symbol_text = line[start:i]
 
@@ -282,8 +281,8 @@ class Parser:
 def parse_line(line: str) -> Tuple[Optional[str], Optional[List[Object]]]:
     """Parse a single line of text, returning (directive, content) or (None, None) for empty/comment lines."""
     line = line.strip()
-    
-    if not line or line.startswith('#'):
+
+    if not line or line.startswith('//'):
         return None, None
     
     try:

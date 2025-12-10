@@ -1,26 +1,26 @@
-# Test import system
+// Test import system
 
-# Test basic import
+// Test basic import
 Using imports.prelude ~ Imported: imports.prelude
 
-# Test that definitions from prelude work (foo is aliased to bar)
-# Use foo in a rewriting to verify alias substitution
+// Test that definitions from prelude work (foo is aliased to bar)
+// Use foo in a rewriting to verify alias substitution
 Check foo -> foo ~ bar in context
 
-# Test re-import is silent
+// Test re-import is silent
 Using imports.prelude ~ Already imported: imports.prelude
 
-# Test nested import (prelude -> nested)
+// Test nested import (prelude -> nested)
 Using imports.nested ~ Imported: imports.nested
 
-# Check nested definition works (nested is aliased to value)
+// Check nested definition works (nested is aliased to value)
 Check nested -> nested ~ value in context
 
-# Check prelude definitions still work (imported via nested - which imports prelude)
+// Check prelude definitions still work (imported via nested - which imports prelude)
 Check hello -> hello ~ world in context
 
-# Test circular import detection
-Using imports.circular_a ~ error # Circular import: circular_a
+// Test circular import detection
+Using imports.circular_a ~ error // Circular import: circular_a
 
 Using imports.exercise ~ Imported: imports.exercise
 Use bz ~ Applied rule, new term: Z

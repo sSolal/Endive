@@ -209,7 +209,7 @@ def display(obj: Object, parent_prec: int = 0) -> str:
 
     # Type-specific display
     if obj.type == "Hole":
-        return f"[{obj.handle}]"
+        return f"#{obj.handle}"
 
     elif obj.type == "Term":
         if is_infix_term(obj):

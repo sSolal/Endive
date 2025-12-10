@@ -21,8 +21,8 @@ def run_file(file, silent=True):
                     print(line.strip())
                 if "~" in line:
                     statement, expected = line.split('~')
-                    if '#' in expected:
-                        expected_success, expected_message = expected.strip().split('#')
+                    if '//' in expected:
+                        expected_success, expected_message = expected.strip().split('//', 1)
                         if expected_success.strip() == 'error':
                             expected_success = False
                         else:

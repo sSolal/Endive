@@ -20,7 +20,7 @@ Intro ~ New goal: [=>A => C]
 
 Intro ~ New goal: [=>C]
 
-By (X => C) ~ error # X => C is not a known rewriting. Use 'force' to use it anyway.
+By (X => C) ~ error // X => C is not a known rewriting. Use 'force' to use it anyway.
 
 By (X => C), force ~ New goal: [=>X]
 
@@ -30,7 +30,7 @@ By (A => B) ~ New goal: [=>A]
 
 Done ~ Goal completed: (A => B) => (B => C) => A => ((B | [=>B => X] | X => X) | [=>X => C] | C => C)
 
-Done ~ error # Goal not completed: [=>B => X]
+Done ~ error // Goal not completed: [=>B => X]
 
 Goal (A => B => Z) => Z
 
@@ -38,9 +38,9 @@ Intro ~ New goal: [=>Z]
 
 By A => B => Z ~ New goal: [=>B]
 
-# Testing multi-premises rewritings
+// Testing multi-premises rewritings
 
-Define def_and, [A] => [B] => and([A], [B])
+Define def_and, #A => #B => and(#A, #B)
 
 Goal def_and => X => Y => and(X, Y) ~ New goal: [=>def_and => X => Y => (X ∧ Y)]
 
@@ -48,30 +48,30 @@ Intro
 Intro
 Intro
 
-Done ~ error # Goal not completed: [=>X ∧ Y]
+Done ~ error // Goal not completed: [=>X ∧ Y]
 By def_and ~ New goal: [=>Y]
 Done ~ Goal completed: def_and => X => Y => (Y | [=>X] | X => Y => (X ∧ Y))
 Done ~ Goal completed: def_and => X => Y => (X ∧ Y)
 
 Goal A
-By X => Y => Z => A ~ error # Rules with more than 2 premises are not yet supported. Found 3 premises.
+By X => Y => Z => A ~ error // Rules with more than 2 premises are not yet supported. Found 3 premises.
 
 Goal A => B
-By X => Y => A => B ~ error # X => Y => A => B is not a known rewriting. Use 'force' to use it anyway.
+By X => Y => A => B ~ error // X => Y => A => B is not a known rewriting. Use 'force' to use it anyway.
 
 
 Goal True => A
 Intro
-Done ~ error # Goal not completed: [=>A]
+Done ~ error // Goal not completed: [=>A]
 Axiom A
 Done ~ Goal completed: True => A
 
 Axiom ->, pi
 Axiom ->, zero
 Axiom ->, dot
-Define inc, [k] -> S([k])
+Define inc, #k -> S(#k)
 Axiom ->, inc
-Define def_times, [a] -> [b] -> [a] * [b]
+Define def_times, #a -> #b -> #a * #b
 Axiom ->, def_times
 Goal dot -> 2 * pi
 Intro

@@ -10,7 +10,7 @@
 
 *   **Add traversal utilities**, to reduce redundancy of traversing objects and mapping a function over whole objects-trees.
 
-*   **Add a way to instantiate a rewriting without composition**, either with syntactic sugar, or with a helper, allow to create [a] => X from [a] => [b]. (Probably a helper)
+*   **Add a way to instantiate a rewriting without composition**, either with syntactic sugar, or with a helper, allow to create #a => X from #a => #b. (Probably a helper)
 
 *   **Extend the build helper to handle backchaining too**, so that you can build backward while keeping the right rewriting symbols, extend functional helper to handle it too.
 
@@ -43,7 +43,7 @@
 
 ### Open questions
 
-*   When matching to a pattern such as 0 | [P], should it be able to match "0 = 0" ? How do we give the user the ability to make that match?
+*   When matching to a pattern such as 0 | #P, should it be able to match "0 = 0" ? How do we give the user the ability to make that match?
 
 
 
@@ -55,7 +55,7 @@
 
 ### Functoriality helper:
 
-> Allow the definition of "functorial" rules, which allow nested objects rewriting in an easy way. Handles the directives "Declare" with arguments (object, position, in-rew, out-rew, rew), and automatically build and add to context the rule "(\[x\] in-rew \[y\]) rew (object(...\[x\]...) out-rew object(...\[y\]...)).
+> Allow the definition of "functorial" rules, which allow nested objects rewriting in an easy way. Handles the directives "Declare" with arguments (object, position, in-rew, out-rew, rew), and automatically build and add to context the rule "(#x in-rew #y) rew (object(...#x...) out-rew object(...#y...)).
 > 
 > Implementing this helper may require the following codebase changes:
 > 

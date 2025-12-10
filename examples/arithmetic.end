@@ -1,34 +1,34 @@
 
-Define induction, and((0 | [P]), (([n] | [P]) => (S([n]) | [P]))) => forall(N, [P])
+Define induction, and((0 | #P), ((#n | #P) => (S(#n) | #P))) => forall(N, #P)
 
 Axiom induction
 
-Axiom sum_base, sum(0, 0, [f]) = 0
-Axiom sum_ind, sum(0, S([k]), [f]) = sum(0, [k], [f]) + (S([k])|[f])
+Axiom sum_base, sum(0, 0, #f) = 0
+Axiom sum_ind, sum(0, S(#k), #f) = sum(0, #k, #f) + (S(#k)|#f)
 
-Axiom mult_eq_left, ([a] = [b]) => [a] * [c] = [b] * [c]
-Axiom mult_eq_right, ([a] = [b]) => [c] * [a] = [c] * [b]
+Axiom mult_eq_left, (#a = #b) => #a * #c = #b * #c
+Axiom mult_eq_right, (#a = #b) => #c * #a = #c * #b
 Functorial =, mult, 0, =, mult_eq_left
 Functorial =, mult, 1, =, mult_eq_right
 
-Axiom plus_eq_left, ([a] = [b]) => [a] + [c] = [b] + [c]
-Axiom plus_eq_right, ([a] = [b]) => [c] + [a] = [c] + [b]
+Axiom plus_eq_left, (#a = #b) => #a + #c = #b + #c
+Axiom plus_eq_right, (#a = #b) => #c + #a = #c + #b
 Functorial =, plus, 0, =, plus_eq_left
 Functorial =, plus, 1, =, plus_eq_right
 
 
-Axiom distributivity, [k]*([a] + [b]) = [k] * [a] + [k] * [b]
-Axiom factorization, [k]*[a] + [k]*[b] = [k] * ([a] + [b])
+Axiom distributivity, #k*(#a + #b) = #k * #a + #k * #b
+Axiom factorization, #k*#a + #k*#b = #k * (#a + #b)
 
-Axiom eq_comm, ([a] = [b]) => ([b] = [a])
+Axiom eq_comm, (#a = #b) => (#b = #a)
 
-Axiom add_base, [a] + 0 = [a]
-Axiom add_ind, [a] + S([b]) = S([a]) + [b]
+Axiom add_base, #a + 0 = #a
+Axiom add_ind, #a + S(#b) = S(#a) + #b
 
-Axiom times_zero, [a] * 0 = 0
-Axiom zero_times, 0 = [a] * 0
+Axiom times_zero, #a * 0 = 0
+Axiom zero_times, 0 = #a * 0
 
-Axiom mult_comm, [a] * [b] = [b] * [a]
-Axiom add_comm, [a] + [b] = [b] + [a]
+Axiom mult_comm, #a * #b = #b * #a
+Axiom add_comm, #a + #b = #b + #a
 
-Axiom equal_trans, ([a] = [c]) => ([b] = [c]) => ([a] = [b])
+Axiom equal_trans, (#a = #c) => (#b = #c) => (#a = #b)

@@ -6,12 +6,12 @@ Endive is a proof assistant based on rewriting.
 
 ```
 directive ::= directive_symbol term (, term)*
-object ::= symbol, symbol(object, object...), [hole], object | object, object rule_symbol object, (object)
+object ::= symbol, symbol(object, object...), #hole, object | object, object rule_symbol object, (object)
 rule_symbol ::= =, =>, <=>, ->...
 directive_symbol ::= Axiom, Axiom, Goal, Start, Use...
 ```
 
-A `[hole]` is an object that kind of takes the role of variables, `term rule_symbol term` is just called a "rule", and `term | term` is called an application. The parenthesis in (term) are here to allow forcing some priorities in the parsing.
+A `#hole` is an object that kind of takes the role of variables, `term rule_symbol term` is just called a "rule", and `term | term` is called an application. The parenthesis in (term) are here to allow forcing some priorities in the parsing.
 
 For instance,
 
@@ -38,17 +38,17 @@ An object is said to be _buildable_ in a specific _context_, for a given _rule_,
 
 ### Pattern Matching
 
-Pattern matching is the process of finding an assignment of holes in an object that makes it equal to another object. In Endive, holes are represented as `[name]` and act as placeholders for variables.
+Pattern matching is the process of finding an assignment of holes in an object that makes it equal to another object. In Endive, holes are represented as `#name` and act as placeholders for variables.
 
 **Example:**
 
 *   Object: `f(x, g(y))`
-*   Pattern: `f([a], g([b]))`
-*   Match: `[a] = x` and `[b] = y`
+*   Pattern: `f(#a, g(#b))`
+*   Match: `#a = x` and `#b = y`
 
 The pattern matching algorithm recursively traverses both the pattern and the concrete term, checking:
 
-1.  If the pattern is a hole `[name]`, it assigns the corresponding part of the term to that hole
+1.  If the pattern is a hole `#name`, it assigns the corresponding part of the term to that hole
 2.  If the pattern is a term, it checks that names and structure match, then recursively matches all arguments
 3.  If the pattern is an application, it matches both the function and argument parts
 
@@ -97,7 +97,7 @@ Since a lot of proofs will contain numbers, we have parsing level syntactic suga
 Similarly, we have specific parser constructs for quantifiers
 
 ```
-forall [x] in N, P parses as forall(N, [x] -> P) (where P may contains occurences of [x] of course)
+forall #x in N, P parses as forall(N, #x -> P) (where P may contains occurences of #x of course)
 ```
 
 Since one of the use cases of Endive is to work with logic, and to prove theorems within a given logic system, we may soon want to be able to talk about "theorems" and not just "implications", as the condition on rules seems to force us to do.

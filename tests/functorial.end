@@ -1,158 +1,158 @@
-# Functorial Helper - Edge Cases and Complex Tests
-# Tests for error conditions, nested positions, and complex wrapping scenarios
+// Functorial Helper - Edge Cases and Complex Tests
+// Tests for error conditions, nested positions, and complex wrapping scenarios
 
-## Basic Setup
-Functorial =, plus, 0, =, ([x] = [y]) => ([x] + [c] = [y] + [c])
-Functorial =, plus, 1, =, ([x] = [y]) => ([c] + [x] = [c] + [y])
-Functorial =, minus, 0, =, ([x] = [y]) => ([x] - [c] = [y] - [c])
-Functorial =, minus, 1, =, ([x] = [y]) => ([c] - [x] = [c] - [y])
-Functorial <=, minus, 0, <=, ([x] <= [y]) => ([x] - [c] <= [y] - [c])
-Functorial <=, minus, 1, >=, ([x] <= [y]) => ([c] - [x] >= [c] - [y])
+// Basic Setup
+Functorial =, plus, 0, =, (#x = #y) => (#x + #c = #y + #c)
+Functorial =, plus, 1, =, (#x = #y) => (#c + #x = #c + #y)
+Functorial =, minus, 0, =, (#x = #y) => (#x - #c = #y - #c)
+Functorial =, minus, 1, =, (#x = #y) => (#c - #x = #c - #y)
+Functorial <=, minus, 0, <=, (#x <= #y) => (#x - #c <= #y - #c)
+Functorial <=, minus, 1, >=, (#x <= #y) => (#c - #x >= #c - #y)
 
-## Test 1: Error - Use with positions but no working term
-Use a = 2, 0 ~ error # No working term. Use 'Start' first.
+// Test 1: Error - Use with positions but no working term
+Use a = 2, 0 ~ error // No working term. Use 'Start' first.
 
-## Test 2: Nested positions - Navigate through two levels (left-left)
+// Test 2: Nested positions - Navigate through two levels (left-left)
 Start (a + b) - c
 Use a = 2, 0, 0 ~ Applied rule, new term: (2 + b) - c
 
-## Test 3: Nested positions - Navigate through two levels (left-right)
+// Test 3: Nested positions - Navigate through two levels (left-right)
 Start (a + b) - c
 Use b = 3, 0, 1 ~ Applied rule, new term: (a + 3) - c
 
-## Test 4: Deep nesting - Three levels deep
+// Test 4: Deep nesting - Three levels deep
 Start ((a + b) - c) + d
 Use a = 1, 0, 0, 0 ~ Applied rule, new term: ((1 + b) - c) + d
 
-## Test 5: Deep nesting - Navigate to middle level
+// Test 5: Deep nesting - Navigate to middle level
 Start ((a + b) - c) + d
 Use c = 5, 0, 1 ~ Applied rule, new term: ((a + b) - 5) + d
 
-## Test 6: Error - Position out of bounds (too high)
+// Test 6: Error - Position out of bounds (too high)
 Start a + b
-Use a = 2, 2 ~ error # Cannot apply a = 2 to plus(a, b)
+Use a = 2, 2 ~ error // Cannot apply a = 2 to plus(a, b)
 
-## Test 7: Error - Position out of bounds (trying to descend into leaf)
+// Test 7: Error - Position out of bounds (trying to descend into leaf)
 Start a + b
-Use a = 2, 0, 0 ~ error # Cannot apply a = 2 to plus(a, b)
+Use a = 2, 0, 0 ~ error // Cannot apply a = 2 to plus(a, b)
 
-## Test 8: Registering and using mult functorial
-Functorial =, mult, 0, =, ([x] = [y]) => ([x] * [c] = [y] * [c])
+// Test 8: Registering and using mult functorial
+Functorial =, mult, 0, =, (#x = #y) => (#x * #c = #y * #c)
 Start a * b
 Use a = 2, 0 ~ Applied rule, new term: 2 * b
 
-## Test 9: Error - Missing functorial for div
+// Test 9: Error - Missing functorial for div
 Start a / b
-Use a = 2, 0 ~ error # Cannot apply a = 2 to div(a, b)
+Use a = 2, 0 ~ error // Cannot apply a = 2 to div(a, b)
 
-## Test 10: Deeply nested with preserved parentheses
+// Test 10: Deeply nested with preserved parentheses
 Start (a + b) - c
 Use a = 1, 0, 0 ~ Applied rule, new term: (1 + b) - c
 
-## Test 11: Mixed operations - minus then plus
+// Test 11: Mixed operations - minus then plus
 Start (a - b) + c
 Use a = 10, 0, 0 ~ Applied rule, new term: (10 - b) + c
 
-## Test 12: Inequality rewriting with functorial at position 0
-Functorial <=, plus, 0, <=, ([x] <= [y]) => ([x] + [c] <= [y] + [c])
+// Test 12: Inequality rewriting with functorial at position 0
+Functorial <=, plus, 0, <=, (#x <= #y) => (#x + #c <= #y + #c)
 Start a + b
 Use (a <= 5), 0 ~ Applied rule, new term: 5 + b
 
-## Test 13: Very deep nesting - five levels with all position 0
+// Test 13: Very deep nesting - five levels with all position 0
 Start (((a + b) - c) + d) - e
 Use a = 0, 0, 0, 0, 0 ~ Applied rule, new term: (((0 + b) - c) + d) - e
 
-## Test 14: Root level - position 0
+// Test 14: Root level - position 0
 Start a + b
 Use a = 1, 0 ~ Applied rule, new term: 1 + b
 
-## Test 15: Root level - position 1
+// Test 15: Root level - position 1
 Start a + b
 Use b = 2, 1 ~ Applied rule, new term: a + 2
 
-## Test 16: Right-associative structure - descend right twice
+// Test 16: Right-associative structure - descend right twice
 Start a + (b - c)
 Use b = 7, 1, 0 ~ Applied rule, new term: a + 7 - c
 
-## Test 17: Right-associative structure - descend right then right again
+// Test 17: Right-associative structure - descend right then right again
 Start a + (b - c)
 Use c = 8, 1, 1 ~ Applied rule, new term: a + b - 8
 
-## Test 18: Left-associative deep tree
+// Test 18: Left-associative deep tree
 Start ((a + b) + c) + d
 Use a = 0, 0, 0, 0 ~ Applied rule, new term: ((0 + b) + c) + d
 
-## Test 19: Extremely deep nesting - six levels
+// Test 19: Extremely deep nesting - six levels
 Start ((((a + b) - c) + d) - e) + f
 Use a = 42, 0, 0, 0, 0, 0 ~ Applied rule, new term: ((((42 + b) - c) + d) - e) + f
 
-## Test 20: Error - position too large at second level
+// Test 20: Error - position too large at second level
 Start (a + b) - c
-Use a = 1, 0, 2 ~ error # Cannot apply a = 1 to minus(plus(a, b), c)
+Use a = 1, 0, 2 ~ error // Cannot apply a = 1 to minus(plus(a, b), c)
 
-## Test 21: Using zero in Peano encoding
+// Test 21: Using zero in Peano encoding
 Start a + b
 Use a = 0, 0 ~ Applied rule, new term: 0 + b
 
-## Test 22: Sequential applications at same level
+// Test 22: Sequential applications at same level
 Start a + b
 Use a = 1, 0 ~ Applied rule, new term: 1 + b
 Clear
 Start a + b
 Use b = 2, 1 ~ Applied rule, new term: a + 2
 
-## Test 23: Three operations - nested with minus
+// Test 23: Three operations - nested with minus
 Start (a - b) - c
 Use a = 10, 0, 0 ~ Applied rule, new term: (10 - b) - c
 
-## Test 24: Navigate to second child at second level
+// Test 24: Navigate to second child at second level
 Start ((a + b) + c) - d
 Use b = 5, 0, 0, 1 ~ Applied rule, new term: ((a + 5) + c) - d
 
-## Test 25: Navigate to third position on left-associative triple plus
+// Test 25: Navigate to third position on left-associative triple plus
 Start (a + b) + c
 Use c = 7, 1 ~ Applied rule, new term: (a + b) + 7
 
-## Test 26: Error case - multiple deep positions beyond leaf
+// Test 26: Error case - multiple deep positions beyond leaf
 Start a + b
-Use a = 5, 0, 0, 0 ~ error # Cannot apply a = 5 to plus(a, b)
+Use a = 5, 0, 0, 0 ~ error // Cannot apply a = 5 to plus(a, b)
 
-## Test 27: Large number in rule
+// Test 27: Large number in rule
 Start a * b
 Use a = 100, 0 ~ Applied rule, new term: 100 * b
 
-## Test 28: Wrap with different inner and outer rewriting symbols
+// Test 28: Wrap with different inner and outer rewriting symbols
 Start a - b
 Use (a <= 10), 0 ~ Applied rule, new term: 10 - b
 
-## Test 29: Test second position with minus functorial
+// Test 29: Test second position with minus functorial
 Start a - b
 Use b = 5, 1 ~ Applied rule, new term: a - 5
 
-## Test 30: Complex nested parentheses - right subtree navigation
+// Test 30: Complex nested parentheses - right subtree navigation
 Start a + (b + (c - d))
 Use c = 3, 1, 1, 0 ~ Applied rule, new term: a + b + 3 - d
 
-## Test 31: Complex nested parentheses - deepest level
+// Test 31: Complex nested parentheses - deepest level
 Start a + (b + (c - d))
 Use d = 9, 1, 1, 1 ~ Applied rule, new term: a + b + c - 9
 
-## Test 32: Mix of plus and minus, left-associative
+// Test 32: Mix of plus and minus, left-associative
 Start (a + b) - (c + d)
 Use a = 1, 0, 0 ~ Applied rule, new term: (1 + b) - c + d
 
-## Test 33: Sequential rewrites at different depths
+// Test 33: Sequential rewrites at different depths
 Start (a + b) - c
 Use a = 1, 0, 0 ~ Applied rule, new term: (1 + b) - c
 Use b = 2, 0, 1 ~ Applied rule, new term: (1 + 2) - c
 Use c = 3, 1 ~ Applied rule, new term: (1 + 2) - 3
 
-## Test 34: Register functorial for another operator
-Functorial =, mult, 1, =, ([x] = [y]) => ([c] * [x] = [c] * [y])
+// Test 34: Register functorial for another operator
+Functorial =, mult, 1, =, (#x = #y) => (#c * #x = #c * #y)
 Start x * y
 Use y = 5, 1 ~ Applied rule, new term: x * 5
 
-## Test 35: Use mult functorial at depth
+// Test 35: Use mult functorial at depth
 Start (a * b) + c
 Use a = 3, 0, 0 ~ Applied rule, new term: 3 * b + c
 Use b = 4, 0, 1 ~ Applied rule, new term: 3 * 4 + c

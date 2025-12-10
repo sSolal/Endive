@@ -1,101 +1,101 @@
-# Test CLI commands in test files
+// Test CLI commands in test files
 
-# Test :undo with nothing to undo
-:undo ~ error # Nothing to undo
+// Test :undo with nothing to undo
+:undo ~ error // Nothing to undo
 
-# Define some reduction rules
+// Define some reduction rules
 Define rule1, a => b
 Define rule2, b => c
 
-# Test that rules work (they reduce)
+// Test that rules work (they reduce)
 Reduce rule1 | rule2 ~ a => c
 
-# Test :undo (should undo the Reduce)
+// Test :undo (should undo the Reduce)
 :undo ~ Reduce undone
 
-# Rules still exist (verified without Reduce to avoid adding to undo stack)
-# Now undo Define rule2
+// Rules still exist (verified without Reduce to avoid adding to undo stack)
+// Now undo Define rule2
 :undo ~ Define undone
 
-# Verify rule2 is gone (composition doesn't reduce at all)
+// Verify rule2 is gone (composition doesn't reduce at all)
 Reduce rule1 | rule2 ~ rule1 | rule2
 
-# Undo the Reduce, then undo Define rule1
+// Undo the Reduce, then undo Define rule1
 :undo ~ Reduce undone
 :undo ~ Define undone
 
-# Verify rule1 is gone
+// Verify rule1 is gone
 Reduce rule1 ~ rule1
 
-# Undo that final Reduce
+// Undo that final Reduce
 :undo ~ Reduce undone
 
-# Test :undo with nothing left
-:undo ~ error # Nothing to undo
+// Test :undo with nothing left
+:undo ~ error // Nothing to undo
 
-# Redefine rules for checkpoint testing
+// Redefine rules for checkpoint testing
 Define rule1, a => b
 Define rule2, b => c
 
-# Test :checkpoint
+// Test :checkpoint
 :checkpoint step1 ~ Checkpoint 'step1' created
 
-# Add more definitions
+// Add more definitions
 Define rule3, c => d
 Define rule4, d => e
 
-# Test the new rules work
+// Test the new rules work
 Reduce rule3 | rule4 ~ c => e
 
-# Test :rollback to checkpoint (should remove rule3 and rule4)
+// Test :rollback to checkpoint (should remove rule3 and rule4)
 :rollback step1 ~ Rolled back to 'step1'
 
-# Verify rule3 and rule4 are gone (don't reduce)
+// Verify rule3 and rule4 are gone (don't reduce)
 Reduce rule3 | rule4 ~ rule3 | rule4
 
-# But rule1 and rule2 still work
+// But rule1 and rule2 still work
 Reduce rule1 | rule2 ~ a => c
 
-# Test :rollback to non-existent checkpoint
-:rollback nonexistent ~ error # Checkpoint 'nonexistent' not found
+// Test :rollback to non-existent checkpoint
+:rollback nonexistent ~ error // Checkpoint 'nonexistent' not found
 
-# Test :checkpoint without name
-:checkpoint ~ error # Usage: :checkpoint <name>
+// Test :checkpoint without name
+:checkpoint ~ error // Usage: :checkpoint <name>
 
-# Test :rollback without name
-:rollback ~ error # Usage: :rollback <name>
+// Test :rollback without name
+:rollback ~ error // Usage: :rollback <name>
 
-# Test unknown command
-:unknown ~ error # Unknown command: :unknown
+// Test unknown command
+:unknown ~ error // Unknown command: :unknown
 
-# Test :exit (should fail in test mode)
-:exit ~ error # Cannot exit in non-interactive mode
+// Test :exit (should fail in test mode)
+:exit ~ error // Cannot exit in non-interactive mode
 
-# Test multiple checkpoints and rollbacks
+// Test multiple checkpoints and rollbacks
 Define ruleA, x => y
 :checkpoint pointA ~ Checkpoint 'pointA' created
 Define ruleB, y => z
 :checkpoint pointB ~ Checkpoint 'pointB' created
 Define ruleC, z => w
 
-# Verify all rules exist (they reduce)
+// Verify all rules exist (they reduce)
 Reduce ruleA | ruleB ~ x => z
 Reduce ruleB | ruleC ~ y => w
 
-# Rollback to pointB (removes ruleC)
+// Rollback to pointB (removes ruleC)
 :rollback pointB ~ Rolled back to 'pointB'
 
-# ruleC is gone (doesn't reduce)
+// ruleC is gone (doesn't reduce)
 Reduce ruleB | ruleC ~ ruleB | ruleC
 
-# But ruleA and ruleB still work
+// But ruleA and ruleB still work
 Reduce ruleA | ruleB ~ x => z
 
-# Rollback to pointA (removes ruleB)
+// Rollback to pointA (removes ruleB)
 :rollback pointA ~ Rolled back to 'pointA'
 
-# ruleB is gone (doesn't reduce)
+// ruleB is gone (doesn't reduce)
 Reduce ruleA | ruleB ~ ruleA | ruleB
 
-# But ruleA still works (just returns itself since it's already reduced)
+// But ruleA still works (just returns itself since it's already reduced)
 Reduce ruleA ~ ruleA

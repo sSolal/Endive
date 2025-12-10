@@ -92,7 +92,7 @@ def Hole(name: str, data: Optional[Dict[str, Any]] = None) -> Object:
     if data is None:
         data = {}
     return Object("Hole", (), name,
-        lambda self: "[" + self.handle + "]", data=data)
+        lambda self: "#" + self.handle, data=data)
 
 def identify(A: Object, rule: str) -> Object:
     """Creates an identity rewrite rule for an object."""
