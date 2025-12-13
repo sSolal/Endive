@@ -68,7 +68,7 @@ python main.py --debug</code></pre>
             <ul>
                 <li>A <strong>symbol</strong>: <code>A</code>, <code>plus</code>, <code>zero</code></li>
                 <li>A <strong>term</strong>: <code>f(x)</code>, <code>plus(2, 3)</code></li>
-                <li>A <strong>hole</strong> (variable): <code>[x]</code>, <code>[n]</code></li>
+                <li>A <strong>hole</strong> (variable): <code>#x</code>, <code>#n</code></li>
                 <li>A <strong>rewriting</strong>: <code>A => B</code>, <code>x = y</code></li>
                 <li>A <strong>composition</strong>: <code>f | g</code> (compose f with g)</li>
             </ul>
@@ -76,9 +76,9 @@ python main.py --debug</code></pre>
             <p>
                 A <strong>rewriting</strong> transforms one object into another. Rewritings are written as:
             </p>
-            <pre><code>[x] => [y]     # Simple implication
-[x] = [y]      # Equality (bidirectional)
-[x] <=> [y]    # Equivalence</code></pre>
+            <pre><code>#x => #y     // Simple implication
+#x = #y      // Equality (bidirectional)
+#x <=> #y    // Equivalence</code></pre>
 
             <h3>Buildability</h3>
             <p>
@@ -93,11 +93,11 @@ python main.py --debug</code></pre>
 
             <h3>Pattern Matching</h3>
             <p>
-                Holes in patterns match any object. For example, the pattern <code>[x] => [y]</code> matches:
+                Holes in patterns match any object. For example, the pattern <code>#x => #y</code> matches:
             </p>
             <ul>
-                <li><code>A => B</code> (with <code>[x] = A</code>, <code>[y] = B</code>)</li>
-                <li><code>plus(2, 3) => 5</code> (with <code>[x] = plus(2, 3)</code>, <code>[y] = 5</code>)</li>
+                <li><code>A => B</code> (with <code>#x = A</code>, <code>#y = B</code>)</li>
+                <li><code>plus(2, 3) => 5</code> (with <code>#x = plus(2, 3)</code>, <code>#y = 5</code>)</li>
             </ul>
         </section>
 
@@ -148,9 +148,9 @@ Use h1 | h2 | h3</code></pre>
             <h2>Working with Patterns</h2>
 
             <h3>Rewritings with Holes</h3>
-            <p>Holes (written as <code>[name]</code>) act as variables that can match any object:</p>
+            <p>Holes (written as <code>#name</code>) act as variables that can match any object:</p>
 
-            <pre><code>Axiom modus_ponens, ([x] & ([x] => [y])) => [y]
+            <pre><code>Axiom modus_ponens, (#x & (#x => #y)) => #y
 Axiom A
 Axiom A => B
 
@@ -158,17 +158,17 @@ Goal B
 Start (A & (A => B))
 Use modus_ponens</code></pre>
 
-            <p>Here, <code>[x]</code> matches <code>A</code> and <code>[y]</code> matches <code>B</code>.</p>
+            <p>Here, <code>#x</code> matches <code>A</code> and <code>#y</code> matches <code>B</code>.</p>
 
             <h3>Example: Symmetry of Equality</h3>
-            <pre><code>Axiom sym, [x] = [y] => [y] = [x]
+            <pre><code>Axiom sym, #x = #y => #y = #x
 Axiom eq, 2 = 3
 
 Goal 3 = 2
 Start (2 = 3)
 Use sym</code></pre>
 
-            <p>The pattern <code>[x] = [y]</code> matches <code>2 = 3</code>, producing <code>3 = 2</code>.</p>
+            <p>The pattern <code>#x = #y</code> matches <code>2 = 3</code>, producing <code>3 = 2</code>.</p>
         </section>
 
         <section class="section">
@@ -176,8 +176,8 @@ Use sym</code></pre>
 
             <p>Endive can also <strong>reduce</strong> objects by applying computational rewritings:</p>
 
-            <pre><code>Axiom plus_zero, plus([x], zero) = [x]
-Axiom plus_succ, plus([x], S([y])) = S(plus([x], [y]))
+            <pre><code>Axiom plus_zero, plus(#x, zero) = #x
+Axiom plus_succ, plus(#x, S(#y)) = S(plus(#x, #y))
 
 Reduce plus(2, 3)</code></pre>
 
@@ -204,7 +204,7 @@ Check B  # Returns: buildable</code></pre>
             </p>
 
             <pre><code>Axiom le_3_4, 3 <= 4
-Axiom functorial_mult, [x] <= [y] => ([x] * [z]) <= ([y] * [z])
+Axiom functorial_mult, #x <= #y => (#x * #z) <= (#y * #z)
 
 Goal (3 * 2) <= (4 * 2)
 Start (3 <= 4)
@@ -217,18 +217,34 @@ Use functorial_mult</code></pre>
         </section>
 
         <section class="section">
-            <h2>Using Aliases</h2>
+            <h2>Defining and Importing</h2>
 
-            <p>Define shorthand names for complex objects using <code>Define</code>:</p>
+            <h3>Defining Aliases</h3>
+            <p>Create named definitions for reusable objects using <code>Define</code>:</p>
 
-            <pre><code>Define NAT := mu([X], unit | ([X] -> [X]))
-Define ZERO := L(inl(star))
-Define SUCC := L([n], inr([n]))
+            <pre><code>// Define a simple conjunction builder
+Define def_and, #A => #B => and(#A, #B)
+Axiom def_and
 
-Axiom zero_in_nat, ZERO in NAT
-Axiom succ_preserves, [n] in NAT => SUCC([n]) in NAT</code></pre>
+// Use it in proofs
+Goal and(P, Q)
+Intro
+Intro
+By def_and</code></pre>
 
-            <p>Aliases make complex definitions more readable while maintaining the underlying object structure.</p>
+            <h3>Importing Modules</h3>
+            <p>Import definitions from other files using <code>Using</code>:</p>
+
+            <pre><code>// Import logic definitions
+Using logic
+
+// Import arithmetic axioms
+Using arithmetic
+
+// Now you can use definitions from both modules
+Goal forall(N, #n -> (2 * #n) = (#n + #n))</code></pre>
+
+            <p>The <code>Using</code> directive loads axioms and definitions from <code>.end</code> files, making it easy to build libraries of reusable proofs.</p>
         </section>
 
         <section class="section">

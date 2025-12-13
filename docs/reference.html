@@ -55,9 +55,9 @@
                         <td><code>f(x)</code>, <code>plus(2, 3)</code></td>
                     </tr>
                     <tr>
-                        <td><code>[name]</code></td>
+                        <td><code>#name</code></td>
                         <td>A hole (pattern variable)</td>
-                        <td><code>[x]</code>, <code>[n]</code></td>
+                        <td><code>#x</code>, <code>#n</code></td>
                     </tr>
                     <tr>
                         <td><code>object | object</code></td>
@@ -123,7 +123,7 @@ Axiom &lt;object&gt;         # Anonymous axiom</code></pre>
 
             <p><strong>Examples:</strong></p>
             <pre><code>Axiom A
-Axiom modus_ponens, ([x] & ([x] => [y])) => [y]
+Axiom modus_ponens, (#x & (#x => #y)) => #y
 Axiom plus(2, 3) = 5</code></pre>
 
             <h3>Goal</h3>
@@ -153,12 +153,13 @@ Use modus_ponens
 Use h1 | h2 | h3</code></pre>
 
             <h3>Define</h3>
-            <p>Create an alias for an object.</p>
-            <pre><code>Define &lt;NAME&gt; := &lt;object&gt;</code></pre>
+            <p>Create a named definition for an object or rewriting rule.</p>
+            <pre><code>Define &lt;name&gt;, &lt;object&gt;</code></pre>
 
             <p><strong>Examples:</strong></p>
-            <pre><code>Define ZERO := S(S(S(zero)))
-Define NAT := mu([X], unit | ([X] -> [X]))</code></pre>
+            <pre><code>Define def_and, #A => #B => and(#A, #B)
+Define sym, #x = #y => #y = #x
+Define plus_zero, plus(#n, zero) = #n</code></pre>
 
             <h3>Check</h3>
             <p>Verify if an object is buildable in the current context.</p>
@@ -174,41 +175,71 @@ Check B              # Returns: buildable</code></pre>
             <pre><code>Reduce &lt;object&gt;</code></pre>
 
             <p><strong>Example:</strong></p>
-            <pre><code>Axiom plus_zero, plus([n], zero) = [n]
-Axiom plus_succ, plus([n], S([m])) = S(plus([n], [m]))
-Reduce plus(2, 3)    # Evaluates to S(S(S(S(S(zero)))))</code></pre>
+            <pre><code>Axiom plus_zero, plus(#n, zero) = #n
+Axiom plus_succ, plus(#n, S(#m)) = S(plus(#n, #m))
+Reduce plus(2, 3)    // Evaluates to S(S(S(S(S(zero)))))</code></pre>
+
+            <h3>Using</h3>
+            <p>Import definitions and axioms from another file.</p>
+            <pre><code>Using &lt;module&gt;</code></pre>
+
+            <p><strong>Example:</strong></p>
+            <pre><code>Using logic
+Using arithmetic
+// Now all definitions from logic.end and arithmetic.end are available</code></pre>
+
+            <h3>Intro</h3>
+            <p>In goal-driven proofs, introduce a hypothesis by removing the leading implication from the goal.</p>
+            <pre><code>Intro</code></pre>
+
+            <p><strong>Example:</strong></p>
+            <pre><code>Goal #A => #B => and(#A, #B)
+Intro  // New goal: #B => and(#A, #B)
+Intro  // New goal: and(#A, #B)</code></pre>
+
+            <h3>By</h3>
+            <p>Apply a rewriting rule to complete or transform the current goal.</p>
+            <pre><code>By &lt;rewriting&gt;</code></pre>
+
+            <p><strong>Example:</strong></p>
+            <pre><code>Define def_and, #A => #B => and(#A, #B)
+Axiom def_and
+Goal and(P, Q)
+Intro
+Intro
+By def_and  // Completes the proof</code></pre>
+
+            <h3>Done</h3>
+            <p>Complete a goal or build, verifying that the proof is finished.</p>
+            <pre><code>Done</code></pre>
 
             <h3>Clear</h3>
-            <p>Clear the current context.</p>
+            <p>Clear the current build context (resets the working term in forward-chaining mode).</p>
             <pre><code>Clear</code></pre>
-
-            <h3>Show</h3>
-            <p>Display the current context (axioms, definitions, etc.).</p>
-            <pre><code>Show</code></pre>
         </section>
 
         <section class="section">
             <h2>Pattern Matching</h2>
 
             <p>
-                Holes (written as <code>[name]</code>) in patterns match any object.
+                Holes (written as <code>#name</code>) in patterns match any object.
                 When a rewriting is applied, holes are instantiated with concrete objects.
             </p>
 
             <h3>Simple Patterns</h3>
-            <pre><code>Axiom sym, [x] = [y] => [y] = [x]
+            <pre><code>Axiom sym, #x = #y => #y = #x
 
-# Matches: 2 = 3
-# [x] is instantiated to 2
-# [y] is instantiated to 3
-# Output: 3 = 2</code></pre>
+// Matches: 2 = 3
+// #x is instantiated to 2
+// #y is instantiated to 3
+// Output: 3 = 2</code></pre>
 
             <h3>Nested Patterns</h3>
-            <pre><code>Axiom distribute, mult([x], plus([y], [z])) = plus(mult([x], [y]), mult([x], [z]))
+            <pre><code>Axiom distribute, mult(#x, plus(#y, #z)) = plus(mult(#x, #y), mult(#x, #z))
 
-# Matches: mult(2, plus(3, 4))
-# [x] = 2, [y] = 3, [z] = 4
-# Output: plus(mult(2, 3), mult(2, 4))</code></pre>
+// Matches: mult(2, plus(3, 4))
+// #x = 2, #y = 3, #z = 4
+// Output: plus(mult(2, 3), mult(2, 4))</code></pre>
 
             <h3>Pattern Constraints</h3>
             <ul>
@@ -218,10 +249,10 @@ Reduce plus(2, 3)    # Evaluates to S(S(S(S(S(zero)))))</code></pre>
             </ul>
 
             <p><strong>Example:</strong></p>
-            <pre><code>Axiom idempotent, f([x], [x]) = [x]
+            <pre><code>Axiom idempotent, f(#x, #x) = #x
 
-# Matches: f(A, A) → A
-# Does NOT match: f(A, B) (different objects for [x])</code></pre>
+// Matches: f(A, A) → A
+// Does NOT match: f(A, B) (different objects for #x)</code></pre>
         </section>
 
         <section class="section">
@@ -265,13 +296,13 @@ Check D      # not buildable</code></pre>
             </ol>
 
             <h3>Example: Computing Addition</h3>
-            <pre><code>Axiom plus_zero, plus([n], zero) = [n]
-Axiom plus_succ, plus([n], S([m])) = S(plus([n], [m]))
+            <pre><code>Axiom plus_zero, plus(#n, zero) = #n
+Axiom plus_succ, plus(#n, S(#m)) = S(plus(#n, #m))
 
 Reduce plus(S(zero), S(zero))
-# → plus(S(zero), zero) = S(zero)
-# → S(plus(S(zero), zero))
-# → S(S(zero))</code></pre>
+// → plus(S(zero), zero) = S(zero)
+// → S(plus(S(zero), zero))
+// → S(S(zero))</code></pre>
         </section>
 
         <section class="section">
@@ -284,16 +315,37 @@ Reduce plus(S(zero), S(zero))
 
             <h3>Example: Arithmetic Functoriality</h3>
             <pre><code>Axiom le_3_4, 3 <= 4
-Axiom functorial_mult, [x] <= [y] => mult([x], [z]) <= mult([y], [z])
+Axiom functorial_mult, #x <= #y => mult(#x, #z) <= mult(#y, #z)
 
 Goal mult(3, 2) <= mult(4, 2)
 Start (3 <= 4)
 Use functorial_mult
-# [x] = 3, [y] = 4, [z] = 2</code></pre>
+// #x = 3, #y = 4, #z = 2</code></pre>
 
             <p>
                 The rewriting <code>functorial_mult</code> lifts the proof <code>3 <= 4</code> into the context
                 <code>mult(_, 2)</code>, producing <code>mult(3, 2) <= mult(4, 2)</code>.
+            </p>
+
+            <h3>Functorial Directive</h3>
+            <p>
+                The <code>Functorial</code> directive registers an operation as functorial, allowing you to apply
+                rewritings at specific positions within nested structures:
+            </p>
+            <pre><code>Functorial &lt;in_symbol&gt;, &lt;operation&gt;, &lt;position&gt;, &lt;out_symbol&gt;, &lt;rule&gt;</code></pre>
+
+            <p><strong>Example:</strong></p>
+            <pre><code>// Define multiplication congruence for equality
+Axiom mult_eq_left, (#a = #b) => #a * #c = #b * #c
+Functorial =, mult, 0, =, mult_eq_left
+
+// Now you can apply equality at position 0 in multiplication
+Start (a + b) * c
+Use (a = 2), 0  // Apply equality to left child (position 0)</code></pre>
+
+            <p>
+                Positions use 0-based indexing to descend into term structure. This allows precise control
+                over where rewritings are applied within complex expressions.
             </p>
         </section>
 
@@ -314,8 +366,8 @@ Use functorial_mult
 2 * 3  →  mult(S(S(zero)), S(S(S(zero))))</code></pre>
 
             <h3>Quantifiers</h3>
-            <pre><code>forall [x] in N, P([x])  →  Quantifier term representation
-exists [x] in N, P([x])  →  Quantifier term representation</code></pre>
+            <pre><code>forall #x in N, P(#x)  →  forall(N, #x -> P(#x))
+exists #x in N, P(#x)  →  exists(N, #x -> P(#x))</code></pre>
 
             <h3>Logic Sugar</h3>
             <p>
@@ -370,6 +422,18 @@ exists [x] in N, P([x])  →  Quantifier term representation</code></pre>
                     <tr>
                         <td><code>:exit</code></td>
                         <td>Exit the CLI</td>
+                    </tr>
+                    <tr>
+                        <td><code>:undo</code></td>
+                        <td>Undo the last operation</td>
+                    </tr>
+                    <tr>
+                        <td><code>:checkpoint &lt;name&gt;</code></td>
+                        <td>Save the current state with a name</td>
+                    </tr>
+                    <tr>
+                        <td><code>:rollback &lt;name&gt;</code></td>
+                        <td>Restore state to a saved checkpoint</td>
                     </tr>
                 </tbody>
             </table>

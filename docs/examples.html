@@ -51,7 +51,7 @@ Use h | h2</code></pre>
             <h3>Hypothetical Syllogism</h3>
             <p>Proving that implication is transitive as a general rewriting:</p>
 
-            <pre><code>Axiom trans, ([x] => [y]) & ([y] => [z]) => ([x] => [z])
+            <pre><code>Axiom trans, (#x => #y) & (#y => #z) => (#x => #z)
 Axiom ab, A => B
 Axiom bc, B => C
 
@@ -62,8 +62,8 @@ Use trans</code></pre>
             <h3>Conjunction Elimination</h3>
             <p>Extracting components from a conjunction:</p>
 
-            <pre><code>Axiom conj_left, [x] & [y] => [x]
-Axiom conj_right, [x] & [y] => [y]
+            <pre><code>Axiom conj_left, #x & #y => #x
+Axiom conj_right, #x & #y => #y
 Axiom both, A & B
 
 Goal A
@@ -81,42 +81,39 @@ Use conj_right</code></pre>
             <h3>Successor Properties</h3>
             <p>Basic facts about the successor function:</p>
 
-            <pre><code>Axiom zero_not_succ, ~(zero = S([n]))
-Axiom succ_injective, S([n]) = S([m]) => [n] = [m]
+            <pre><code>Axiom zero_not_succ, ~(zero = S(#n))
+Axiom succ_injective, S(#n) = S(#m) => #n = #m
 
-# Proving 1 ≠ 0
+// Proving 1 ≠ 0
 Axiom one_def, 1 = S(zero)
 
 Goal ~(1 = zero)
 Start (1 = zero)
 Use one_def
-# Now we have S(zero) = zero, which contradicts zero_not_succ</code></pre>
+// Now we have S(zero) = zero, which contradicts zero_not_succ</code></pre>
 
             <h3>Addition Properties</h3>
             <p>Defining and reasoning about addition:</p>
 
-            <pre><code># Define addition recursively
-Axiom plus_zero, plus([n], zero) = [n]
-Axiom plus_succ, plus([n], S([m])) = S(plus([n], [m]))
+            <pre><code>// Define addition recursively
+Axiom plus_zero, plus(#n, zero) = #n
+Axiom plus_succ, plus(#n, S(#m)) = S(plus(#n, #m))
 
-# Prove 2 + 1 = 3
-Define TWO := S(S(zero))
-Define THREE := S(S(S(zero)))
-
-Goal plus(TWO, S(zero)) = THREE
-Reduce plus(TWO, S(zero))</code></pre>
+// Prove 2 + 1 = 3
+Goal plus(2, 1) = 3
+Reduce plus(2, 1)</code></pre>
 
             <h3>Commutativity of Addition</h3>
             <p>A more complex property requiring helper lemmas:</p>
 
-            <pre><code># Helper: n + 0 = n (already have plus_zero)
-# Helper: n + S(m) = S(n + m) (already have plus_succ)
-# Need: S(n) + m = S(n + m)
+            <pre><code>// Helper: n + 0 = n (already have plus_zero)
+// Helper: n + S(m) = S(n + m) (already have plus_succ)
+// Need: S(n) + m = S(n + m)
 
-Axiom succ_plus, plus(S([n]), [m]) = S(plus([n], [m]))
+Axiom succ_plus, plus(S(#n), #m) = S(plus(#n, #m))
 
-# Now we can state commutativity as an axiom or prove it inductively
-Axiom plus_comm, plus([n], [m]) = plus([m], [n])
+// Now we can state commutativity as an axiom or prove it inductively
+Axiom plus_comm, plus(#n, #m) = plus(#m, #n)
 
 Goal plus(2, 3) = plus(3, 2)
 Start plus(2, 3)
@@ -129,17 +126,17 @@ Use plus_comm</code></pre>
             <h3>Reflexivity, Symmetry, Transitivity</h3>
             <p>The fundamental properties of equality:</p>
 
-            <pre><code># Equality axioms
-Axiom refl, [x] = [x]
-Axiom sym, [x] = [y] => [y] = [x]
-Axiom trans, ([x] = [y]) & ([y] = [z]) => ([x] = [z])
+            <pre><code>// Equality axioms
+Axiom refl, #x = #x
+Axiom sym, #x = #y => #y = #x
+Axiom trans, (#x = #y) & (#y = #z) => (#x = #z)
 
-# Example: proving 3 = 3
+// Example: proving 3 = 3
 Goal 3 = 3
 Start 3
 Use refl
 
-# Example: if 2 = x and x = 5, then 2 = 5
+// Example: if 2 = x and x = 5, then 2 = 5
 Axiom h1, 2 = x
 Axiom h2, x = 5
 
@@ -150,7 +147,7 @@ Use trans</code></pre>
             <h3>Substitution Property</h3>
             <p>If two things are equal, they can be substituted in any context:</p>
 
-            <pre><code>Axiom subst, ([x] = [y]) => (f([x]) = f([y]))
+            <pre><code>Axiom subst, (#x = #y) => (f(#x) = f(#y))
 
 Axiom eq, a = b
 
@@ -165,11 +162,11 @@ Use subst</code></pre>
             <h3>Less Than or Equal</h3>
             <p>Working with inequality:</p>
 
-            <pre><code>Axiom le_refl, [n] <= [n]
-Axiom le_trans, ([x] <= [y]) & ([y] <= [z]) => ([x] <= [z])
-Axiom le_succ, [n] <= S([n])
+            <pre><code>Axiom le_refl, #n <= #n
+Axiom le_trans, (#x <= #y) & (#y <= #z) => (#x <= #z)
+Axiom le_succ, #n <= S(#n)
 
-# Proving 2 <= 4
+// Proving 2 <= 4
 Axiom h1, 2 <= 3
 Axiom h2, 3 <= 4
 
@@ -180,8 +177,8 @@ Use le_trans</code></pre>
             <h3>Functoriality with Arithmetic</h3>
             <p>Preserving order under operations:</p>
 
-            <pre><code>Axiom add_preserves_le, [x] <= [y] => plus([x], [z]) <= plus([y], [z])
-Axiom mult_preserves_le, [x] <= [y] => mult([x], [z]) <= mult([y], [z])
+            <pre><code>Axiom add_preserves_le, #x <= #y => plus(#x, #z) <= plus(#y, #z)
+Axiom mult_preserves_le, #x <= #y => mult(#x, #z) <= mult(#y, #z)
 
 Axiom three_le_four, 3 <= 4
 
@@ -201,7 +198,7 @@ Use mult_preserves_le</code></pre>
             <h3>Complex Patterns</h3>
             <p>Matching nested structures:</p>
 
-            <pre><code>Axiom distribute, mult([x], plus([y], [z])) = plus(mult([x], [y]), mult([x], [z]))
+            <pre><code>Axiom distribute, mult(#x, plus(#y, #z)) = plus(mult(#x, #y), mult(#x, #z))
 
 Goal mult(2, plus(3, 4)) = plus(mult(2, 3), mult(2, 4))
 Start mult(2, plus(3, 4))
@@ -210,7 +207,7 @@ Use distribute</code></pre>
             <h3>Multiple Holes</h3>
             <p>Rules with several variables:</p>
 
-            <pre><code>Axiom assoc_plus, plus([x], plus([y], [z])) = plus(plus([x], [y]), [z])
+            <pre><code>Axiom assoc_plus, plus(#x, plus(#y, #z)) = plus(plus(#x, #y), #z)
 
 Goal plus(1, plus(2, 3)) = plus(plus(1, 2), 3)
 Start plus(1, plus(2, 3))
@@ -223,22 +220,22 @@ Use assoc_plus</code></pre>
             <h3>Evaluating Expressions</h3>
             <p>Using reduction to compute values:</p>
 
-            <pre><code># Define multiplication
-Axiom mult_zero, mult([n], zero) = zero
-Axiom mult_succ, mult([n], S([m])) = plus([n], mult([n], [m]))
+            <pre><code>// Define multiplication
+Axiom mult_zero, mult(#n, zero) = zero
+Axiom mult_succ, mult(#n, S(#m)) = plus(#n, mult(#n, #m))
 
-# Define addition (as before)
-Axiom plus_zero, plus([n], zero) = [n]
-Axiom plus_succ, plus([n], S([m])) = S(plus([n], [m]))
+// Define addition (as before)
+Axiom plus_zero, plus(#n, zero) = #n
+Axiom plus_succ, plus(#n, S(#m)) = S(plus(#n, #m))
 
-# Compute 2 * 3
-Reduce mult(S(S(zero)), S(S(S(zero))))</code></pre>
+// Compute 2 * 3
+Reduce mult(2, 3)</code></pre>
 
             <p>Endive will apply the rewritings repeatedly until reaching a normal form.</p>
 
             <h3>Simplifying Logical Expressions</h3>
-            <pre><code>Axiom double_neg, ~~[x] => [x]
-Axiom demorgan, ~([x] & [y]) => (~[x] | ~[y])
+            <pre><code>Axiom double_neg, ~~#x => #x
+Axiom demorgan, ~(#x & #y) => (~#x | ~#y)
 
 Reduce ~(~(A | B))</code></pre>
         </section>

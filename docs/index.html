@@ -27,6 +27,7 @@
     <div class="hero">
         <h1>Endive</h1>
         <p class="subtitle">A Proof Assistant Based on Rewriting</p>
+        <p style="background: #f0f0f0; padding: 0.5rem 1rem; border-radius: 4px; display: inline-block; margin: 0.5rem 0;"><strong>Version 0.1.0</strong> - Early Development MVP</p>
         <p>Build and verify mathematical proofs through the power of term rewriting</p>
         <div class="hero-buttons">
             <a href="tutorial.html" class="btn btn-primary">Get Started</a>
@@ -103,13 +104,23 @@
         <section class="section">
             <h2>What is Endive?</h2>
             <p>
-                Endive is a proof assistant that embraces rewriting as its foundational principle.
-                It provides a clean, minimalist environment for constructing formal proofs through pattern matching and term transformation.
+                <strong>Endive is a minimalist proof assistant where you transform mathematical objects using rewriting rules.</strong>
             </p>
 
             <p>
-                Unlike proof assistants based on type theory or set theory, Endive focuses on rewriting as the primary
-                mechanism for both computation and proof construction. This approach offers a unique perspective on formal verification.
+                With Endive, you can:
+            </p>
+            <ul>
+                <li><strong>Build formal proofs</strong> by composing simple rewriting steps</li>
+                <li><strong>Verify mathematical statements</strong> through buildability checking</li>
+                <li><strong>Compute with symbolic expressions</strong> using pattern matching and reduction</li>
+                <li><strong>Explore formal systems</strong> from logic to arithmetic to your own custom theories</li>
+            </ul>
+
+            <p>
+                Unlike proof assistants based on type theory or set theory, Endive focuses on term rewriting as the primary
+                mechanism for both computation and proof construction. This approach offers a unique perspective on formal verification
+                that's both simple to understand and powerful in practice.
             </p>
 
             <h3>Key Features</h3>
@@ -125,19 +136,25 @@
 
         <section class="section">
             <h2>A Quick Example</h2>
-            <p>Here's a simple proof in Endive showing logical implication:</p>
+            <p>Here's how you define and use a simple rewriting rule in Endive:</p>
 
-            <pre><code>Axiom A
-Axiom h, A => B
-Axiom h2, B => C
-Goal C
-Start A
-Use h | h2</code></pre>
+            <pre><code>// Define a rule that constructs logical conjunction
+Define def_and, #A => #B => and(#A, #B)
+
+// Declare it as an axiom
+Axiom def_and
+
+// Now you can use it to build proofs
+Goal and(P, Q)
+Intro  // Introduce #A
+Intro  // Introduce #B
+By def_and</code></pre>
 
             <p>
-                This proof starts with axiom <code>A</code>, then applies the rewriting <code>h</code> to derive <code>B</code>,
-                and finally applies <code>h2</code> to reach the goal <code>C</code>. The composition operator <code>|</code>
-                chains these rewritings together.
+                This example shows <strong>holes</strong> (<code>#A</code>, <code>#B</code>) that act as pattern variables,
+                a <strong>goal-driven proof</strong> where we work backwards from what we want to prove,
+                and how <strong>rewriting rules</strong> transform one expression into another. The <code>Intro</code> directive
+                introduces hypotheses, and <code>By</code> applies our rewriting rule to complete the proof.
             </p>
         </section>
 
