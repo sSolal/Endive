@@ -14,4 +14,5 @@ dependencies = []
 dev = ["pdoc"]
 
 [tool.setuptools]
-packages = ["src", "src.app", "src.core", "src.engine", "src.engine.helpers", "src.engine.helpers.utils"]
+packages = ["endive", "endive.app", "endive.core", "endive.engine", "endive.engine.helpers"]
+package-dir = {"endive" = "src"}
