@@ -27,8 +27,8 @@ class GoalHelper(Helper[GoalState]):
         super().__init__(GoalState())
         self.register_handler('Done', self.handle_done)
         self.register_handler('Goal', self.handle_goal)
-        self.register_handler('Intro', self.handle_intro)
-        self.register_handler('Status', self.handle_status)
+        self.register_handler('Assume', self.handle_assume)
+        self.register_handler('Check', self.handle_check)
         self.register_handler('By', self.handle_by)
         self.register_handler('Axiom', self.handle_axiom)
         self.register_hook(['Use'], self.use_forhook, self.use_backhook)
@@ -43,7 +43,7 @@ class GoalHelper(Helper[GoalState]):
         return True, [replace(goal, data={**goal.data, "result": "New goal: []"})]
 
     @hookify
-    def handle_intro(self, directive: str) -> Tuple[bool, List[Object]]:
+    def handle_assume(self, directive: str) -> Tuple[bool, List[Object]]:
         """Introduces a premise into the context."""
         goal = get_goal(self.state)
         goal_term = goal.children[0]
@@ -200,15 +200,13 @@ class GoalHelper(Helper[GoalState]):
             return False, [replace(goal, data={**goal.data, "result": "Goal not completed: []"})]
 
     @hookify
-    def handle_status(self, directive: str) -> Tuple[bool, List[Object]]:
+    def handle_check(self, directive: str) -> Tuple[bool, List[Object]]:
         """Shows the current goal state and context."""
-        result = "Goals:\n"
+        result = []
         goals = get_goals(self.state)
-        for goal in goals:
-            result += f"  {goal}\n"
-        result += "Object:\n"
-        result += f"  {self.state.goal}\n"
-        return True, [Term("Status", data={"result": result})]
+        for i, goal in enumerate(goals):
+            result.append(replace(goal, data={**goal.data, "result":str(i)+": []"}))
+        return True, [Term("Status", data={"result":str(len(goals))+" goals:"})]+result
 
     @hookify
     def use_forhook(self, directive: str, rule: Object) -> List[Object]:

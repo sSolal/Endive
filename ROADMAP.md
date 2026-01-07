@@ -2,6 +2,10 @@
 
 ## V1 vision: a proof assistant to make any kind of maths.
 
+### Fixes and urgent improvements
+
+*   **Make a standardized helper state sharing mechanism**, allow helpers to share their state and enforce documentation for it. (Then fix all helpers that access other helpers...)
+
 ### From MVP
 
 *   **Improve multiple goals handling**, currently, all operations are done on the first goal object found in a depth-first search...
@@ -19,6 +23,8 @@
 *   **Change alias definition in Axiom to axiom definition in Define/Functorial**
 
 *   **Allow to set a rewriting for the goal**, allow to put a goal that isn't a rewriting, precising which rewriting to build for.
+
+*   **Make the Chain keyword display the rule it found instead of the term**
 
 
 ### New features

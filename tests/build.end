@@ -37,8 +37,8 @@ Define rule1, X => Y
 Define rule2, Y => Z
 
 Goal rule1 => rule2 => (X => Z)
-Intro
-Intro ~ New goal: [=>X => Z]
+Assume
+Assume ~ New goal: [=>X => Z]
 
 // Use forward-chaining to build Z
 Start X
@@ -49,7 +49,7 @@ Done ~ Goal completed: rule1 => rule2 => X => Z
 // Test 9: Use with non-buildable rule shows warning
 Define buildable, A => B
 Goal buildable => (A => C)
-Intro ~ New goal: [=>A => C]
+Assume ~ New goal: [=>A => C]
 
 Start A
 Use buildable ~ Applied rule, new term: B

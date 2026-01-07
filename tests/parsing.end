@@ -2,7 +2,7 @@
 
 // Test precedence: special char symbols bind tighter than alphanumeric
 Define prec1, A -> B gives A -> B
-Check prec1 ~ (A -> B) in context
+Verify prec1 ~ (A -> B) in context
 
 // Test precedence: pipe (composition) has lowest precedence
 Define prec2, A -> B | B -> C
@@ -14,7 +14,7 @@ Reduce a | math1 ~ (a + b) * c + d
 
 // Test parentheses override precedence
 Define group1, A -> (A -> C) -> (A | A -> C)
-Check group1 ~
+Verify group1 ~
 Reduce group1 ~ A -> (A -> C) -> C
 
 // Test holes with various naming styles
@@ -26,7 +26,7 @@ Reduce A | mixed1 ~ B -> C
 
 // Test deeply nested parentheses
 Define nested, ((A -> B) -> D) -> D
-Check nested ~ error // D is not buildable
+Verify nested ~ error // D is not buildable
 
 // Test function application with multiple arguments
 Define func, f(a, b, c) ~ func defined

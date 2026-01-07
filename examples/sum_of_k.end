@@ -7,7 +7,7 @@ Goal forall(N, #n -> (2 * sum(0, #n, #k -> #k) = #n*(#n + 1)))
 By induction
 
 By def_and
-Intro
+Assume
 
 Start 2 * sum(0, S(#n), #k -> #k)
 Use sum_ind, 1

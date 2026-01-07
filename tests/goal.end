@@ -1,10 +1,10 @@
 Goal (A => B) => ((B => C) => (A => C)) ~ New goal: [=>(A => B) => (B => C) => A => C]
 
-Intro ~ New goal: [=>(B => C) => A => C]
+Assume ~ New goal: [=>(B => C) => A => C]
 
-Intro ~ New goal: [=>A => C]
+Assume ~ New goal: [=>A => C]
 
-Intro ~ New goal: [=>C]
+Assume ~ New goal: [=>C]
 
 By (B => C) ~ New goal: [=>B]
 
@@ -14,11 +14,11 @@ Done ~ Goal completed: (A => B) => (B => C) => A => C
 
 Goal (A => B) => ((B => C) => (A => C)) ~ New goal: [=>(A => B) => (B => C) => A => C]
 
-Intro ~ New goal: [=>(B => C) => A => C]
+Assume ~ New goal: [=>(B => C) => A => C]
 
-Intro ~ New goal: [=>A => C]
+Assume ~ New goal: [=>A => C]
 
-Intro ~ New goal: [=>C]
+Assume ~ New goal: [=>C]
 
 By (X => C) ~ error // X => C is not a known rewriting. Use 'force' to use it anyway.
 
@@ -34,7 +34,7 @@ Done ~ error // Goal not completed: [=>B => X]
 
 Goal (A => B => Z) => Z
 
-Intro ~ New goal: [=>Z]
+Assume ~ New goal: [=>Z]
 
 By A => B => Z ~ New goal: [=>B]
 
@@ -44,9 +44,9 @@ Define def_and, #A => #B => and(#A, #B)
 
 Goal def_and => X => Y => and(X, Y) ~ New goal: [=>def_and => X => Y => (X ∧ Y)]
 
-Intro
-Intro
-Intro
+Assume
+Assume
+Assume
 
 Done ~ error // Goal not completed: [=>X ∧ Y]
 By def_and ~ New goal: [=>Y]
@@ -61,7 +61,7 @@ By X => Y => A => B ~ error // X => Y => A => B is not a known rewriting. Use 'f
 
 
 Goal True => A
-Intro
+Assume
 Done ~ error // Goal not completed: [=>A]
 Axiom A
 Done ~ Goal completed: True => A
@@ -74,7 +74,7 @@ Axiom ->, inc
 Define def_times, #a -> #b -> #a * #b
 Axiom ->, def_times
 Goal dot -> 2 * pi
-Intro
+Assume
 By def_times ~ New goal: [->pi]
 Done ~ Goal completed: dot -> (pi | [->2] | 2 -> pi -> 2 * pi)
 Start zero

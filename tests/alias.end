@@ -3,10 +3,10 @@ Define id, #x -> #x ~ True // id defined
 Define b, a
 Define c, b
 
-Check a -> c ~ a in context
-Check id ~ #x in context
+Verify a -> c ~ a in context
+Verify id ~ #x in context
 
-Check #A => B ~ error // B is not buildable
+Verify #A => B ~ error // B is not buildable
 
 // Test redefinition warning
 Define foo, x ~ foo defined

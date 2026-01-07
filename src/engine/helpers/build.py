@@ -22,7 +22,7 @@ class BuildHelper(Helper[BuildState]):
         self.register_handler('Start', self.handle_start)
         self.register_handler('Use', self.handle_use)
         self.register_handler('Clear', self.handle_clear)
-        self.register_handler('Check', self.handle_check)
+        self.register_handler('Verify', self.handle_verify)
         self.register_handler('Reduce', self.handle_reduce)
         self.register_hook(['Done'], self.done_forhook)
 
@@ -56,7 +56,7 @@ class BuildHelper(Helper[BuildState]):
         return [self.state.working_term_unreduced]
 
     @hookify
-    def handle_check(self, directive: str, obj: Object = None) -> Tuple[bool, List[Object]]:
+    def handle_verify(self, directive: str, obj: Object = None) -> Tuple[bool, List[Object]]:
         """Check buildability of obj, or working_term if no argument."""
         target = obj if obj is not None else self.state.working_term
         if target is None:

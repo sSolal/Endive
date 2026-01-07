@@ -5,5 +5,5 @@ Axiom bz
 
 Goal (A => B) => (A => Z)
 
-Intro
+Assume
 Start A

@@ -3,12 +3,12 @@
 
 // Test nested pattern matching with composition
 Define nested, (#A | #B) -> (#A | #B)
-Check nested ~ (#A | #B) in context
+Verify nested ~ (#A | #B) in context
 
 // Test composition reduces correctly (put in context with B and C)
 Define rule1, A -> B
 Define rule2, B -> C
-Check (A -> B) => ((B -> C) => ((A -> B) | (B -> C))) ~ 
+Verify (A -> B) => ((B -> C) => ((A -> B) | (B -> C))) ~ 
 Reduce (A -> B) | (B -> C) ~ A -> C
 
 // Test reduction with identity
@@ -21,7 +21,7 @@ Reduce (X | Y) | swap ~ Y | X
 
 // Test deeply nested rewriting
 Define three, A -> (B -> C)
-Check (A | three) -> (B -> C) ~ (B -> C) in context
+Verify (A | three) -> (B -> C) ~ (B -> C) in context
 
 // Test complex nested term with function application
 Define complex, f(#x | #y) -> (g(#x) | g(#y))
