@@ -12,6 +12,7 @@ from .utils.goal import (
     GoalState, Goal, currifier,
     set_goal, get_goal, get_goals, get_context, update_goal, add_axiom
 )
+from .utils.build import build_start
 
 
 # TODO : Extend currifier approach to support 3+ premise rewritings
@@ -23,8 +24,9 @@ class GoalHelper(Helper[GoalState]):
     State: GoalState (goal, generic_context)
     """
 
-    def __init__(self) -> None:
+    def __init__(self, build_helper=None) -> None:
         super().__init__(GoalState())
+        self.build_helper = build_helper
         self.register_handler('Done', self.handle_done)
         self.register_handler('Goal', self.handle_goal)
         self.register_handler('Assume', self.handle_assume)
@@ -43,15 +45,30 @@ class GoalHelper(Helper[GoalState]):
         return True, [replace(goal, data={**goal.data, "result": "New goal: []"})]
 
     @hookify
-    def handle_assume(self, directive: str) -> Tuple[bool, List[Object]]:
+    def handle_assume(self, directive: str, argument: Object = None) -> Tuple[bool, List[Object]]:
         """Introduces a premise into the context."""
         goal = get_goal(self.state)
         goal_term = goal.children[0]
         if goal_term.type != "Rew":
             return False, [replace(goal, data={**goal.data, "result": "Goal is not a rewriting"})]
+
+        # Validate argument if provided
+        if argument is not None:
+            if reduce(argument) != reduce(goal_term.left):
+                return False, [replace(argument, data={
+                    **argument.data,
+                    "result": f"Argument [] does not match assumed premise {goal_term.left}"
+                })]
+
         new_goal = Rew(goal_term.left, goal_term.symbol, Goal(goal_term.right, goal_term.symbol))
         new_state, _ = update_goal(self.state, new_goal)
         self.set_state(new_state)
+
+        # Set working term in build helper
+        if self.build_helper is not None:
+            build_state, _ = build_start(goal_term.left)
+            self.build_helper.set_state(build_state)
+
         return True, [replace(new_goal.right, data={**new_goal.right.data, "result": "New goal: []"})]
 
     def check_rew_to_goal(self, goal_term, argument):

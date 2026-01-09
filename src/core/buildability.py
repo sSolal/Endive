@@ -24,7 +24,8 @@ def check(obj: Object, rule: Optional[str] = None, context: Optional[Dict[str, L
     """Checks if an object is buildable according to the inductive definition."""
     if context is None:
         context = {}
-    if rule in context and obj in context[rule]:
+    reduced_obj = reduce(obj)
+    if rule in context and reduced_obj in context[rule]:
         return True, str(obj) + " in context"
     elif obj.type == "Rew":
         return check(obj.right, obj.symbol, dict_add(dict(context), obj.symbol, reduce(obj.left)))
