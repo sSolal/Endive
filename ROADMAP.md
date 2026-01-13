@@ -5,6 +5,7 @@
 ### Fixes and urgent improvements
 
 *   **Make a standardized helper state sharing mechanism**, allow helpers to share their state and enforce documentation for it. (Then fix all helpers that access other helpers...)
+*   **Add testing for applying a lemma on the working term through Use, and using built term in context**
 
 ### From MVP
 

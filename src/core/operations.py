@@ -23,13 +23,14 @@ def rename_holes(term: Object, rename_map: Dict[str, str]) -> Object:
         return Object(term.type, new_children, term.handle, term.repr_func, dict(term.data))
     return term
 
-def match_left(A: Object, B: Object) -> Optional[Dict[str, Object]]:
+def match_left(A: Object, B: Object, assignments: Optional[Dict[str, Object]] = None) -> Optional[Dict[str, Object]]:
     """
     One-directional pattern matching: Find A against pattern B.
     Returns a dictionary of assignments for the holes of B to match A, or None if no match is possible.
     B is the pattern (may contain holes), A is the concrete term.
     """
-    assignments = {}
+    if assignments is None:
+        assignments = {}
 
 
     if B.type == "Hole":
@@ -46,10 +47,9 @@ def match_left(A: Object, B: Object) -> Optional[Dict[str, Object]]:
     if A.handle != B.handle or len(A.children) != len(B.children):
         return None
     for A_child, B_child in zip(A.children, B.children):
-        found = match_left(A_child, B_child)
-        if found is None:
+        assignments = match_left(A_child, B_child, assignments)
+        if assignments is None:
             return None
-        assignments.update(found)
     return assignments
 
 

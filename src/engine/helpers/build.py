@@ -29,7 +29,7 @@ class BuildHelper(Helper[BuildState]):
     @hookify
     def handle_start(self, directive: str, initial_term: Object) -> Tuple[bool, List[Object]]:
         """Start forward-chaining from an initial term."""
-        new_state, result = build_start(initial_term)
+        new_state, result = build_start(self.state, initial_term)
         self.set_state(new_state)
         return True, [result]
 
@@ -44,7 +44,7 @@ class BuildHelper(Helper[BuildState]):
     @hookify
     def handle_clear(self, directive: str) -> Tuple[bool, List[Object]]:
         """Clear the working term."""
-        new_state, result = build_clear()
+        new_state, result = build_clear(self.state)
         self.set_state(new_state)
         return True, [result]
 

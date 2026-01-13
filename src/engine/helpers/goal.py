@@ -66,7 +66,7 @@ class GoalHelper(Helper[GoalState]):
 
         # Set working term in build helper
         if self.build_helper is not None:
-            build_state, _ = build_start(goal_term.left)
+            build_state, _ = build_start(self.build_helper.state, goal_term.left)
             self.build_helper.set_state(build_state)
 
         return True, [replace(new_goal.right, data={**new_goal.right.data, "result": "New goal: []"})]
@@ -206,7 +206,7 @@ class GoalHelper(Helper[GoalState]):
                     completed = reduce(self.state.goal)
                     return True, [replace(completed, data={**completed.data, "result": "Goal completed: []"})]
 
-            return False, [Term("result", [reduced_candidate, goal], data={"result": "Candidate [0] does not complete the goal: [1]"})]
+            return False, [replace(goal, data={**goal.data, "result": "Candidate does not complete the goal: []"})]
         else:
             # Backward-chaining: check if goal is buildable in context
             if goal_rew is not None and goal_rew in context and goal_unreduced in context[goal_rew]:
